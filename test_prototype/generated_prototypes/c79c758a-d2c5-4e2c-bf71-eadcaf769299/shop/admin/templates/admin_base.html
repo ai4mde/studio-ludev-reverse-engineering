@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>admin</title>
+            <link rel="stylesheet" href='{% static 'admin/admin_style.css' %}'>
+    </head>
+
+    <body>
+        <div class="header">
+            <div class="logo">
+                <img src=''>
+            </div>
+            <h1>Admin</h1>
+        </div>
+            <div class="menu">
+                <a href="{% url 'admin-homerender' %}">Home</a>
+                
+                <b>admin_customer_view</b>
+                
+                
+                <a href="{% url 'render_admin_customer_cart_page' %}">customer_cart_page</a>
+                
+                
+                
+                <a href="{% url 'render_admin_customer_page' %}">customer_page</a>
+                
+                
+                
+                <a href="{% url 'render_admin_cart_product_page' %}">cart_product_page</a>
+                
+                
+                
+                <a href="{% url 'render_admin_all_info_page' %}">all_info_page</a>
+                
+                
+                
+
+                <br>
+
+                
+                
+                
+                
+                
+                
+                
+                
+                
+
+                <a href="{% url 'noauth_home-homerender' %}">Other Application</a>
+                </div>
+    
+    <div class="content">
+        
+        {% block content %}
+
+        {% endblock %}
+        
+    </div>
+    </body>
+</html>

@@ -5,7 +5,7 @@ import django
 from django.apps import apps
 from django.conf import settings
 
-sys.path.append('../prototypes/generated_prototypes/c79c758a-d2c5-4e2c-bf71-eadcaf769299/shop')
+sys.path.append('../test_prototype/generated_prototypes/c79c758a-d2c5-4e2c-bf71-eadcaf769299/shop')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
 
 # Remove duplicate 'admin' from INSTALLED_APPS dynamically
