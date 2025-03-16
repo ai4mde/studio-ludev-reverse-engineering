@@ -41,13 +41,22 @@ class Customer(models.Model):
     customer_id = models.CharField(max_length=255, default='', null=True, blank=True)
     customer_name = models.CharField(max_length=255, default='', null=True, blank=True)
     customer_email = models.CharField(max_length=255, default='', null=True, blank=True)
-    customer_date_of_birth = models.CharField(max_length=255, default='', null=True, blank=True)
+    customer_date_of_birth = models.DateField()
     has_membership = models.BooleanField(default=False, blank=True)
     
     Cart = models.OneToOneField("Cart", on_delete=models.CASCADE)
     
 
+    def baby_boomer_status(self):
+        "Returns the person's baby-boomer status."
+        import datetime
 
+        if self.customer_date_of_birth < datetime.date(1945, 8, 1):
+            return "Pre-boomer"
+        elif self.customer_date_of_birth < datetime.date(1965, 1, 1):
+            return "Baby boomer"
+        else:
+            return "Post-boomer"
     
     def __str__(self):
         return self.customer_id
