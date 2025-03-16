@@ -7,6 +7,7 @@ from django.conf import settings
 from jinja2 import Template
 from django.apps import apps
 from django.http import JsonResponse
+from django.db import models
 
 # Jinja2 template for generating the diagram JSON structure
 json_template = """
@@ -90,6 +91,17 @@ json_template = """
 }
 """
 
+DJANGO_GENERATED_METHODS = set([
+    'check',
+    'clean',
+    'clean_fields',
+    'delete',
+    'full_clean',
+    'save',
+    'save_base',
+    'validate_unique'
+])
+
 sys.path.append('../test_prototype/generated_prototypes/c79c758a-d2c5-4e2c-bf71-eadcaf769299/shop')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
 
@@ -99,6 +111,28 @@ if 'admin' in settings.INSTALLED_APPS:
 
 # Now setup Django with the modified INSTALLED_APPS
 django.setup()
+
+def get_custom_methods(model):
+    custom_methods = []
+    standard_methods = set(dir(models.Model))
+    for m in dir(model):
+        if m.startswith('_') or m in standard_methods:
+            continue
+        if m in DJANGO_GENERATED_METHODS:
+            continue
+        if is_method_without_args(getattr(model, m, None)):
+            custom_methods.append(m)
+    return custom_methods
+
+def is_method_without_args(func):
+    """Check if func is a method callable with only one param (self)"""
+    if not inspect.isfunction(func) and not inspect.ismethod(func):
+        return False
+    sig = inspect.signature(func)
+    params = sig.parameters
+
+    # Check if there is exactly one parameter and that has the name 'self'
+    return len(params) == 1 and 'self' in params
 
 
 def generate_diagram_json():
@@ -114,11 +148,13 @@ def generate_diagram_json():
     # Loop through all installed apps and process 'Shared_Models'
     for app_config in apps.get_app_configs():
         if app_config.name == 'shared_models':  # Only process 'Shared_Models'
+            
+
             print(f"Extracting models from: {app_config.verbose_name}")
 
             # Get all models in the 'Shared_Models' app
             models = app_config.get_models()
-
+ 
             # Process each model
             for model in models:
                 # Create a node for each model
@@ -139,14 +175,14 @@ def generate_diagram_json():
                     "cls_ptr": str(uuid.uuid4())  # Pointer ID for the class
                 }
 
-                # # Extract methods using inspect
-                # for name, func in inspect.getmembers(model, predicate=inspect.isfunction):
-                #     model_node["cls"]["methods"].append({
-                #         "body": "",
-                #         "name": name,
-                #         "type": "function",  # Adjust type if needed
-                #         "description": ""
-                #     })
+                # Extract methods using inspect
+                for name in get_custom_methods(model):
+                    model_node["cls"]["methods"].append({
+                        "body": "",
+                        "name": name,
+                        "type": "function",  # Adjust type if needed
+                        "description": ""
+                    })
 
                 # Extract attributes (fields)
                 for field in model._meta.get_fields():
