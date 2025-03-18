@@ -1,0 +1,64 @@
+name: Code Quality Check
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  frontend-checks:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+    
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: Run ESLint
+      working-directory: ./frontend
+      run: npm run lint
+      
+    - name: Check TypeScript compilation
+      working-directory: ./frontend
+      run: npm run tsc --noEmit
+      
+  backend-checks:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        
+    - name: Install dependencies
+      working-directory: ./api
+      run: poetry install
+      
+    - name: Run Ruff
+      working-directory: ./api
+      run: poetry run ruff check .
+      
+    - name: Run Black
+      working-directory: ./api
+      run: poetry run black --check .
+      
+    - name: Run MyPy
+      working-directory: ./api
+      run: poetry run mypy model
