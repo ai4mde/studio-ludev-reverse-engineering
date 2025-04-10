@@ -4,6 +4,7 @@ import os
 import sys
 import django
 import pathlib
+import zipfile
 from django.conf import settings
 from jinja2 import Template
 from django.apps import apps
@@ -102,6 +103,8 @@ DJANGO_GENERATED_METHODS = set([
     'save_base',
     'validate_unique'
 ])
+
+projects_folder = "../projects"
 
 def get_custom_methods(model):
     custom_methods = []
@@ -257,6 +260,14 @@ def generate_diagram_json():
     return rendered_json
 
 if __name__ == "__main__":
+    path_to_zip_file = "./zip_file.zip"
+    # TODO: Add functionality based on arguments
+
+    
+    with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
+        # check if directory already has been extracted before
+        if not any([os.path.isdir(projects_folder + s[2:]) for s in zip_ref.namelist()]):
+            zip_ref.extractall(projects_folder)
     # Because Django projects have the following structure
     # my_project/
     # ├── manage.py
