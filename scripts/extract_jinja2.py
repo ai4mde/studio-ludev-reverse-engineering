@@ -5,6 +5,7 @@ import sys
 import django
 import pathlib
 import zipfile
+import argparse
 from django.conf import settings
 from jinja2 import Template
 from django.apps import apps
@@ -260,14 +261,20 @@ def generate_diagram_json():
     return rendered_json
 
 if __name__ == "__main__":
-    path_to_zip_file = "./zip_file.zip"
-    # TODO: Add functionality based on arguments
+    # Add argparse instance to parse arguments
+    parser = argparse.ArgumentParser(prog='Django to AI4MDE JSON', description='Convert Django project to AI4MDE JSON structure')
 
-    
-    with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
+    # Add argument for zipfile
+    parser.add_argument('-z', '--zip_file', help='specify the zip file to convert', required=True)      # option that takes a value
+
+    # Parse argument
+    args = parser.parse_args()
+
+    with zipfile.ZipFile(args.zip_file, 'r') as zip_ref:
         # check if directory already has been extracted before
         if not any([os.path.isdir(projects_folder + s[2:]) for s in zip_ref.namelist()]):
             zip_ref.extractall(projects_folder)
+    
     # Because Django projects have the following structure
     # my_project/
     # ├── manage.py
