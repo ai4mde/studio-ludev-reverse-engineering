@@ -260,7 +260,7 @@ def generate_diagram_json():
 
     return rendered_json
 
-if __name__ == "__main__":
+def get_arguments():
     # Add argparse instance to parse arguments
     parser = argparse.ArgumentParser(prog='Django to AI4MDE JSON', description='Convert Django project to AI4MDE JSON structure')
 
@@ -268,13 +268,15 @@ if __name__ == "__main__":
     parser.add_argument('-z', '--zip_file', help='specify the zip file to convert', required=True)      # option that takes a value
 
     # Parse argument
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    with zipfile.ZipFile(args.zip_file, 'r') as zip_ref:
+def extract_zip(filename):
+    with zipfile.ZipFile(filename, 'r') as zip_ref:
         # check if directory already has been extracted before
         if not any([os.path.isdir(projects_folder + s[2:]) for s in zip_ref.namelist()]):
             zip_ref.extractall(projects_folder)
-    
+
+def get_project_info():
     # Because Django projects have the following structure
     # my_project/
     # ├── manage.py
@@ -286,6 +288,17 @@ if __name__ == "__main__":
     # and from the settings file location it is possible to get the project root
     project_root = settings_file.parents[1]
 
+    return project_root
+
+if __name__ == "__main__":
+    # Get arguments for user
+    args = get_arguments()
+
+    # Extract zip
+    extract_zip(args.zip_file)
+    
+    project_root = get_project_info()
+    
     sys.path.append(project_root.as_posix())
 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', project_root.name + '.settings')
