@@ -3,6 +3,7 @@ import uuid
 import os
 import sys
 import django
+import pathlib
 from django.conf import settings
 from jinja2 import Template
 from django.apps import apps
@@ -101,16 +102,6 @@ DJANGO_GENERATED_METHODS = set([
     'save_base',
     'validate_unique'
 ])
-
-sys.path.append('../test_prototype/generated_prototypes/c79c758a-d2c5-4e2c-bf71-eadcaf769299/shop')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
-
-# Remove duplicate 'admin' from INSTALLED_APPS dynamically
-if 'admin' in settings.INSTALLED_APPS:
-    settings.INSTALLED_APPS = [app for app in settings.INSTALLED_APPS if app != 'admin']
-
-# Now setup Django with the modified INSTALLED_APPS
-django.setup()
 
 def get_custom_methods(model):
     custom_methods = []
@@ -265,9 +256,28 @@ def generate_diagram_json():
 
     return rendered_json
 
-
-# Example usage
 if __name__ == "__main__":
+    # Because Django projects have the following structure
+    # my_project/
+    # ├── manage.py
+    # ├── my_project/
+    # │   ├── __init__.py
+    # │   ├─ settings.py
+    # we can get the project settings file by locating the settings file in the project
+    settings_file = sorted(pathlib.Path('../test_prototype').glob('**/settings.py'))[0]
+    # and from the settings file location it is possible to get the project root
+    project_root = settings_file.parents[1]
+
+    sys.path.append(project_root.as_posix())
+
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', project_root.name + '.settings')
+
+    # Remove duplicate 'admin' from INSTALLED_APPS dynamically
+    if 'admin' in settings.INSTALLED_APPS:
+        settings.INSTALLED_APPS = [app for app in settings.INSTALLED_APPS if app != 'admin']
+
+    # # Now setup Django with the modified INSTALLED_APPS
+    django.setup()
     diagram_json = generate_diagram_json()
     print(diagram_json)
 # Django view to return the generated diagram as JSON
