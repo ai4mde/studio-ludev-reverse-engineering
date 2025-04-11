@@ -1,3 +1,5 @@
 import pytest
-import scripts.extract_jinja2 as scripts
+from scripts.src import extract_jinja2
 
+def test_start():
+    pass
