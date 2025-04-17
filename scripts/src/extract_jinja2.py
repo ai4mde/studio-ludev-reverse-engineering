@@ -107,6 +107,8 @@ DJANGO_GENERATED_METHODS = set([
 
 projects_folder = "../projects"
 
+# @pre model, Django model
+# @post custom_methods array with all functions of method
 def get_custom_methods(model):
     custom_methods = []
     standard_methods = set(dir(models.Model))
@@ -115,10 +117,12 @@ def get_custom_methods(model):
             continue
         if m in DJANGO_GENERATED_METHODS:
             continue
-        if is_method_without_args(getattr(model, m, None)):
+        if is_method_without_args(getattr(model, m)):
             custom_methods.append(m)
     return custom_methods
 
+# @pre func, Django method of model
+# @post boolean where true, method has no arguments and false, method has at least one argument
 def is_method_without_args(func):
     """Check if func is a method callable with only one param (self)"""
     if not inspect.isfunction(func) and not inspect.ismethod(func):
@@ -129,7 +133,8 @@ def is_method_without_args(func):
     # Check if there is exactly one parameter and that has the name 'self'
     return len(params) == 1 and 'self' in params
 
-
+# @pre -
+# @post AI4MDE json string
 def generate_diagram_json():
     diagrams = []
     edges = []
@@ -260,6 +265,8 @@ def generate_diagram_json():
 
     return rendered_json
 
+# @pre -
+# @post <argparse.Namespace> list of all arguments
 def get_arguments():
     # Add argparse instance to parse arguments
     parser = argparse.ArgumentParser(prog='Django to AI4MDE JSON', description='Convert Django project to AI4MDE JSON structure')
@@ -268,14 +275,24 @@ def get_arguments():
     parser.add_argument('-z', '--zip_file', help='specify the zip file to convert', required=True)      # option that takes a value
 
     # Parse argument
-    return parser.parse_args()
+    args = parser.parse_args()
 
+    # Validate args.zip_file contains a valid zip filename structure
+    # If args.zip_file exists is checked in extract_zip()
+    if len(args.zip_file) < 4 or args.zip_file[-4:] != '.zip' or len(args.zip_file) > 256:
+        raise Exception('Please input a valid zip file')
+    return args
+
+# @pre filename is possible zipfile name
+# @post extracted zip file
 def extract_zip(filename):
     with zipfile.ZipFile(filename, 'r') as zip_ref:
         # check if directory already has been extracted before
         if not any([os.path.isdir(projects_folder + s[2:]) for s in zip_ref.namelist()]):
             zip_ref.extractall(projects_folder)
 
+# @pre -
+# @post project root folder
 def get_project_info():
     # Because Django projects have the following structure
     # my_project/
