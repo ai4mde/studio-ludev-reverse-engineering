@@ -23,7 +23,7 @@ jobs:
       with:
           python-version: '3.13'
           cache: 'pip' # caching pip dependencies
-    - run: pip install -r ./scrips/requirements.txt
+    - run: pip install -r ${{ github.workspace }}/scripts/requirements.txt
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
