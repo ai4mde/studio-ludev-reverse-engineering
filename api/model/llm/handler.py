@@ -1,6 +1,14 @@
 import os
 from typing import Dict, Any
-from groq import Groq
+
+# Try to import groq, but provide fallback if not available
+try:
+    from groq import Groq
+    GROQ_AVAILABLE = True
+except ImportError:
+    print("Warning: groq module not found, using OpenAI as fallback")
+    GROQ_AVAILABLE = False
+
 from openai import OpenAI
 from llm.prompts.diagram import DIAGRAM_GENERATE_ATTRIBUTE, DIAGRAM_GENERATE_METHOD
 
@@ -33,6 +41,9 @@ def call_openai(model: str, prompt: str) -> str:
 
 
 def call_groq(model: str, prompt: str) -> str:
+    if not GROQ_AVAILABLE:
+        return call_openai("gpt-4o", prompt)  # Fallback to OpenAI
+        
     client = Groq(
         api_key=os.environ.get("GROQ_API_KEY"),
     )
@@ -63,7 +74,7 @@ def llm_handler(prompt_name: str, model: str = "mixtral-8x7b-32768", input_data:
     else:
         raise Exception("Invalid prompt name")
     
-    if model == 'gpt-4o':
-        return call_openai(model = model, prompt = prompt)
+    if model == 'gpt-4o' or not GROQ_AVAILABLE:
+        return call_openai(model = "gpt-4o", prompt = prompt)
     else:
         return call_groq(model = model, prompt = prompt)
