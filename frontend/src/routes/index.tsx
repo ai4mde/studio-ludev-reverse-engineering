@@ -1,11 +1,19 @@
 import { chatbotOpenAtom } from "$lib/features/chatbot/atoms";
 import { Button, Divider } from "@mui/joy";
 import { useAtom } from "jotai";
-import { Bot, Box, MessageSquare } from "lucide-react";
+import { Bot, Box, MessageSquare, Upload } from "lucide-react";
 import React from "react";
 
 export const IndexPage: React.FC = () => {
     const [, setChatbot] = useAtom(chatbotOpenAtom);
+
+    const handleZipUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file && file.type === "application/zip") {
+            // 处理zip文件上传逻辑
+            console.log("Zip file selected:", file.name);
+        }
+    };
 
     return (
         <div className="grid grid-cols-12 p-3 gap-3 w-full">
@@ -35,6 +43,20 @@ export const IndexPage: React.FC = () => {
                         <span className="pl-2">
                             Create a project & system by hand
                         </span>
+                    </Button>
+                    <Button
+                        component="label"
+                        htmlFor="upload-zip"
+                    >
+                        <Upload size={20} />
+                        <span className="pl-2">Upload zip file</span>
+                        <input
+                            id="upload-zip"
+                            type="file"
+                            accept=".zip"
+                            onChange={handleZipUpload}
+                            style={{ display: "none" }}
+                        />
                     </Button>
                 </div>
             </div>
