@@ -293,19 +293,26 @@ def extract_zip(filename):
 
 # @pre -
 # @post project root folder
-def get_project_info():
+def get_project_root(filename):
     # Because Django projects have the following structure
     # my_project/
     # ├── manage.py
     # ├── my_project/
     # │   ├── __init__.py
     # │   ├─ settings.py
-    # we can get the project settings file by locating the settings file in the project
-    settings_file = sorted(pathlib.Path('../test_prototype').glob('**/settings.py'))[0]
-    # and from the settings file location it is possible to get the project root
-    project_root = settings_file.parents[1]
 
-    return project_root
+    folder_name = pathlib.Path(filename).stem
+
+    # We can get the project settings file by locating the settings file in the project
+    settings_file = ''
+
+    try:
+        settings_file = sorted(pathlib.Path('../projects/'+ folder_name).glob('**/settings.py'))[0]
+    except IndexError:
+        raise Exception('settings.py was not found in project.')
+    
+    # and from the settings file location it is possible to get the project root
+    return settings_file.parents[1]
 
 if __name__ == "__main__":
     # Get arguments for user
@@ -314,18 +321,25 @@ if __name__ == "__main__":
     # Extract zip
     extract_zip(args.zip_file)
     
-    project_root = get_project_info()
+    project_root = get_project_root(args.zip_file)
     
     sys.path.append(project_root.as_posix())
 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', project_root.name + '.settings')
 
+    # If settings.py is empty or broken
+    if not settings.configured:
+        raise Exception('Django Project was not configured right.')
+
     # Remove duplicate 'admin' from INSTALLED_APPS dynamically
-    if 'admin' in settings.INSTALLED_APPS:
+    if settings.INSTALLED_APPS and 'admin' in settings.INSTALLED_APPS:
         settings.INSTALLED_APPS = [app for app in settings.INSTALLED_APPS if app != 'admin']
 
-    # # Now setup Django with the modified INSTALLED_APPS
-    django.setup()
-    diagram_json = generate_diagram_json()
-    print(diagram_json)
+    # Now setup Django with the modified INSTALLED_APPS
+    try:
+        django.setup()
+    except:
+        raise Exception('test')
+    # diagram_json = generate_diagram_json()
+    # print(diagram_json)
 # Django view to return the generated diagram as JSON
