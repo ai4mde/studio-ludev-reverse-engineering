@@ -291,7 +291,7 @@ def extract_zip(filename):
         if not any([os.path.isdir(projects_folder + s[2:]) for s in zip_ref.namelist()]):
             zip_ref.extractall(projects_folder)
 
-# @pre -
+# @pre filename is a valid zip file name
 # @post project root folder
 def get_project_root(filename):
     # Because Django projects have the following structure
