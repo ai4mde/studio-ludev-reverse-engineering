@@ -1,11 +1,12 @@
 import json
 import os
 import sys
+import uuid
+
 import django
 from django.conf import settings
 from django.apps import apps
 from django.db import models
-
 
 def is_not_subclass(field, model):
     related_model = field.related_model
@@ -17,7 +18,7 @@ def is_not_subclass(field, model):
 
 
 def is_composition(field, model):
-    if not isinstance(field, (models.ForeignKey, models.OneToOneField)):
+    if not isinstance(field, models.OneToOneField):
         return False
 
     if field.remote_field.on_delete != models.CASCADE:
@@ -30,15 +31,16 @@ def is_composition(field, model):
 
 def is_association(field, model):
     if isinstance(field, models.ManyToManyField):
+        # if field.remote_field.on_delete != models.CASCADE:
+        #     return True
         return True
 
     if isinstance(field, (models.ForeignKey, models.OneToOneField)):
         related_model = field.related_model
         if issubclass(model, related_model):
             return False
-
-        return field.remote_field.on_delete != models.CASCADE
-
+        # return field.remote_field.on_delete != models.CASCADE
+        return True
     return False
 
 
@@ -181,6 +183,8 @@ def parse_models():
                 "arrow_direction": f"{model.__name__} to {parent_class}"
             })
 
+
+
         # Add relationships to global structure
         models_data["relationships"].extend(model_data["relationships"])
         models_data["relationships"].extend(model_data["composition"])
@@ -196,7 +200,6 @@ def parse_models():
     ]
 
     return json.dumps(models_data, indent=4)
-
 
 if __name__ == "__main__":
     # Django setup

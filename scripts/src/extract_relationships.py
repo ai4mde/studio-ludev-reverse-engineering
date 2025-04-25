@@ -1,5 +1,3 @@
-import inspect
-import uuid
 import os
 import sys
 import django
@@ -7,12 +5,66 @@ from django.conf import settings
 from jinja2 import Template
 from django.apps import apps
 from django.db import models
+from django.db.models import ForeignKey, OneToOneField
+import inspect
+import uuid
 
 # Constants
 DJANGO_GENERATED_METHODS = {
     'check', 'clean', 'clean_fields', 'delete', 'full_clean', 'save',
     'save_base', 'validate_unique'
 }
+
+def is_not_subclass(field, model):
+    related_model = field.related_model
+    if related_model is None:
+        return True
+    if issubclass(model, related_model):
+        return False
+    return True
+
+
+def extract_model_dependencies(model, all_the_models):
+    dependencies = []
+
+    # Loop through each method in the model
+    for method_name, method in inspect.getmembers(model, predicate=inspect.isfunction):
+        # Get the source code of the method
+        try:
+            code = inspect.getsource(method)
+        except TypeError:  # This handles edge cases like non-methods
+            continue
+
+        print(f"Checking method: {method_name}")
+
+        for other_model in all_the_models:
+            # Ensure we are checking other models, not the current model
+            if other_model.__name__ != model.__name__:
+                # Check if the model's class name appears in the method code
+                if other_model.__name__ in code:
+                    # Additional logic to check if it's an actual dependency (not just name occurrence)
+                    dependencies.append({
+                        'model': model.__name__,
+                        'dependency': other_model.__name__,
+                        'method': method_name,
+                    })
+
+    return dependencies
+
+def get_relationship_type(field, model):
+    related_model = field.related_model
+    if issubclass(model, related_model):
+        return 'unknown'
+
+    if isinstance(field, (ForeignKey, OneToOneField)):
+        if field.remote_field.on_delete == models.CASCADE:
+            if not field.null:
+                return 'composition'
+            else:
+                return 'association'
+        else:
+            return 'association'
+    return 'unknown'
 
 # Jinja2 JSON template
 json_template = """
@@ -148,8 +200,8 @@ def get_custom_methods(model):
         m for m in dir(model)
         if not m.startswith('_') and
         m not in standard_methods and
-        m not in DJANGO_GENERATED_METHODS and
-        is_method_without_args(getattr(model, m, None))
+        m not in DJANGO_GENERATED_METHODS
+        # is_method_without_args(getattr(model, m, None))
     ]
 
 def generate_diagram_json():
@@ -161,13 +213,18 @@ def generate_diagram_json():
     edges = []
     model_ptr_map = {}
     enum_ptr_map = {}
+  # Debug line
 
     for app_config in apps.get_app_configs():
         if app_config.name == 'shared_models':
             print(f"Extracting models from: {app_config.verbose_name}")
+            print(app_config.get_models())
             for model in app_config.get_models():
                 cls_ptr = str(uuid.uuid4())
                 model_ptr_map[model] = cls_ptr
+                print("model: " , model)
+                print("dependencies", extract_model_dependencies(model, app_config.get_models()))
+                print("modrls: ", app_config.get_models())
 
                 attributes = []
                 for field in model._meta.get_fields():
@@ -243,53 +300,79 @@ def generate_diagram_json():
         source_ptr = model_ptr_map[model]
         print("Processing model:", source_ptr , model)
 
-        # 1. Generalization (model inheritance)
-        for base in model.__bases__:
-            print("base:  " , base)
-            if base in model_ptr_map:
-                target_ptr = model_ptr_map[base]
-                edges.append({
-                    "id": str(uuid.uuid4()),
-                    "rel": {
-                        "type": "generalization",
-                        "label": "inherits",
-                        "derived": False,
-                        "multiplicity": {
-                            "source": "1",
-                            "target": "1"
-                        }
-                    },
-                    "data": {},
-                    "rel_ptr": str(uuid.uuid4()),
-                    "source_ptr": source_ptr,
-                    "target_ptr": target_ptr
-                })
+        # Step 1: Check if the model is a child class (subclass of another model)
+        parent_classes = [base for base in model.__bases__ if hasattr(base, '__name__') and base != object]
+
+        # Step 2: Collect fields of parent classes (inherited fields)
+        inherited_fields = set()
+        for parent_class in parent_classes:
+            if issubclass(parent_class, models.Model) and parent_class != models.Model:
+                inherited_fields.update(f.name for f in parent_class._meta.get_fields() if hasattr(f, 'name'))
+
+        for parent_class in parent_classes:
+            print("parent_class:  ", parent_class)
+            # Exclude internal Django and Python base classes
+            if (
+                    parent_class.__name__.startswith('django.') or
+                    parent_class.__name__ == 'Model' or
+                    parent_class.__name__ == 'object'
+            ):
+                continue
+
+            target_ptr = model_ptr_map[parent_class]
+            print("target_ptr:  ", target_ptr)
+            edges.append({
+                "id": str(uuid.uuid4()),
+                "rel": {
+                    "type": "generalization",
+                    "label": "inherits",
+                    "derived": False,
+                    "multiplicity": {
+                        "source": "1",
+                        "target": "1"
+                    }
+                },
+                "data": {},
+                "rel_ptr": str(uuid.uuid4()),
+                "source_ptr": source_ptr,
+                "target_ptr": target_ptr
+            })
 
         # 2. Associations, compositions, and dependencies
         for field in model._meta.get_fields():
             # Handle model relationships
+            if not hasattr(field, 'get_internal_type'):
+                continue
+
+                # Skip inherited fields (those from parent classes)
+            if field.name in inherited_fields:
+                continue
+
             if field.is_relation and hasattr(field, 'related_model') and field.related_model:
                 target_model = field.related_model
                 target_ptr = model_ptr_map.get(target_model)
                 if not target_ptr:
                     continue
 
-                is_composition = getattr(field, 'on_delete', None) == models.CASCADE and not getattr(field, 'null',
-                                                                                                     False)
-                rel_type = "composition" if is_composition else "association"
-                label = "composes" if is_composition else (
-                    "has" if field.one_to_many or field.many_to_many else "uses"
-                )
-                multiplicity = {
-                    "source": "1" if field.one_to_many or field.one_to_one else "*",
-                    "target": "*" if field.many_to_many or field.many_to_one else "1"
-                }
+            if isinstance(field, models.ManyToManyField):
+
+                if not field.null:
+                    multiplicity = {
+                        "source": "*",
+                        "target": "1..*"
+                    }
+                else:
+                    multiplicity = {
+                        "source": "*",
+                        "target": "*"
+                    }
+
 
                 edges.append({
                     "id": str(uuid.uuid4()),
                     "rel": {
-                        "type": rel_type,
-                        "label": label,
+                        "type": "association",
+                        "label": "connects",
                         "derived": False,
                         "multiplicity": multiplicity
                     },
@@ -298,6 +381,97 @@ def generate_diagram_json():
                     "source_ptr": source_ptr,
                     "target_ptr": target_ptr
                 })
+
+            # OneToOne relationships
+            elif isinstance(field, models.OneToOneField):
+                if not getattr(field, 'concrete', False) or not hasattr(field, 'related_model'):
+                    continue
+
+                if not field.null:
+                    multiplicity = {
+                        "source": "1",
+                        "target": "1"
+                    }
+                else:
+                    multiplicity = {
+                        "source": "1",
+                        "target": "0..1"
+                    }
+
+
+                if get_relationship_type(field, model) == "composition":
+                    edges.append({
+                        "id": str(uuid.uuid4()),
+                        "rel": {
+                            "type": "composition",
+                            "label": "connects",
+                            "derived": False,
+                            "multiplicity": multiplicity
+                        },
+                        "data": {},
+                        "rel_ptr": str(uuid.uuid4()),
+                        "source_ptr": source_ptr,
+                        "target_ptr": target_ptr
+                    })
+                elif get_relationship_type(field, model) == "association":
+                    edges.append({
+                        "id": str(uuid.uuid4()),
+                        "rel": {
+                            "type": "association",
+                            "label": "connects",
+                            "derived": False,
+                            "multiplicity": multiplicity
+                        },
+                        "data": {},
+                        "rel_ptr": str(uuid.uuid4()),
+                        "source_ptr": source_ptr,
+                        "target_ptr": target_ptr
+                    })
+
+            # ForeignKey relationships
+            elif isinstance(field, models.ForeignKey):
+                if not getattr(field, 'concrete', False) or not hasattr(field, 'related_model'):
+                    continue
+
+                if not field.null:
+                    multiplicity = {
+                        "source": "1",
+                        "target": "1..*"
+                    }
+                else:
+                    multiplicity = {
+                        "source": "1",
+                        "target": "*"
+                    }
+
+                if get_relationship_type(field, model) == "composition":
+                    edges.append({
+                        "id": str(uuid.uuid4()),
+                        "rel": {
+                            "type": "composition",
+                            "label": "connects",
+                            "derived": False,
+                            "multiplicity": multiplicity
+                        },
+                        "data": {},
+                        "rel_ptr": str(uuid.uuid4()),
+                        "source_ptr": source_ptr,
+                        "target_ptr": target_ptr
+                    })
+                elif get_relationship_type(field, model) == "association":
+                    edges.append({
+                        "id": str(uuid.uuid4()),
+                        "rel": {
+                            "type": "association",
+                            "label": "connects",
+                            "derived": False,
+                            "multiplicity": multiplicity
+                        },
+                        "data": {},
+                        "rel_ptr": str(uuid.uuid4()),
+                        "source_ptr": source_ptr,
+                        "target_ptr": target_ptr
+                    })
 
             # Handle enum-based dependencies
             elif is_enum_field(field):
@@ -319,6 +493,7 @@ def generate_diagram_json():
                         "source_ptr": source_ptr,
                         "target_ptr": enum_ptr
                     })
+
 
     template = Template(json_template)
     return template.render(
