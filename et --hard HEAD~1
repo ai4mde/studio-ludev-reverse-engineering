@@ -1,0 +1,1240 @@
+[33mcommit 9f1bc8033235619b93f7809cfebbbac73931f2ad[m[33m ([m[1;36mHEAD -> [m[1;32mprototype-test[m[33m, [m[1;31morigin/prototype-test[m[33m)[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Fri Apr 25 12:25:25 2025 +0200
+
+    Remove .idea folder from repository
+
+[33mcommit 91715c34a76ed2a5ab3b346ce687198a1589102c[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Fri Apr 25 12:22:17 2025 +0200
+
+    relationship fix
+
+[33mcommit df7f645a47b309468029d309340b8d0dfe836a9a[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Fri Apr 25 12:18:26 2025 +0200
+
+    relationship fix
+
+[33mcommit 7a220f6270267156b7073105aedb0ab17a30c60b[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Fri Apr 25 12:17:44 2025 +0200
+
+    relationship fix
+
+[33mcommit fde680f6705bf7ce6729e3cfb0b972cb7962b9e7[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Thu Apr 24 02:52:16 2025 +0200
+
+    relationship extract scripts
+
+[33mcommit 5d3693f0ff1914e83360e122ad4e623bc2e7b127[m[33m ([m[1;32mprototype[m[33m)[m
+Author: Max Klomp <35957404+ItsIXam@users.noreply.github.com>
+Date:   Thu Apr 17 20:35:33 2025 +0200
+
+    Fix prototype.yaml flake8 only runs on subdirectory scripts
+
+[33mcommit 49d9a282498a690036630bb906ecc4c2fb4a3f41[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 17 20:28:44 2025 +0200
+
+    Fix requirements.txt to include flake8
+
+[33mcommit 6c7fe14c09fa39c7384676e70bc140328350e54d[m
+Author: Max Klomp <35957404+ItsIXam@users.noreply.github.com>
+Date:   Thu Apr 17 20:17:39 2025 +0200
+
+    Fix requirements.txt path prototype.yaml
+
+[33mcommit 0f318d8c60323f4850f6ca822cb6be00d883e90c[m
+Author: Max Klomp <35957404+ItsIXam@users.noreply.github.com>
+Date:   Thu Apr 17 20:14:55 2025 +0200
+
+    Create prototype.yaml
+
+[33mcommit 62392a44f7b21779dbba19a29eb55ab10bbdad79[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 17 20:08:39 2025 +0200
+
+    Remove testing template
+
+[33mcommit 336565d670fffe580f765ce9517ca07cc1a1490c[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 17 20:08:03 2025 +0200
+
+    Add unit tests
+
+[33mcommit 3e327862eae4ac4f2e0302b8dbb0025dab2ddca9[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 17 20:07:38 2025 +0200
+
+    Add pre/post documentation
+
+[33mcommit f38acec53a7d756b788d0fbb718e96e0b504a05f[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 17 15:26:43 2025 +0200
+
+    Add requirements.txt for automated testing
+
+[33mcommit 622d10e652d3abfd9b690e554f59c607a7178296[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Fri Apr 11 10:12:14 2025 +0200
+
+    Add testing project structure
+
+[33mcommit 66370ed29bbbe63441f492ec8b7dfdfde8e1866e[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 10 23:46:32 2025 +0200
+
+    Add test_scripts.py
+
+[33mcommit 04a3cb30336456b9878f1b12c8e6365c7247c511[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 10 23:46:11 2025 +0200
+
+    Refactor code to facilitate testing
+
+[33mcommit bb0bc15e22bda6dbc62a124899ea9fa2dc18960a[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 10 20:24:09 2025 +0200
+
+    Add dynamically change zip file location via arguments
+
+[33mcommit ab2288cd816a0db1c57b44457a25daa5356b4960[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 10 20:09:37 2025 +0200
+
+    Add conversion from zip file
+
+[33mcommit 7840c29d047a88c92f9005617ef38dc3a2e4ecc5[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 10 19:19:51 2025 +0200
+
+    Fix dynamically make project available instead of hardcoded
+
+[33mcommit 1f0a0e119eafae5ce24c5b7e913bc3c59b4f2fc2[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Thu Apr 10 19:15:04 2025 +0200
+
+    Add gitignore file
+
+[33mcommit ce6811a675430761b107d1a631e048c40e2e832d[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Sun Mar 16 23:50:24 2025 +0100
+
+    added custom methods in class diagram
+
+[33mcommit 01d5071337e1cfbb88c1733cfc2a7d40b40af85b[m
+Author: M.A.C. Klomp <s2911078@vuw.leidenuniv.nl>
+Date:   Sun Mar 16 23:49:33 2025 +0100
+
+    added custom methods to customer class
+
+[33mcommit b519fbf63466db30e08466805b3249e5111e52e9[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Thu Mar 13 14:22:17 2025 +0100
+
+    removed scripts/myenv
+
+[33mcommit 66a2836a72da627840ac5851770a03e5cf2d52b3[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Wed Mar 12 16:28:42 2025 +0100
+
+    clean
+
+[33mcommit e1d090bbdd50a5ea817324a8cd7225fc2c75f3c8[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Wed Mar 12 16:27:24 2025 +0100
+
+    Remove .idea folder from repo
+
+[33mcommit d73abb5e04e6f3de6b6dde77925f208e1a0df43d[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Wed Mar 12 16:00:48 2025 +0100
+
+    prototype added
+
+[33mcommit 3676a9a3e4bacd93908230bc8fb6bafb5ebe3fdd[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Wed Mar 12 12:44:46 2025 +0100
+
+    add a short description
+
+[33mcommit 89d70d2c2b9c338486ee149a50a6e3a8b0dc0f54[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Wed Mar 12 12:35:23 2025 +0100
+
+    scripts added for inital pipeline
+
+[33mcommit de7d0a5258e41976ee16c256d77a10ffe4e34fc5[m
+Author: ruikeyuan1 <ruike.yuan@student.nhlstenden.com>
+Date:   Tue Mar 11 21:42:16 2025 +0100
+
+    prototype init
+
+[33mcommit f32e41f910b1fe9f0184f4b21342e7c64269b670[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Mar 11 16:35:13 2025 +0100
+
+    [Fix] npm building bug
+
+[33mcommit acdab4c8f7e90f2ed279fa605799443c6889f76d[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Mar 9 17:31:43 2025 +0100
+
+    [Fix] double inclusion edge option
+
+[33mcommit 59cb76742251938e4fca7074b1f5df0131da7538[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Mar 9 17:30:07 2025 +0100
+
+    [Feat] extension/inclusion labels & generalization edges in use case diagrams
+
+[33mcommit 819c30de6b4388a014c786944026d716197720d3[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Feb 25 16:03:28 2025 +0100
+
+    [Fix] allow spaces in interface/section names in prototypes
+
+[33mcommit 3bf3540f8bfb23d4c9417ff449888b9fa7901b17[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Feb 25 16:03:05 2025 +0100
+
+    [Fix] deselect interface bug in create prototype form
+
+[33mcommit ad9c5b569808c95efa4fcd98a41135d00d692100[m
+Merge: 99192ad 0d36b1e
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Feb 25 15:46:55 2025 +0100
+
+    Merge branch 'main' into develop
+
+[33mcommit 0d36b1e12f8eb4da9e5395e898b54a582b8e6399[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Feb 24 19:36:31 2025 +0100
+
+    [Fix] edge rendering bugs
+
+[33mcommit 19d68963b70bc2a8816f781157fac3bf4b5faadd[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Feb 20 16:45:33 2025 +0100
+
+    [Fix] interface save button bug
+
+[33mcommit 99192ad3dccdc3eb439cac6e5a1125d371e3f437[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Feb 9 12:43:00 2025 +0100
+
+    [Fix] foreign key bug in create form views
+
+[33mcommit c24fc39564b9835f94262b9a571c49310174196d[m
+Merge: 6f67f1b f659d0a
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Feb 9 12:24:38 2025 +0100
+
+    Merge branch 'main' into develop
+
+[33mcommit 6f67f1b46183dddebc0a36f0ce5080e3e18645d4[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Feb 9 12:23:45 2025 +0100
+
+    [Fix] releases page loading bug
+
+[33mcommit 270d82904e68659d89f564060188eec2f781d0db[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Feb 4 16:14:28 2025 +0100
+
+    [Fix] category generation in smart defaulting
+
+[33mcommit eab23b871224ad6455d76155ee3ba34156f65939[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Jan 31 16:45:57 2025 +0100
+
+    [Fix] replaced bun with npm because of bun issues
+
+[33mcommit 91ab05e502b0ce652e412dffd11f7116bb896345[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Jan 31 16:38:49 2025 +0100
+
+    [Fix] multiple linting issues
+
+[33mcommit 0f71ea6ae33f901ac4a0a703d2726ae92b371a8d[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 29 15:43:14 2025 +0100
+
+    [Fix] dynamic page updates after renaming of sections and categories in interface editor
+
+[33mcommit 5041d410420746edec8a35d45083fab4b4b17b47[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jan 27 15:46:35 2025 +0100
+
+    [Feat] Groq implementation for multiple LLM support
+
+[33mcommit c8bfacd3297097cc6f5904e14dada89f9379ba92[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 22 14:29:18 2025 +0100
+
+    [Fix] remove legacy generation code
+
+[33mcommit c6cbde4587e37f99ce915e5a303e5d63f60dbcde[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 22 14:25:43 2025 +0100
+
+    [Fix] generated prototype directories now split per system, and API endpoints use prototype id instead of prototype name
+
+[33mcommit 33849d220c88b1eee6d0440f5e7caca3aa897177[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Jan 21 13:36:09 2025 +0100
+
+    [Feat] section component text in prototypes
+
+[33mcommit b708f305df55a4668814381ff674feb93ff54b63[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Jan 21 13:35:53 2025 +0100
+
+    [Fix] loading section text bug
+
+[33mcommit 3b5f828f59a920f08df9bcc401ad210a580bd256[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Jan 21 13:04:34 2025 +0100
+
+    [Feat] textfield for section text in section component editor
+
+[33mcommit 59b213ae514c9278c1cc23610159e29d4978e7a7[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jan 20 11:05:48 2025 +0100
+
+    [Fix] re-enabled categories in prototypes
+
+[33mcommit a62939dbbd1a91068bc5c3753b18d06ad30b53c8[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jan 20 09:30:00 2025 +0100
+
+    [Fix] removed redundant "read class" endpoint
+
+[33mcommit f659d0ad6b795a6c72b295311dfceb7f7913b784[m[33m ([m[1;33mtag: v1.0.1[m[33m)[m
+Merge: bb27666 1eef4d9
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 15 16:04:42 2025 +0100
+
+    Merge branch 'develop'
+
+[33mcommit 1eef4d9050e4dc5b35ccd77cc296a5da45409c58[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 15 15:55:08 2025 +0100
+
+    [Fix] put hardcoded urls and ports in env
+
+[33mcommit a541a2d7fddcd216b0cce4cde4865b4493718903[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 15 15:01:55 2025 +0100
+
+    [Refactor] remove legacy prototype generation code
+
+[33mcommit df6ad52d2337486946c4863ced2ec82096c8e187[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 15 14:39:06 2025 +0100
+
+    [Fix] API endpoint categories consistency
+
+[33mcommit cd8e4f2645265d1fdcef6912f8d2507d4cd65856[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 15 14:27:10 2025 +0100
+
+    [Fix] slow prototype status retrieval
+
+[33mcommit f561e31eae81e3381003e9384b5dfe1cf4e3cbd6[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jan 15 13:39:46 2025 +0100
+
+    [Fix] auto reload prototype page
+
+[33mcommit ed97fb0beedbbd1dbb5dcdbf0eb98f0d23aca73e[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Jan 14 13:43:29 2025 +0100
+
+    [Feat] auto-layout using networkx's spring_layout
+
+[33mcommit 90ef579f7511c70e23853db959ae0daf6fb5861b[m
+Author: Sven <112962641+syvandam@users.noreply.github.com>
+Date:   Thu Jan 9 15:11:22 2025 +0100
+
+    [Docs] correct file paths
+
+[33mcommit 9be316398c1d7d9b969eb2098592d064da7a4149[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Jan 9 15:08:19 2025 +0100
+
+    [Docs] added documentation for architecture, metadata model & installation
+
+[33mcommit b63b105b831ec0c6f3000b29e46c9190a9681e30[m
+Merge: 70da9f7 7d34656
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Nov 27 17:17:19 2024 +0100
+
+    Merge branch 'develop' into develop-multiplicities
+
+[33mcommit 70da9f7563d6b23df305dc3c20381c15d74eceb3[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Nov 27 17:15:32 2024 +0100
+
+    [Feat] different multiplicity relationships in prototypes
+
+[33mcommit 7d346569c91f91935ef03b89cd8d4d2a9ca3ba5b[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Nov 27 16:05:29 2024 +0100
+
+    [Feat] diagram svg export in frontend
+
+[33mcommit 095dc491dc4640767e7ec23f06c0bfff88e83aaa[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Nov 21 15:21:34 2024 +0100
+
+    [Feat] export diagram to png
+
+[33mcommit 750b9381c73ba31b2f801d0f96176d6b3ca9483b[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Nov 2 12:05:22 2024 +0100
+
+    [UI] class multiplicity dropdown
+
+[33mcommit 28bf243e65760d144448054af74684284dcc403e[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Nov 1 19:17:16 2024 +0100
+
+    [Feat] reading release notes from a release
+
+[33mcommit b4f6436640c31d7447929c121d6810939a86f2ad[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Nov 1 17:22:18 2024 +0100
+
+    [Feat] add release notes to a release in frontend
+
+[33mcommit 259433f688fce6ba89a67e2b10a8f79a879cd90c[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Nov 1 17:21:52 2024 +0100
+
+    [Feat] add release notes to a release
+
+[33mcommit fd5eba1b3cb23cd63205f13cc439c1c889ce7ec7[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Oct 30 15:59:16 2024 +0100
+
+    [Feat] multiplicities in diagram editor
+
+[33mcommit c1019fc6433c349a594c8443350a82225abd21f3[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Oct 30 14:53:41 2024 +0100
+
+    [Fix] remove prints
+
+[33mcommit b075fffabb05c70ad8b91050e834a18bf4b100bd[m
+Author: Sven van Dam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Oct 30 14:52:04 2024 +0100
+
+    [Fix] prototypes now running under Traefik service, instead of locally
+
+[33mcommit 6686dd2111981d2f0954976c092d79182ffb60cc[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Oct 26 15:54:07 2024 +0200
+
+    [Feat] loading releases in frontend
+
+[33mcommit 822a8a230ca7ff3898159c13aaa631b7842d876e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Oct 26 15:53:44 2024 +0200
+
+    [Fix] null value bug
+
+[33mcommit 006a898df195431fb037c40f3bcfb4c632f04068[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Oct 26 15:44:18 2024 +0200
+
+    [Fix] double deletion bug
+
+[33mcommit f17c04000c382bf9e0b6fe4745ad33fb8a743bf3[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Oct 26 15:43:53 2024 +0200
+
+    [Fix] section bug in smart defaulting
+
+[33mcommit fda6056921b3e0323c18a87ed29b8ceb0316f7db[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Oct 26 14:27:40 2024 +0200
+
+    [Feat] load_release API hook
+
+[33mcommit 381203ec15853235b86b29cad155040cefc1cd7c[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Oct 23 14:18:56 2024 +0200
+
+    [Fix] add node & edge data in releases
+
+[33mcommit e4b3bcc4a8c09c8b1f1980258c89dd2f929d099e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Oct 15 16:26:08 2024 +0200
+
+    [UI] add release page to navigation
+
+[33mcommit 305a19c3292ace8368bfad9b5066747a6c16310b[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Oct 15 16:25:56 2024 +0200
+
+    [Feat] API hooks for releases
+
+[33mcommit fadf2011d5de93047b0bf31a6ae937c32bbd5635[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Oct 15 16:25:35 2024 +0200
+
+    [Feat] release model
+
+[33mcommit 3498979a82779f08e6950fb7237c20bf5479eba0[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Oct 15 16:24:26 2024 +0200
+
+    [Feat] releases page frontend
+
+[33mcommit f700411436ba3f8b54b0c8ef09f1052bdd565af0[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Oct 11 13:54:43 2024 +0200
+
+    [Fix] remove Slate editor
+
+[33mcommit de1f9968c8c2533cc8f11e517ece6d93d5b05773[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Oct 6 17:49:12 2024 +0200
+
+    [Fix] smart defaulting bugs
+
+[33mcommit bb27666a6bbd0252e3a363f6703f123e4c0b1920[m[33m ([m[1;33mtag: v1.0.0[m[33m)[m
+Author: Sven <112962641+syvandam@users.noreply.github.com>
+Date:   Sun Oct 6 16:57:45 2024 +0200
+
+    [Fix] template api_keys.env
+
+[33mcommit 86f8b29ea03e24c4bc0c2d1ff5c0c5010b830c9c[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 29 14:53:54 2024 +0200
+
+    [UI] disable library navigation
+
+[33mcommit 55b60f6498c019ab9527bb5c172a1d771df72a87[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 28 21:15:44 2024 +0200
+
+    [Fix] dangling section data in pages bug
+
+[33mcommit 156c1564bac4225507fd2a79b9af898b8cf8579e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 28 20:58:18 2024 +0200
+
+    [Fix] page editor section select bug
+
+[33mcommit ba441ab5244b5112b533645695aad0054b6a225f[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 28 20:57:55 2024 +0200
+
+    [Fix] multiple section component update bug
+
+[33mcommit 70df39271f5c5247eb038b3aee7dc443e6f9a965[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 28 14:40:35 2024 +0200
+
+    [Fix] derived atttribute metadata in smart defaulting
+
+[33mcommit 28b02b29d8c53319aadc244239e237628e98d311[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 28 14:32:26 2024 +0200
+
+    [UI] better default styling in prototypes
+
+[33mcommit 4c12ffe08326b8e69a17c0763c4cdaad90e876c0[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 28 14:13:25 2024 +0200
+
+    [Feat] derived attributes in prototypes
+
+[33mcommit e72cf1d5b2bd4b1a17c040d0361d5e5d8e2d8e7e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 28 13:52:19 2024 +0200
+
+    [Fix] prototype update attribute bug
+
+[33mcommit 7d312c293ef6f4ece6a9edf6f8a04d8ccb4399ea[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Sep 27 22:18:21 2024 +0200
+
+    [Feat] derived attribute generation in frontend
+
+[33mcommit 4b5ee601f3996d7142d8894f2836cb64202c02f7[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Sep 27 22:18:06 2024 +0200
+
+    [Feat] add description & body to attributes
+
+[33mcommit 2e6899388e63972ead18cc2991badae7620e4a2e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Sep 27 20:52:42 2024 +0200
+
+    [Feat] API hook for derived attribute generation using chatgpt
+
+[33mcommit 0b2aa79f42c98c7b05990a29c23ab1a1b2c159bc[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Sep 26 13:19:14 2024 +0200
+
+    [Fix] enable openai communication for custom methods
+
+[33mcommit 78a639b4fca270f4e18db5f8d2e909c211e18150[m
+Merge: 6adc05a 8d28fd2
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Sep 25 17:09:56 2024 +0200
+
+    Merge branch 'develop'
+
+[33mcommit 8d28fd2e75f5afa31e2b7bf9f941b59a02d8b292[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Sep 24 14:32:54 2024 +0200
+
+    [Fix] trailing comma bug in urls
+
+[33mcommit 14e6dc32f2c8c95d3ebb95ca91e161394f6311c7[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Sep 24 14:25:55 2024 +0200
+
+    [Feat] enum attribute generation in prototypes
+
+[33mcommit 72691d74b3a33278c40aa63e83cc649e1837e29d[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 22 16:44:01 2024 +0200
+
+    [Fix] add diagram metadata to LLM prompt
+
+[33mcommit aa1fe7d016ba0668e086858e6da332f428e2142c[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 22 16:20:34 2024 +0200
+
+    [Feat] custom method generation in prototypes
+
+[33mcommit 25ef83abfb96a3b3f057e6314489152eaa9b2025[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 21 23:42:49 2024 +0200
+
+    [Feat] custom method generation call & error handling
+
+[33mcommit ea9c3909376d4a1ad7ff1f16bd71c6e052bc2bbb[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 21 23:42:21 2024 +0200
+
+    [Feat] ChatGPT custom method generation
+
+[33mcommit e79095405c7268e78e37db7d9c2aba2341f8b2a1[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Sep 19 12:02:04 2024 +0200
+
+    [UI] inline LLM custom method generation
+
+[33mcommit bac969fe5b9ef8ef583bd93bc4222a4b3e870e7b[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Sep 17 21:24:54 2024 +0200
+
+    [Feat] ui for generating custom methods using LLM
+
+[33mcommit da76a54fa319da7c7c31a21e7daafa61bfaf2800[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Sep 17 19:58:29 2024 +0200
+
+    [Fix] added authentication to tests
+
+[33mcommit b521eddafafe9b5d104d8cc180ec174662b32feb[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 15 14:45:18 2024 +0200
+
+    [Test] list_prototypes integration test
+
+[33mcommit 89755a2d1371b34e4cfda35e73789995c1899038[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 14 15:36:15 2024 +0200
+
+    [Feat] consistent delete buttons
+
+[33mcommit e7fdfc65c823638a0575a621d152a30351642570[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 14 14:08:01 2024 +0200
+
+    [Fix] enum attributes now based on dependencies instead of associations
+
+[33mcommit dca329cc34e4ad503cb576eb6960b5333dfaecfc[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Sep 14 13:13:45 2024 +0200
+
+    [Fix] default enum bug
+
+[33mcommit d9830ec61f1ebb69f8be1fc2ea31a64bf790815d[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Sep 12 17:24:43 2024 +0200
+
+    [Feat] enum attributes in editor
+
+[33mcommit 51eb6e8b7a75c288bdbf71beb1b5c3421b211f47[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 8 17:55:14 2024 +0200
+
+    [Feat] home page generation for prototypes without authentication
+
+[33mcommit f97eaf055065b76a7e882f059008c5e2457e6b70[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 8 17:19:05 2024 +0200
+
+    [Fix] double underscores problems in generation
+
+[33mcommit c69a801fca393cb62e8c620a407131a2121c181d[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Sep 6 14:59:51 2024 +0200
+
+    [Fix] styling issues
+
+[33mcommit f97ed8ca656ada2e9eb56e7072284af39b6fcbc7[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Sep 6 14:06:11 2024 +0200
+
+    [Fix] double naming in smart defaulting
+
+[33mcommit 5cecaf81250977fb8a67f8647833ca9c56c4bb28[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Sep 6 13:53:12 2024 +0200
+
+    [Fix] extra validation when deleting linked_edges when deleting a node
+
+[33mcommit 69f0a638aa636c4b21631f3327f82b92b470f8df[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Sep 6 13:48:39 2024 +0200
+
+    [Feat] system deletion functionality
+
+[33mcommit 80e26e194f4af8ea9a9b23a3bbf9b7483777f9cd[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Sep 5 15:31:32 2024 +0200
+
+    [Fix] dangling problems
+
+[33mcommit b7befdf6278d7d7d6abebfaaaad7f1cae514cc3b[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Sep 2 16:49:50 2024 +0200
+
+    [Feat] show metadata buttons
+
+[33mcommit bed5d1a68dbdee8d65cc395dd7de475253f2a881[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Sep 2 15:38:07 2024 +0200
+
+    [Fix] delete prototype bug
+
+[33mcommit a05715af1f3bbf59b66ff37a75f60c0d8d2831a7[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 1 17:08:36 2024 +0200
+
+    [Feat] database copying in prototypes
+
+[33mcommit 6e3a16965c7d1d04a9a4a68abe0d2724ec477575[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 1 15:08:06 2024 +0200
+
+    [Feat] prototype database hashes
+
+[33mcommit baa0c83c15d3588dc8ed21c74609757f0e23af39[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Sep 1 11:37:20 2024 +0200
+
+    [Feat] API endpoints for metadata relations
+
+[33mcommit b01c6310996a364000a5c4399b9a3532bdae2578[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Aug 31 15:15:40 2024 +0200
+
+    [Feat] smart defaulting
+
+[33mcommit 5968912d5eb6e0d1ff2c929305445471febd925d[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Aug 28 16:33:06 2024 +0200
+
+    [Fix] enable source and target ptr in metadata relation schema
+
+[33mcommit 5ffa65548b49b5e42fda240d9744a122f6c8fbe7[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Aug 24 14:47:16 2024 +0200
+
+    [Fix] extension relation creation bug in use case editor
+
+[33mcommit d2e4b1495a4e2f670d07f47ccf19e282372eddaf[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Aug 23 21:45:22 2024 +0200
+
+    [Feat] endpoint for generating interfaces for actors
+
+[33mcommit 38faf8f0f932a3079cf4bdcf4adb531848c53c64[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Aug 23 18:17:47 2024 +0200
+
+    [Feat] better css in prototypes
+
+[33mcommit 767cffbaf99c6d2efbc505993ebf640f077ef3ca[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Aug 22 21:13:06 2024 +0200
+
+    [Feat] foreign models in section components
+
+[33mcommit 6c7d415c9f8c5286bb4be37637406a91707c4433[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Aug 21 21:45:28 2024 +0200
+
+    [Fix] reenabled logout functionality
+
+[33mcommit 0a6c9ba98e30154775e65f15215c40acd9df22fb[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Aug 21 21:26:58 2024 +0200
+
+    [Feat] home pages in prototype apps
+
+[33mcommit ae6cc5faeb559d7a8023b2b85a2b37aa6bc7d534[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Aug 21 21:12:00 2024 +0200
+
+    [Fix] correct user_types are retrieved from metadata and parsed to templates
+
+[33mcommit 9a364e79ebcacc0b2229b93b51680c1ecb717b7e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Aug 21 20:21:15 2024 +0200
+
+    [Feat] authentication generation
+
+[33mcommit a40f19e4d8ec76b86f7334cd5e8fa34db19ffcf6[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Aug 20 21:42:12 2024 +0200
+
+    [Feat] simple html template + css generation
+
+[33mcommit 5d2551096f97db803822aa28770fa292a7f93f7e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Aug 19 21:48:17 2024 +0200
+
+    [Feat] url generation in prototypes
+
+[33mcommit f0af6966ee0410c55e1093f9af05c9c5dbded6e4[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Aug 19 17:15:13 2024 +0200
+
+    [Feat] ApplicationComponent object generation based on metadata in generator
+
+[33mcommit 6ef9a596550b6cf5766d5f7786a5ca5cfbf91258[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Aug 18 19:52:23 2024 +0200
+
+    [Feat] backend hook for running & killing prototype processes
+
+[33mcommit ac7281fd76e82d5a6f9b05d2b9e6542f877ee43f[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Aug 18 19:51:52 2024 +0200
+
+    [Fix] kill running procces for a prototype when it is removed
+
+[33mcommit f1abc2cbce3491ac339ae021024c3c4cb6c25149[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Aug 18 19:50:50 2024 +0200
+
+    [Feat] prototype run/kill/status management in frontend
+
+[33mcommit 81b78a7d523aa7e0545e5c068460956ff8d83f75[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Aug 16 23:12:21 2024 +0200
+
+    [Fix] alphanumeric prototype name validatoin & error handling
+
+[33mcommit fc3501499352b185f668994b4c4d72a0f406be3c[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Aug 16 22:45:37 2024 +0200
+
+    [Feat] API hooks for running, stopping & checking status of a prototype
+
+[33mcommit 645b08596d825084aaef216b2b31dc86364a2c34[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Aug 14 21:52:58 2024 +0200
+
+    [Feat] simple Django view generation based on metadata
+
+[33mcommit 4b9ba612638a4e951438f77a252bdbb77ebe4036[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Aug 11 15:51:40 2024 +0200
+
+    [Feat] base structure for m/v/t/url generation & section component json retrieval methods
+
+[33mcommit 9f73deee57152abcf964384225a7be792fe1604c[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Aug 10 22:40:18 2024 +0200
+
+    [Feat] simple Flask server to host shell scripts
+
+[33mcommit dfec51696002d63e8416b6dd80a19348d431035a[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sat Aug 10 16:10:38 2024 +0200
+
+    [Refactor] new container for prototypes
+
+[33mcommit 6adc05a175188fc1304adaf191be01eda7793184[m
+Merge: 140060e 92ebc2b
+Author: Sven <112962641+syvandam@users.noreply.github.com>
+Date:   Tue Jul 30 09:54:33 2024 +0200
+
+    Merge pull request #28 from ai4mde/feature/NO-ISSUE/load-and-save-endpoint
+    
+    feat: add import endpoint that takes FullDiagram-like input
+
+[33mcommit 215c97b2df8550b8a1efe889a45da83290abb601[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Sun Jul 28 18:11:23 2024 +0200
+
+    [Feat] base structure application generation & shared_models models.py generation based on metadata
+
+[33mcommit ce784abf91278b7e5703294d94390526450e53b9[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jul 24 14:52:11 2024 +0200
+
+    [Feat] API hook for reading full diagrams of a system
+
+[33mcommit e4ab00f233c0137f837da19e1f5d0cf98dc046fc[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jul 22 16:18:14 2024 +0200
+
+    [Feat] link prototype generate button to empty shell script
+
+[33mcommit bc87ff975a41739e2ae0964961bb47392247e61a[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Jul 18 23:02:05 2024 +0200
+
+    [Feat] implement prototype list
+
+[33mcommit 602373e273a2dfc0c781ca67c8dc1ba603cb9435[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Jul 18 17:23:22 2024 +0200
+
+    [Feat] interfaces are linked to an actor
+
+[33mcommit e8120a279831c047c414cdca5f97d05be9edf530[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Jul 18 14:53:52 2024 +0200
+
+    [Feat] add actors API hook
+
+[33mcommit 3b699a4020b1fafe19a28ddef9af6d4b1511b793[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jul 15 15:36:01 2024 +0200
+
+    [Feat] generator API hooks structure
+    TODO: parse frontend interface links
+
+[33mcommit 8ddea6380bf5d80776c6c5bcce9309819397cb51[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jul 15 15:34:54 2024 +0200
+
+    [Feat] generate prototype popup in frontend
+
+[33mcommit a297fb5256252ddde203c37721453db16c985836[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Jul 12 12:01:06 2024 +0200
+
+    [Fix] dangling popup after project creation resolved
+
+[33mcommit 2a1559a1469e136f65ab41e5941c001ddda08967[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Jul 12 11:54:46 2024 +0200
+
+    [Fix] action node creation problem resolved & activity object node creation temporarily disabled
+
+[33mcommit f6226ecc47f4bae171d8113e39cb4c54a83c05e6[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Jul 12 11:01:17 2024 +0200
+
+    [Fix] fixed swagger UI loading issue
+
+[33mcommit 499d17625b30f5e4e7fc1f7e6961a152f7878503[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jul 10 18:04:17 2024 +0200
+
+    [Feat] saving & loading application component data from database
+
+[33mcommit 140060ef24aedd00029ef765036ea73d7ab23753[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jul 10 14:01:16 2024 +0200
+
+    [Fix] temporarily disable settings & account buttons
+
+[33mcommit 92ebc2b045cb70e5de9b7facd83d3306228e9e55[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Fri Jul 5 21:48:40 2024 +0000
+
+    feat: add import endpoint that takes FullDiagram-like input
+
+[33mcommit c44e7c2a8715896e651dba27c4f3508764f9f071[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jul 1 15:41:57 2024 +0200
+
+    [Feat] automatic removal of category of a page when a category is removed
+
+[33mcommit 791b33682b3f30baa9dd2ad3474a749d6025138d[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jul 1 14:46:08 2024 +0200
+
+    [Feat] add UUID generation in frontend for sections
+
+[33mcommit 0acf10cd7ff0a2a2acce7cc35a0f91db4053111e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jul 1 14:44:34 2024 +0200
+
+    [Feat] add UUID generation in frontend for pages,sections,categories
+
+[33mcommit b1746d0e172426f371b7618531dfcdbf249fbcf7[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jul 1 10:37:33 2024 +0200
+
+    [Feat] implement attribute selector in section component editor
+
+[33mcommit 285ca86e0e38f208134202b82bf0d14408f15dd0[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Jun 27 16:49:53 2024 +0200
+
+    [Feat] add API hook for retrieving a single class classifier
+
+[33mcommit d50e487bcc3caa198b5d2ef8ced7c33c2f019d7e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Thu Jun 27 16:09:53 2024 +0200
+
+    [Feat] implement delete interface button
+
+[33mcommit c2220bd1c310eb9d121954d1fb7af9d890e9d7ca[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jun 26 19:44:00 2024 +0200
+
+    [Fix] more structred styling json in localstorage
+
+[33mcommit 16c4a7a095e8522039667a4cbc02259a6e4a226f[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jun 26 18:06:08 2024 +0200
+
+    [Feat] more structured page json in localstorage
+
+[33mcommit 4f67ae9fc8cc5a67b0cbe096f9982330a52f9de4[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jun 26 16:42:41 2024 +0200
+
+    [Fix] remove direct state mutations
+
+[33mcommit d3721ef7cd72726fe27025a08d1e3cef9a5fb019[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jun 26 12:55:32 2024 +0200
+
+    [Feat] extend page editor in interface tab with section component select & more structured localStorage json
+
+[33mcommit d1b074bfb75ebb698c10ff74ae8e45ae1e3d5c3c[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Jun 25 15:27:31 2024 +0200
+
+    [Feat] add versions tab in navigation
+
+[33mcommit fa62fe4166254b41941d8edbc0504f7303d6a6ea[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Tue Jun 25 15:25:24 2024 +0200
+
+    [Fix] add category button & add page button now always rendering independent from localstorage arrays
+
+[33mcommit 03c126f6cbd22bb18a41b3387d3c4a25e1c4853d[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jun 24 15:21:50 2024 +0200
+
+    [Fix] update localStorage indices after removal of a section component
+
+[33mcommit 3a40d1dec11c95f0f507625f779b039b76634ff0[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jun 24 14:54:47 2024 +0200
+
+    [Feat] add Class chips to Section Component editor
+
+[33mcommit 081906fee627915a4a5bfe2891bc82ce5f554b4a[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jun 24 12:13:12 2024 +0200
+
+    [Feat] add API hooks for retrieving classes & classifiers metadata
+
+[33mcommit b28dc801053c1071b250e1ea4400b5cf42895b52[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Jun 21 15:35:55 2024 +0200
+
+    [Feat] imlement Interface state management, Pages tab, Categories Tab & basics for section component tab
+
+[33mcommit 8fbd9eb51946894254bad612dbbecfa753d0799e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Wed Jun 19 15:27:09 2024 +0200
+
+    [Naming] remove author names from NLP models
+
+[33mcommit db9e96af10000e913876fd85a5893b149dc07980[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jun 17 16:52:39 2024 +0200
+
+    [Feat] add Styling component
+    - add form component for the styling of an app component
+    - TODO: add styling to backend
+    - TODO: add API hook and connect
+
+[33mcommit fef412e5981b8499f064443d2aab14145ba8e820[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Fri Jun 14 18:50:26 2024 +0200
+
+    [Feat] implement metadata, hooks & base structure of editor for application components
+    - add interface/application component to api metadata
+    - add api hooks for interfaces
+    - add frontend page to create interfaces
+    - add base structure for application component editor
+
+[33mcommit ba88c36173d8c65f6c769f370ac2b66d2c960a4e[m
+Author: syvandam <s.y.van.dam@umail.leidenuniv.nl>
+Date:   Mon Jun 10 16:07:13 2024 +0200
+
+    Feat(app component metadata)
+    Issue 26: add metadata for app comp, sec comp, styling, text, links, category, pages
+
+[33mcommit d4d74ef0639907985e3a29e71e1beda167bb4510[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Jun 6 21:50:26 2024 +0200
+
+    feat: build with correct paths
+
+[33mcommit 4793e4bb3cded4edf9ca958fa3504d987773ad14[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Jun 6 11:31:27 2024 +0000
+
+    ci: port bare generator repository
+
+[33mcommit e9c3386edbfb4552a6c40f48f1c441a12155a4e8[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Jun 6 10:04:05 2024 +0000
+
+    ci(generator): clone generator repository
+
+[33mcommit ac20e8cb5b80db761f4f930dbad472cd941e24a0[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Jun 6 09:34:57 2024 +0000
+
+    ci(prose-and-generator): move prose and generator repositories inside
+
+[33mcommit 6ea6456a2b9c97611b04505a6490aaa6a59c1d2a[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Jun 6 09:31:31 2024 +0000
+
+    docs(readme): update README.md with name changes
+
+[33mcommit 9b60408976b31f176a10a25ad542482a7b25bdaf[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Jun 6 09:29:10 2024 +0000
+
+    feat(studio): rename studio to frontend
+
+[33mcommit b10bce51702759bf83fea5fa971d8c16f5ea7a11[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Jun 6 09:28:47 2024 +0000
+
+    feat(api): rename model to api folder
+
+[33mcommit ceeb03a88ff902ccdf7c3f6d4624a376ebec84f2[m
+Merge: f97dd4d 931740b
+Author: Max Boone <contact@maxboone.com>
+Date:   Fri Feb 16 23:19:08 2024 +0100
+
+    Merge pull request #24 from ai4mde/feature/NO-ISSUE/upload-sourcemaps-to-sentry
+    
+    feat(studio): add sentry code maps
+
+[33mcommit 931740b70340d8e794bd0948a0018b54add78fec[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Fri Feb 16 23:18:32 2024 +0100
+
+    feat(studio): add sentry code building and uploading
+
+[33mcommit 1839e5c6a481b789ac1285edde0abd5d96189935[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Fri Feb 16 23:18:10 2024 +0100
+
+    style(eslint): various eslint fixes
+
+[33mcommit f97dd4d6541212ac8aa1ef89d64ea30585a14214[m
+Merge: 45c6b6c 48a6064
+Author: Max Boone <contact@maxboone.com>
+Date:   Fri Feb 16 23:02:43 2024 +0100
+
+    Merge pull request #23 from ai4mde/feature/NO-ISSUE/add-sentry-replays
+    
+    docs(readme): add contribution activity image
+
+[33mcommit 48a60642f1f1407780b24d04d1b17df7148c7151[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Fri Feb 16 23:02:17 2024 +0100
+
+    docs(readme): add contribution activity image
+
+[33mcommit 45c6b6c7324f595e6c313f5a8e3419d5b804f9ea[m
+Merge: 2c8b8f8 3806c4a
+Author: Max Boone <contact@maxboone.com>
+Date:   Fri Feb 16 22:57:25 2024 +0100
+
+    Merge pull request #22 from ai4mde/feature/NO-ISSUE/add-sentry-replays
+    
+    feat(sentry): add full sentry integration
+
+[33mcommit 3806c4adb19926fcfac2ee249f53bb63406e7522[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Fri Feb 16 22:57:04 2024 +0100
+
+    feat(sentry): add full sentry integration
+
+[33mcommit 2c8b8f8090d255e4502afaab79bceff8e82c51c3[m
+Merge: 8e6c842 f373c50
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Feb 15 16:23:04 2024 +0100
+
+    Merge pull request #21 from ai4mde/feature/NO-ISSUE/add-registration-and-password-reset
+    
+    feat: add registration screens and add sentry
+
+[33mcommit f373c50a5df7b6da761e5ced6b130ff60da3e03c[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Feb 15 16:22:15 2024 +0100
+
+    feat(studio): add registration screens
+
+[33mcommit 442c57e45915485578da58210db9794d70d34798[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Feb 15 16:21:40 2024 +0100
+
+    feat(sentry): add sentry
+
+[33mcommit 79e2111403bd9d4728c9a586aeb5283a9928dfcd[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Feb 15 15:59:16 2024 +0100
+
+    fix(model): fix ellipsis functions and schemas
+
+[33mcommit 8e6c842c8a8ae105a214c18b8e9d37e63e7dbac9[m
+Merge: 3d7f595 6908043
+Author: Max Boone <contact@maxboone.com>
+Date:   Thu Feb 15 10:18:27 2024 +0100
+
+    Merge pull request #19 from ai4mde/feature/NO-ISSUE/add-unit-testing
+    
+    feat(testing): add testing to studio
+
+[33mcommit 69080432e45c05f854c238c6945a953ab300ce86[m
+Author: Max Boone <contact@maxboone.com>
+Date:   Sat Feb 10 15:21:13 2024 +0100
+
+    feat(testing): add testing library to React
+
+[33mcommit e6f4c6359f541ae35a1a4cf94755e909c9736c72[m
+Author: Max Boone <conta
