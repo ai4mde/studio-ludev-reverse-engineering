@@ -9,7 +9,6 @@ import argparse
 from django.conf import settings
 from jinja2 import Template
 from django.apps import apps
-from django.http import JsonResponse
 from django.db import models
 
 # Jinja2 template for generating the diagram JSON structure
@@ -107,6 +106,7 @@ DJANGO_GENERATED_METHODS = set([
 
 projects_folder = "../projects"
 
+
 # @pre model, Django model
 # @post custom_methods array with all functions of method
 def get_custom_methods(model):
@@ -121,8 +121,10 @@ def get_custom_methods(model):
             custom_methods.append(m)
     return custom_methods
 
-# @pre func, Django method of model
-# @post boolean where true, method has no arguments and false, method has at least one argument
+
+# @pre  func, Django method of model
+# @post boolean where true, method has no arguments and false,
+#       method has at least one argument
 def is_method_without_args(func):
     """Check if func is a method callable with only one param (self)"""
     if not inspect.isfunction(func) and not inspect.ismethod(func):
@@ -133,10 +135,11 @@ def is_method_without_args(func):
     # Check if there is exactly one parameter and that has the name 'self'
     return len(params) == 1 and 'self' in params
 
+
 # @pre -
 # @post AI4MDE json string
 def generate_diagram_json():
-    diagrams = []
+    # diagrams = []
     edges = []
     nodes = []
 
@@ -148,13 +151,12 @@ def generate_diagram_json():
     # Loop through all installed apps and process 'Shared_Models'
     for app_config in apps.get_app_configs():
         if app_config.name == 'shared_models':  # Only process 'Shared_Models'
-            
 
             print(f"Extracting models from: {app_config.verbose_name}")
 
             # Get all models in the 'Shared_Models' app
             models = app_config.get_models()
- 
+
             # Process each model
             for model in models:
                 # Create a node for each model
@@ -265,14 +267,18 @@ def generate_diagram_json():
 
     return rendered_json
 
+
 # @pre -
 # @post <argparse.Namespace> list of all arguments
 def get_arguments():
     # Add argparse instance to parse arguments
-    parser = argparse.ArgumentParser(prog='Django to AI4MDE JSON', description='Convert Django project to AI4MDE JSON structure')
+    parser = argparse.ArgumentParser(
+        prog='Django to AI4MDE JSON',
+        description='Convert Django project to AI4MDE JSON structure'
+    )
 
     # Add argument for zipfile
-    parser.add_argument('-z', '--zip_file', help='specify the zip file to convert', required=True)      # option that takes a value
+    parser.add_argument('-z', '--zip_file', help='specify the zip file to convert', required=True)
 
     # Parse argument
     args = parser.parse_args()
@@ -283,6 +289,7 @@ def get_arguments():
         raise Exception('Please input a valid zip file')
     return args
 
+
 # @pre filename is possible zipfile name
 # @post extracted zip file
 def extract_zip(filename):
@@ -290,6 +297,7 @@ def extract_zip(filename):
         # check if directory already has been extracted before
         if not any([os.path.isdir(projects_folder + s[2:]) for s in zip_ref.namelist()]):
             zip_ref.extractall(projects_folder)
+
 
 # @pre filename is a valid zip file name
 # @post project root folder
@@ -307,12 +315,13 @@ def get_project_root(filename):
     settings_file = ''
 
     try:
-        settings_file = sorted(pathlib.Path('../projects/'+ folder_name).glob('**/settings.py'))[0]
+        settings_file = sorted(pathlib.Path('../projects/' + folder_name).glob('**/settings.py'))[0]
     except IndexError:
         raise Exception('settings.py was not found in project.')
-    
+
     # and from the settings file location it is possible to get the project root
     return settings_file.parents[1]
+
 
 if __name__ == "__main__":
     # Get arguments for user
@@ -320,16 +329,16 @@ if __name__ == "__main__":
 
     # Extract zip
     extract_zip(args.zip_file)
-    
+
     project_root = get_project_root(args.zip_file)
-    
+
     sys.path.append(project_root.as_posix())
 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', project_root.name + '.settings')
 
     # If settings.py is empty or broken
-    if not settings.configured:
-        raise Exception('Django Project was not configured right.')
+    # if not settings.configured:
+    #     raise Exception('Django Project was not configured right.')
 
     # Remove duplicate 'admin' from INSTALLED_APPS dynamically
     if settings.INSTALLED_APPS and 'admin' in settings.INSTALLED_APPS:
@@ -338,8 +347,8 @@ if __name__ == "__main__":
     # Now setup Django with the modified INSTALLED_APPS
     try:
         django.setup()
-    except:
+    except ImportError:
         raise Exception('test')
-    # diagram_json = generate_diagram_json()
-    # print(diagram_json)
+    diagram_json = generate_diagram_json()
+    print(diagram_json)
 # Django view to return the generated diagram as JSON

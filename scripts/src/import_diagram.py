@@ -93,5 +93,6 @@ def call_endpoints_to_import_diagram():
         except requests.exceptions.RequestException as e:
             print(f"Auto-layout request failed: {e}")
 
+
 if __name__ == "__main__":
     call_endpoints_to_import_diagram()

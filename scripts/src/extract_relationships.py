@@ -9,20 +9,25 @@ from django.db import models
 from django.db.models import ForeignKey, OneToOneField
 from scripts.src.diagram_template import diagram_template_obj
 
+
 # Django setup
 sys.path.append('../../test_prototype/generated_prototypes/eb846e17-a261-470a-abeb-09cd29980a46/shop')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
 
+
 # Remove 'admin' app from INSTALLED_APPS before setup
 if 'admin' in settings.INSTALLED_APPS:
     settings.INSTALLED_APPS = [app for app in settings.INSTALLED_APPS if app != 'admin']
+
 
 DJANGO_GENERATED_METHODS = {
     'check', 'clean', 'clean_fields', 'delete', 'full_clean', 'save',
     'save_base', 'validate_unique'
 }
 
+
 django.setup()
+
 
 # Constants
 def extract_model_dependencies(model, all_the_models):
@@ -52,6 +57,7 @@ def extract_model_dependencies(model, all_the_models):
 
     return dependencies
 
+
 def get_relationship_type(field, model):
     related_model = field.related_model
     if issubclass(model, related_model):
@@ -67,11 +73,13 @@ def get_relationship_type(field, model):
             return 'association'
     return 'unknown'
 
+
 def is_enum_field(field):
     """
     Check if the field is an enum field (choices are based on models.Choices).
     """
     return hasattr(field, 'choices') and isinstance(field.choices, list) and isinstance(field.choices[0][0], (str, int))
+
 
 def map_field_type(field):
     """
@@ -94,6 +102,7 @@ def map_field_type(field):
     else:
         return "str"
 
+
 def get_custom_methods(model):
     custom_methods = []
     standard_methods = set(dir(models.Model))
@@ -105,6 +114,7 @@ def get_custom_methods(model):
         if is_method_without_args(getattr(model, m)):
             custom_methods.append(m)
     return custom_methods
+
 
 # @pre func, Django method of model
 # @post boolean where true, method has no arguments and false, method has at least one argument
@@ -118,6 +128,7 @@ def is_method_without_args(func):
     # Check if there is exactly one parameter and that has the name 'self'
     return len(params) == 1 and 'self' in params
 
+
 def process_model_relationships(model, model_ptr_map, enum_ptr_map, edges):
     """Process relationships between models and generate corresponding edges."""
     source_ptr = model_ptr_map[model]
@@ -128,6 +139,7 @@ def process_model_relationships(model, model_ptr_map, enum_ptr_map, edges):
 
     # Step 2: Process other types of relationships
     process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, source_ptr)
+
 
 def process_inheritance_relationships(model, model_ptr_map, edges, source_ptr):
     """Process model inheritance relationships."""
@@ -153,6 +165,7 @@ def process_inheritance_relationships(model, model_ptr_map, edges, source_ptr):
 
     return inherited_fields
 
+
 def process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, source_ptr):
     """Process model field relationships."""
     inherited_fields = process_inheritance_relationships(model, model_ptr_map, edges, source_ptr)
@@ -175,6 +188,7 @@ def process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, sourc
         elif is_enum_field(field):
             process_enum_field(field, enum_ptr_map, edges, source_ptr)
 
+
 def process_relationship_field(field, model, edges, source_ptr, target_ptr):
     """Process relationship fields."""
     if isinstance(field, models.ManyToManyField):
@@ -184,6 +198,7 @@ def process_relationship_field(field, model, edges, source_ptr, target_ptr):
     elif isinstance(field, models.ForeignKey):
         process_foreign_key_field(field, model, edges, source_ptr, target_ptr)
 
+
 def process_many_to_many_field(field, edges, source_ptr, target_ptr):
     """Process many-to-many fields."""
     multiplicity = {
@@ -191,6 +206,7 @@ def process_many_to_many_field(field, edges, source_ptr, target_ptr):
         "target": "1..*" if not field.null else "*"
     }
     edges.append(create_edge("association", "connects", multiplicity, source_ptr, target_ptr))
+
 
 def process_one_to_one_field(field, model, edges, source_ptr, target_ptr):
     """Process one-to-one fields."""
@@ -205,6 +221,7 @@ def process_one_to_one_field(field, model, edges, source_ptr, target_ptr):
     rel_type = get_relationship_type(field, model)
     if rel_type in ["composition", "association"]:
         edges.append(create_edge(rel_type, "connects", multiplicity, target_ptr, source_ptr))
+
 
 def process_foreign_key_field(field, model, edges, source_ptr, target_ptr):
     """Process foreign key fields."""
@@ -227,12 +244,14 @@ def process_foreign_key_field(field, model, edges, source_ptr, target_ptr):
             }
             edges.append(create_edge(rel_type, "connects", multiplicity, source_ptr, target_ptr))
 
+
 def process_enum_field(field, enum_ptr_map, edges, source_ptr):
     """Process enum fields."""
     enum_ptr = enum_ptr_map.get(field.name)
     if enum_ptr:
         edges.append(create_edge("dependency", "depends",
                                  {"source": "1", "target": "1"}, source_ptr, enum_ptr))
+
 
 def create_edge(rel_type, label, multiplicity, source_ptr, target_ptr):
     """Create an edge object."""
@@ -250,6 +269,7 @@ def create_edge(rel_type, label, multiplicity, source_ptr, target_ptr):
         "target_ptr": target_ptr
     }
 
+
 # Functions related to diagram initialization
 def initialize_diagram_data():
     """Initialize the basic data needed for the diagram"""
@@ -262,6 +282,7 @@ def initialize_diagram_data():
         'model_ptr_map': {},
         'enum_ptr_map': {}
     }
+
 
 def process_enum_field_node(field, enum_ptr_map):
     """Process enum field node"""
@@ -301,6 +322,7 @@ def create_attribute(field, enum_ref):
         "description": None
     }
 
+
 def create_model_node(model, cls_ptr, attributes):
     """Create model node"""
     return {
@@ -327,6 +349,7 @@ def create_model_node(model, cls_ptr, attributes):
         },
         "cls_ptr": str(uuid.uuid4())
     }
+
 
 def process_model(model, data, app_config):
     """Process a single model"""
@@ -355,6 +378,7 @@ def process_model(model, data, app_config):
 
     process_model_relationships(model, data['model_ptr_map'], data['enum_ptr_map'], data['edges'])
 
+
 def collect_all_models(app_config):
     """Collect all models, including parent classes"""
     models = set()
@@ -362,15 +386,15 @@ def collect_all_models(app_config):
         models.add(model)
         # Add all parent classes
         for parent in model.__bases__:
-            if (hasattr(parent, '_meta') and
-                not parent.__name__.startswith('django.') and
-                parent.__name__ != 'Model'):
+            if (hasattr(parent, '_meta') and not parent.__name__.startswith('django.') and parent.__name__ != 'Model'):
                 models.add(parent)
     return models
+
 
 def initialize_model_ptr_map(models):
     """Initialize model_ptr_map for all models"""
     return {model: str(uuid.uuid4()) for model in models}
+
 
 def generate_diagram_json():
     """Main function to generate diagram JSON"""
@@ -399,6 +423,7 @@ def generate_diagram_json():
     )
 
     return rendered
+
 
 if __name__ == "__main__":
     generate_diagram_json()
