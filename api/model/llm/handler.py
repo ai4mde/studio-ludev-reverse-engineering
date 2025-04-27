@@ -1,9 +1,16 @@
 import os
 from typing import Dict, Any
-from groq import Groq
+
+# Try to import groq, but provide fallback if not available
+try:
+    from groq import Groq
+    GROQ_AVAILABLE = True
+except ImportError:
+    print("Warning: groq module not found, using OpenAI as fallback")
+    GROQ_AVAILABLE = False
+
 from openai import OpenAI
 from llm.prompts.diagram import DIAGRAM_GENERATE_ATTRIBUTE, DIAGRAM_GENERATE_METHOD
-
 
 def remove_reply_markdown(reply: str) -> str:
     lines = reply.splitlines()
