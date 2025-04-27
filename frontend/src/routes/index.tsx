@@ -6,7 +6,39 @@ import React from "react";
 
 export const IndexPage: React.FC = () => {
     const [, setChatbot] = useAtom(chatbotOpenAtom);
+    const [uploadResult, setUploadResult] = useState<{ success: boolean; message: string; extract_path?: string } | null>(null);
+    const [showSnackbar, setShowSnackbar] = useState(false);
 
+    const handleZipUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file && file.type === "application/zip") {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                setUploadResult(response.data);
+                setShowSnackbar(true);
+                console.log("Zip file uploaded:", response.data);
+            } catch (error) {
+                console.error("Upload failed:", error);
+                setUploadResult({
+                    success: false,
+                    message: "upload failed"
+                });
+                setShowSnackbar(true);
+            }
+        }
+    };
+
+    const handleCloseSnackbar = () => {
+        setShowSnackbar(false);
+    };
     return (
         <div className="grid grid-cols-12 p-3 gap-3 w-full">
             <div className="p-4 col-span-12 flex flex-col gap-4 rounded-lg bg-gray-100">

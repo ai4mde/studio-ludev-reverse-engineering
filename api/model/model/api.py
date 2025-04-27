@@ -58,3 +58,45 @@ def get_auth(request):
             "username": user.username,
         }
     return 403, {"id": None}
+
+
+class ZipUploadResponse(Schema):
+    success: bool
+    message: str
+    extract_path: str = None
+
+
+@api.post("/utils/upload-zip", response=ZipUploadResponse, tags=["utils"])
+def upload_zip(request, file: UploadedFile = File(...)):
+    try:
+        # 确保上传目录存在
+        UPLOAD_DIR = Path("/usr/src/uploads")
+        UPLOAD_DIR.mkdir(exist_ok=True)
+        
+        # 创建一个时间戳子文件夹以区分多次上传
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        extract_dir = UPLOAD_DIR / f"extract_{timestamp}"
+        extract_dir.mkdir(exist_ok=True)
+        
+        # 保存上传的文件
+        zip_path = UPLOAD_DIR / f"{timestamp}_{file.name}"
+        with open(zip_path, "wb") as f:
+            f.write(file.read())
+        
+        # 解压文件
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(extract_dir)
+        
+        # 返回成功信息和解压位置
+        return {
+            "success": True,
+            "message": f"File {file.name} uploaded and extracted successfully",
+            "extract_path": str(extract_dir)
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Error processing ZIP file: {str(e)}"
+        }
+
