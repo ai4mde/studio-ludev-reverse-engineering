@@ -7,7 +7,7 @@ from django.conf import settings
 from django.apps import apps
 from django.db import models
 from django.db.models import ForeignKey, OneToOneField
-from diagram_template import diagram_template_obj
+from scripts.src.diagram_template import diagram_template_obj
 
 
 # Django setup
@@ -399,39 +399,31 @@ def initialize_model_ptr_map(models):
 def generate_diagram_json():
     """Main function to generate diagram JSON"""
     data = initialize_diagram_data()
-    diagrams = []
 
     for app_config in apps.get_app_configs():
+        if app_config.name == 'shared_models':
+            print(f"Extracting models from: {app_config.verbose_name}")
 
-        # Skip app if it is a django application
-        if app_config.name.startswith('django'): continue
+            # First, collect all models (including parent classes)
+            all_models = collect_all_models(app_config)
 
-        print(f"Extracting models from: {app_config.verbose_name}")
+            # Initialize model_ptr_map for all models
+            data['model_ptr_map'] = initialize_model_ptr_map(all_models)
 
-        # First, collect all models (including parent classes)
-        all_models = collect_all_models(app_config)
+            # Process all models
+            for model in app_config.get_models():
+                process_model(model, data, app_config)
 
-        # Initialize model_ptr_map for all models
-        data['model_ptr_map'] = initialize_model_ptr_map(all_models)
+    rendered = diagram_template_obj.render(
+        diagram_id=data['diagram_id'],
+        project_id=data['project_id'],
+        system_id=data['system_id'],
+        nodes=data['nodes'],
+        edges=data['edges']
+    )
 
-        # Process all models
-        for model in app_config.get_models():
-            process_model(model, data, app_config)
-
-        rendered = diagram_template_obj.render(
-            diagram_id=data['diagram_id'],
-            project_id=data['project_id'],
-            system_id=data['system_id'],
-            nodes=data['nodes'],
-            edges=data['edges']
-        )
-
-        diagrams.append(rendered)
-
-    return diagrams
+    return rendered
 
 
 if __name__ == "__main__":
-    diagrams = generate_diagram_json()
-    for diagram in diagrams:
-        print(diagram)
+    generate_diagram_json()

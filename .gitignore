@@ -2,4 +2,3 @@ projects/
 __pycache__
 .vscode/
 .idea
-.coverage/
