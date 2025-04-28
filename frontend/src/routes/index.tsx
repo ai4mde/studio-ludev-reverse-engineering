@@ -1,8 +1,9 @@
 import { chatbotOpenAtom } from "$lib/features/chatbot/atoms";
-import { Button, Divider } from "@mui/joy";
+import { Alert, Button, Divider, Snackbar } from "@mui/joy";
+import axios from "axios";
 import { useAtom } from "jotai";
-import { Bot, Box, MessageSquare } from "lucide-react";
-import React from "react";
+import { Bot, Box, MessageSquare, Upload } from "lucide-react";
+import React, { useState } from "react";
 
 export const IndexPage: React.FC = () => {
     const [, setChatbot] = useAtom(chatbotOpenAtom);
