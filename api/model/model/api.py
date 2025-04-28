@@ -74,25 +74,25 @@ class ZipUploadResponse(Schema):
 @api.post("/utils/upload-zip", response=ZipUploadResponse, tags=["utils"])
 def upload_zip(request, file: UploadedFile = File(...)):
     try:
-        # 确保上传目录存在
+        # make sure uploadpath existed
         UPLOAD_DIR = Path("/usr/src/uploads")
         UPLOAD_DIR.mkdir(exist_ok=True)
         
-        # 创建一个时间戳子文件夹以区分多次上传
+        # Create a timestamped subfolder to differentiate between multiple uploads
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         extract_dir = UPLOAD_DIR / f"extract_{timestamp}"
         extract_dir.mkdir(exist_ok=True)
         
-        # 保存上传的文件
+        # save file
         zip_path = UPLOAD_DIR / f"{timestamp}_{file.name}"
         with open(zip_path, "wb") as f:
             f.write(file.read())
         
-        # 解压文件
+        # unzip file
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(extract_dir)
         
-        # 返回成功信息和解压位置
+        # return info
         return {
             "success": True,
             "message": f"File {file.name} uploaded and extracted successfully",

@@ -30,7 +30,7 @@ export const IndexPage: React.FC = () => {
                 console.error("Upload failed:", error);
                 setUploadResult({
                     success: false,
-                    message: "上传失败，请检查API连接"
+                    message: "upload filed"
                 });
                 setShowSnackbar(true);
             }
