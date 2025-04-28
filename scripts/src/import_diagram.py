@@ -3,7 +3,7 @@ import json
 from scripts.src.extract_relationships import generate_diagram_json
 
 
-def call_endpoints_to_import_diagram():
+def call_endpoints_to_import_diagram():  # noqa: C901
     """
     Generate a diagram including authentication, import, and auto-layout.
     """
