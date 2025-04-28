@@ -2,6 +2,10 @@ from diagram.api import diagram_router
 from django.http import HttpResponse
 import os
 import zipfile
+import sys
+import json
+import inspect
+import uuid
 from datetime import datetime
 from pathlib import Path
 from metadata.api import metadata_router
@@ -9,6 +13,9 @@ from prose.api import prose_router
 from generator.api import generator_router
 from ninja import NinjaAPI, Schema, File
 from ninja.files import UploadedFile
+from jinja2 import Template
+from django.apps import apps
+from django.db import models
 
 from model.auth import auth, create_token
 
@@ -105,3 +112,305 @@ def upload_zip(request, file: UploadedFile = File(...)):
             "message": f"Error processing ZIP file: {str(e)}"
         }
 
+class ExtractJinjaRequest(Schema):
+    extract_path: str
+
+
+class ExtractJinjaResponse(Schema):
+    success: bool
+    message: str
+    diagram_json: str = None
+
+
+# Jinja2 template, same as extract_jinja2.py
+json_template = """
+{
+    "diagrams": [
+        {
+            "id": "{{ diagram_id }}",
+            "name": "Diagram",
+            "type": "classes",
+            "edges": [
+                {% for edge in edges %}
+                {
+                    "id": "{{ edge.id }}",
+                    "rel": {
+                        "type": "{{ edge.rel.type }}",
+                        "label": "{{ edge.rel.label }}",
+                        "multiplicity": {
+                            "source": "{{ edge.rel.multiplicity.source }}",
+                            "target": "{{ edge.rel.multiplicity.target }}"
+                        }
+                    },
+                    "data": {},
+                    "rel_ptr": "{{ edge.rel_ptr }}",
+                    "source_ptr": "{{ edge.source_ptr }}",
+                    "target_ptr": "{{ edge.target_ptr }}"
+                }
+                {% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            "nodes": [
+                {% for node in nodes %}
+                {
+                    "id": "{{ node.id }}",
+                    "cls": {
+                        "leaf": false,
+                        "name": "{{ node.cls.name }}",
+                        "type": "class",
+                        "methods": [
+                            {% for method in node.cls.methods %}
+                            {
+                                "body": "",
+                                "name": "{{ method.name }}",
+                                "type": "{{ method.type }}",
+                                "description": ""
+                            }
+                            {% if not loop.last %},{% endif %}
+                            {% endfor %}
+                        ],
+                        "abstract": false,
+                        "namespace": "",
+                        "attributes": [
+                            {% for attribute in node.cls.attributes %}
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "{{ attribute.name }}",
+                                "type": "{{ attribute.type }}",
+                                "derived": false,
+                                "description": null
+                            }
+                            {% if not loop.last %},{% endif %}
+                            {% endfor %}
+                        ]
+                    },
+                    "data": {
+                        "position": {
+                            "x": {{ node.data.position.x }},
+                            "y": {{ node.data.position.y }}
+                        }
+                    },
+                    "cls_ptr": "{{ node.cls_ptr }}"
+                }
+                {% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            "system": "{{ system_id }}",
+            "project": "{{ project_id }}",
+            "description": ""
+        }
+    ]
+}
+"""
+
+# Define the Django generated method set
+DJANGO_GENERATED_METHODS = set([
+    'check',
+    'clean',
+    'clean_fields',
+    'delete',
+    'full_clean',
+    'save',
+    'save_base',
+    'validate_unique'
+])
+
+
+# Get the custom methods of the model
+def get_custom_methods(model):
+    custom_methods = []
+    standard_methods = set(dir(models.Model))
+    for m in dir(model):
+        if m.startswith('_') or m in standard_methods:
+            continue
+        if m in DJANGO_GENERATED_METHODS:
+            continue
+        if is_method_without_args(getattr(model, m)):
+            custom_methods.append(m)
+    return custom_methods
+
+
+# Check if the method has no parameters
+def is_method_without_args(func):
+    """Check if func is a method callable with only one param (self)"""
+    if not inspect.isfunction(func) and not inspect.ismethod(func):
+        return False
+    sig = inspect.signature(func)
+    params = sig.parameters
+
+    # Check if there is exactly one parameter and that has the name 'self'
+    return len(params) == 1 and 'self' in params
+
+
+@api.post("/utils/extract-jinja", response=ExtractJinjaResponse, tags=["utils"])
+def extract_jinja(request, data: ExtractJinjaRequest):
+    try:
+        extract_path = data.extract_path
+        
+        # Add the project path to sys.path
+        sys.path.append(extract_path)
+        
+        # Find the settings.py file
+        settings_files = list(Path(extract_path).glob('**/settings.py'))
+        if not settings_files:
+            return {
+                "success": False, 
+                "message": "No Django settings.py file found in the extracted directory"
+            }
+        
+        # Get the project root directory
+        project_root = settings_files[0].parent
+        project_name = project_root.name
+        
+        # Set the Django environment
+        os.environ['DJANGO_SETTINGS_MODULE'] = f"{project_name}.settings"
+        
+        # Import and configure Django
+        import django
+        django.setup()
+        
+        # Generate the diagram JSON
+        diagram_json = generate_diagram_json()
+        
+        return {
+            "success": True,
+            "message": "Jinja template extracted successfully",
+            "diagram_json": diagram_json
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Error extracting Jinja template: {str(e)}"
+        }
+
+
+# Function to generate the diagram JSON
+def generate_diagram_json():
+    diagrams = []
+    edges = []
+    nodes = []
+
+    # Define the diagram ID, system ID, and project ID
+    diagram_id = str(uuid.uuid4())
+    system_id = "c79c758a-d2c5-4e2c-bf71-eadcaf769299"
+    project_id = "99fc3c09-07bc-43d2-bf59-429f99a35839"
+
+    # Iterate through all installed applications and process models
+    for app_config in apps.get_app_configs():
+        # Process all models of the application, not only shared_models
+        print(f"Extracting models from: {app_config.name}")
+
+        # Get all models in the application
+        models_list = app_config.get_models()
+
+        # Process each model
+        for model in models_list:
+            # Create a node for each model
+            model_node = {
+                "id": str(uuid.uuid4()),  # The unique ID of the node
+                "cls": {
+                    "leaf": False,
+                    "name": model.__name__,
+                    "type": "class",
+                    "methods": [],
+                    "abstract": False,
+                    "namespace": "",
+                    "attributes": []
+                },
+                "data": {
+                    "position": {"x": 0, "y": 0}  # The placeholder for the position
+                },
+                "cls_ptr": str(uuid.uuid4())  # The pointer ID of the class
+            }
+
+            # Extract methods
+            for name in get_custom_methods(model):
+                model_node["cls"]["methods"].append({
+                    "body": "",
+                    "name": name,
+                    "type": "function",
+                    "description": ""
+                })
+
+            # Extract attributes (fields)
+            for field in model._meta.get_fields():
+                model_node["cls"]["attributes"].append({
+                    "body": None,
+                    "enum": None,
+                    "name": field.name,
+                    "type": field.get_internal_type().lower(),
+                    "derived": False,
+                    "description": None
+                })
+
+            # Add the node to the diagram
+            nodes.append(model_node)
+
+            # Check relations (like foreign key, many-to-many)
+            for field in model._meta.get_fields():
+                if field.is_relation:
+                    # Process foreign key or one-to-many or many-to-many relations
+                    if field.many_to_one:
+                        edge = {
+                            "id": str(uuid.uuid4()),
+                            "rel": {
+                                "type": "association",
+                                "label": "in",
+                                "multiplicity": {
+                                    "source": "0..1",
+                                    "target": "1"
+                                }
+                            },
+                            "rel_ptr": str(uuid.uuid4()),
+                            "source_ptr": model_node["cls_ptr"],
+                            "target_ptr": str(uuid.uuid4())
+                        }
+                        edges.append(edge)
+
+                    if field.one_to_many:
+                        edge = {
+                            "id": str(uuid.uuid4()),
+                            "rel": {
+                                "type": "association",
+                                "label": "has",
+                                "multiplicity": {
+                                    "source": "1",
+                                    "target": "1"
+                                }
+                            },
+                            "rel_ptr": str(uuid.uuid4()),
+                            "source_ptr": model_node["cls_ptr"],
+                            "target_ptr": str(uuid.uuid4())
+                        }
+                        edges.append(edge)
+
+                    if field.many_to_many:
+                        edge = {
+                            "id": str(uuid.uuid4()),
+                            "rel": {
+                                "type": "association",
+                                "label": "has",
+                                "multiplicity": {
+                                    "source": "1",
+                                    "target": "0..n"
+                                }
+                            },
+                            "rel_ptr": str(uuid.uuid4()),
+                            "source_ptr": model_node["cls_ptr"],
+                            "target_ptr": str(uuid.uuid4())
+                        }
+                        edges.append(edge)
+
+    # Create the final JSON structure
+    template = Template(json_template)
+    rendered_json = template.render(
+        diagram_id=diagram_id,
+        edges=edges,
+        nodes=nodes,
+        system_id=system_id,
+        project_id=project_id
+    )
+
+    return rendered_json
