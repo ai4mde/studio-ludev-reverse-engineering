@@ -30,7 +30,7 @@ export const IndexPage: React.FC = () => {
                 console.error("Upload failed:", error);
                 setUploadResult({
                     success: false,
-                    message: "upload failed"
+                    message: "上传失败，请检查API连接"
                 });
                 setShowSnackbar(true);
             }
@@ -40,6 +40,7 @@ export const IndexPage: React.FC = () => {
     const handleCloseSnackbar = () => {
         setShowSnackbar(false);
     };
+
     return (
         <div className="grid grid-cols-12 p-3 gap-3 w-full">
             <div className="p-4 col-span-12 flex flex-col gap-4 rounded-lg bg-gray-100">
@@ -69,8 +70,48 @@ export const IndexPage: React.FC = () => {
                             Create a project & system by hand
                         </span>
                     </Button>
+                    <Button
+                        component="label"
+                        htmlFor="upload-zip"
+                    >
+                        <Upload size={20} />
+                        <span className="pl-2">Upload zip file</span>
+                        <input
+                            id="upload-zip"
+                            type="file"
+                            accept=".zip"
+                            onChange={handleZipUpload}
+                            style={{ display: "none" }}
+                        />
+                    </Button>
                 </div>
+
+                {uploadResult && uploadResult.success && (
+                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                        <h4 className="font-medium">File Upload Successful</h4>
+                        <p className="text-sm mt-1">Extraction Path: {uploadResult.extract_path}</p>
+                    </div>
+                )}
             </div>
+
+            <Snackbar
+                open={showSnackbar}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert
+                    variant="outlined"
+                    color={uploadResult?.success ? "success" : "danger"}
+                    endDecorator={
+                        <Button variant="plain" size="sm" onClick={handleCloseSnackbar}>
+                            Close
+                        </Button>
+                    }
+                >
+                    {uploadResult?.message}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };
