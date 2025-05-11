@@ -9,7 +9,6 @@ from django.db import models
 from django.db.models import ForeignKey, OneToOneField
 from scripts.src.diagram_template import diagram_template_obj
 
-
 # Django setup
 sys.path.append('../../test_prototype/generated_prototypes/eb846e17-a261-470a-abeb-09cd29980a46/shop')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
