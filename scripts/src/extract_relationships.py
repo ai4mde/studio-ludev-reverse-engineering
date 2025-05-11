@@ -192,18 +192,27 @@ def process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, sourc
 
     for field in model._meta.get_fields():
         if not hasattr(field, 'get_internal_type'):
-            continue
+            continue  # Skip this field if it doesn't have 'get_internal_type' attribute
 
         if field.name in inherited_fields:
-            continue
+            continue  # Skip this field if its name is in inherited_fields
 
         if field.is_relation and hasattr(field, 'related_model') and field.related_model:
             target_model = field.related_model
             target_ptr = model_ptr_map.get(target_model)
             if not target_ptr:
-                continue
+                continue  # Skip if no target_ptr exists
 
-            process_relationship_field(field, model, edges, source_ptr, target_ptr)
+            process = True
+            # Skip processing the edge if label starts with 'calls' and source/target match
+            for edge in edges:
+                if edge.get('rel', {}).get('label', '').startswith('calls'):
+                    if edge.get('source_ptr') == target_ptr or edge.get('source_ptr') == source_ptr:
+                        print(f"Skipping edge with label starting with 'calls' between {source_ptr} and {target_ptr}: {edge}")
+                        process = False
+                        continue
+            if process:
+                process_relationship_field(field, model, edges, source_ptr, target_ptr)
 
         elif is_enum_field(field):
             process_enum_field(field, enum_ptr_map, edges, source_ptr)
@@ -376,9 +385,6 @@ def process_model(model, data, app_config, is_show_method_dependency):
 
     # Only create a node if it hasn't been processed yet
     if not any(node['id'] == cls_ptr for node in data['nodes']):
-        if is_show_method_dependency:
-            extract_model_dependencies(model, app_config.get_models(), data)
-
         attributes = []
         for field in model._meta.get_fields():
             if not field.is_relation:
@@ -392,6 +398,9 @@ def process_model(model, data, app_config, is_show_method_dependency):
 
         node = create_model_node(model, cls_ptr, attributes)
         data['nodes'].append(node)
+
+    if is_show_method_dependency:
+        extract_model_dependencies(model, app_config.get_models(), data)
 
     process_model_relationships(model, data['model_ptr_map'], data['enum_ptr_map'], data['edges'])
 
