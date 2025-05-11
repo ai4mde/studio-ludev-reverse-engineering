@@ -26,6 +26,7 @@ DJANGO_GENERATED_METHODS = {
 
 django.setup()
 
+
 # Fix: Add 2 blank lines before top-level function
 def extract_model_dependencies(model, all_models, data):
     try:
