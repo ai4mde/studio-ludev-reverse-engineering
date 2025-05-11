@@ -1,5 +1,4 @@
 import os
-import ast
 import sys
 import uuid
 import django
@@ -65,7 +64,7 @@ def extract_model_dependencies(model, all_models, data):
                     print(f"Error processing dependency from '{model.__name__}' to '{other_model_name}': {inner_e}")
 
     except Exception as outer_e:
-        print(f"Unexpected error in extract_model_dependencies for model '{getattr(model, '__name__', str(model))}': {outer_e}")
+        print(f"Unexpected error '{getattr(model, '__name__', str(model))}': {outer_e}")
 
 def get_relationship_type(field, model):
     related_model = field.related_model
