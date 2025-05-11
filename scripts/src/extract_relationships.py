@@ -28,29 +28,44 @@ DJANGO_GENERATED_METHODS = {
 
 django.setup()
 
-# extracts method dependencies directly from the method code, if the name of the dependent class is in the code
 def extract_model_dependencies(model, all_models, data):
-    source_ptr = data['model_ptr_map'].get(model)
-    if not source_ptr:
-        return
+    try:
+        source_ptr = data['model_ptr_map'].get(model)
+        if not source_ptr:
+            return
 
-    methods = inspect.getmembers(model, predicate=inspect.isfunction)
-    method_names = [m[0] for m in methods]
-    source_code_map = {name: inspect.getsource(func) for name, func in methods}
+        try:
+            methods = inspect.getmembers(model, predicate=inspect.isfunction)
+            source_code_map = {name: inspect.getsource(func) for name, func in methods}
+        except Exception as e:
+            print(f"Error retrieving source for model '{model.__name__}': {e}")
+            return
 
-    model_names = {m.__name__: m for m in all_models}
-    for method_name, code in source_code_map.items():
-        for other_model_name, other_model in model_names.items():
-            if other_model_name in code and other_model != model:
-                target_ptr = data['model_ptr_map'].get(other_model)
-                if target_ptr:
-                    data['edges'].append(create_edge(
-                        "dependency",
-                        f"calls {method_name}",
-                        {"source": "1", "target": "1"},
-                        source_ptr,
-                        target_ptr
-                    ))
+        model_names = {m.__name__: m for m in all_models}
+        added_targets = set()
+
+        for method_name, code in source_code_map.items():
+            for other_model_name, other_model in model_names.items():
+                if other_model == model or other_model_name in added_targets:
+                    continue
+
+                try:
+                    if other_model_name in code:
+                        target_ptr = data['model_ptr_map'].get(other_model)
+                        if target_ptr:
+                            data['edges'].append(create_edge(
+                                "dependency",
+                                f"calls {method_name}",
+                                {"source": "1", "target": "1"},
+                                source_ptr,
+                                target_ptr
+                            ))
+                            added_targets.add(other_model_name)
+                except Exception as inner_e:
+                    print(f"Error processing dependency from '{model.__name__}' to '{other_model_name}': {inner_e}")
+
+    except Exception as outer_e:
+        print(f"Unexpected error in extract_model_dependencies for model '{getattr(model, '__name__', str(model))}': {outer_e}")
 
 def get_relationship_type(field, model):
     related_model = field.related_model
