@@ -443,5 +443,7 @@ def generate_diagram_json(show_method_dependency):
     return rendered
 
 if __name__ == "__main__":
+
     to_show_method_dependency = False
+
     generate_diagram_json(to_show_method_dependency)
