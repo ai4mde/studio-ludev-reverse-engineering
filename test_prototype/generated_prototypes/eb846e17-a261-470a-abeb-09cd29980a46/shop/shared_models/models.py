@@ -27,6 +27,8 @@ class Course(models.Model):
 
 class TeacherService(models.Model):
     title = models.CharField(max_length=100)
+    teacher = models.OneToOneField(Teacher, null=True, on_delete=models.CASCADE)
+    courses = models.ManyToManyField(Course, null=True)
 
     def get_experienced_teachers(self, min_years=5):
         experienced = []

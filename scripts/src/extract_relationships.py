@@ -371,15 +371,14 @@ def create_model_node(model, cls_ptr, attributes):
     }
 
 
-def process_model(model, data, app_config):
+def process_model(model, data, app_config, is_show_method_dependency):
     """Process a single model"""
     cls_ptr = data['model_ptr_map'][model]  # Use existing UUID
 
     # Only create a node if it hasn't been processed yet
     if not any(node['id'] == cls_ptr for node in data['nodes']):
-        print("model: ", model)
-        extract_model_dependencies(model, app_config.get_models(), data)
-        print("models: ", app_config.get_models())
+        if is_show_method_dependency:
+            extract_model_dependencies(model, app_config.get_models(), data)
 
         attributes = []
         for field in model._meta.get_fields():
@@ -388,7 +387,6 @@ def process_model(model, data, app_config):
                 if is_enum_field(field):
                     enum_node, enum_ref = process_enum_field_node(field, data['enum_ptr_map'])
                     if enum_node:
-                        print(enum_node)
                         data['nodes'].append(enum_node)
 
                 attributes.append(create_attribute(field, enum_ref))
@@ -406,7 +404,7 @@ def collect_all_models(app_config):
         models.add(model)
         # Add all parent classes
         for parent in model.__bases__:
-            if (hasattr(parent, '_meta') and not parent.__name__.startswith('django.') and parent.__name__ != 'Model'):
+            if hasattr(parent, '_meta') and not parent.__name__.startswith('django.') and parent.__name__ != 'Model':
                 models.add(parent)
     return models
 
@@ -416,7 +414,7 @@ def initialize_model_ptr_map(models):
     return {model: str(uuid.uuid4()) for model in models}
 
 
-def generate_diagram_json():
+def generate_diagram_json(show_method_dependency):
     """Main function to generate diagram JSON"""
     data = initialize_diagram_data()
 
@@ -432,7 +430,7 @@ def generate_diagram_json():
 
             # Process all models
             for model in app_config.get_models():
-                process_model(model, data, app_config)
+                process_model(model, data, app_config, show_method_dependency)
 
     rendered = diagram_template_obj.render(
         diagram_id=data['diagram_id'],
@@ -444,6 +442,6 @@ def generate_diagram_json():
 
     return rendered
 
-
 if __name__ == "__main__":
-    generate_diagram_json()
+    to_show_method_dependency = False
+    generate_diagram_json(to_show_method_dependency)
