@@ -1,4 +1,5 @@
 import os
+import ast
 import sys
 import uuid
 import django
@@ -25,38 +26,31 @@ DJANGO_GENERATED_METHODS = {
     'save_base', 'validate_unique'
 }
 
-
 django.setup()
 
+# extracts method dependencies directly from the method code, if the name of the dependent class is in the code
+def extract_model_dependencies(model, all_models, data):
+    source_ptr = data['model_ptr_map'].get(model)
+    if not source_ptr:
+        return
 
-# Constants
-def extract_model_dependencies(model, all_the_models):
-    dependencies = []
+    methods = inspect.getmembers(model, predicate=inspect.isfunction)
+    method_names = [m[0] for m in methods]
+    source_code_map = {name: inspect.getsource(func) for name, func in methods}
 
-    # Loop through each method in the model
-    for method_name, method in inspect.getmembers(model, predicate=inspect.isfunction):
-        # Get the source code of the method
-        try:
-            code = inspect.getsource(method)
-        except TypeError:  # This handles edge cases like non-methods
-            continue
-
-        print(f"Checking method: {method_name}")
-
-        for other_model in all_the_models:
-            # Ensure we are checking other models, not the current model
-            if other_model.__name__ != model.__name__:
-                # Check if the model's class name appears in the method code
-                if other_model.__name__ in code:
-                    # Additional logic to check if it's an actual dependency (not just name occurrence)
-                    dependencies.append({
-                        'model': model.__name__,
-                        'dependency': other_model.__name__,
-                        'method': method_name,
-                    })
-
-    return dependencies
-
+    model_names = {m.__name__: m for m in all_models}
+    for method_name, code in source_code_map.items():
+        for other_model_name, other_model in model_names.items():
+            if other_model_name in code and other_model != model:
+                target_ptr = data['model_ptr_map'].get(other_model)
+                if target_ptr:
+                    data['edges'].append(create_edge(
+                        "dependency",
+                        f"calls {method_name}",
+                        {"source": "1", "target": "1"},
+                        source_ptr,
+                        target_ptr
+                    ))
 
 def get_relationship_type(field, model):
     related_model = field.related_model
@@ -358,7 +352,7 @@ def process_model(model, data, app_config):
     # Only create a node if it hasn't been processed yet
     if not any(node['id'] == cls_ptr for node in data['nodes']):
         print("model: ", model)
-        print("dependencies", extract_model_dependencies(model, app_config.get_models()))
+        extract_model_dependencies(model, app_config.get_models(), data)
         print("models: ", app_config.get_models())
 
         attributes = []
