@@ -142,7 +142,7 @@ def process_model_relationships(model, model_ptr_map, enum_ptr_map, edges):
 
 def process_inheritance_relationships(model, model_ptr_map, edges, source_ptr):
     """Process model inheritance relationships."""
-    parent_classes = [base for base in model.__bases__ if hasattr(base, '__name__') and base != object]
+    parent_classes = [base for base in model.__bases__ if hasattr(base, '__name__') and base is not object]
 
     # Collect fields from parent classes (inherited fields)
     inherited_fields = set()

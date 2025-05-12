@@ -41,6 +41,6 @@ def delete_project(request, project_id):
     except Exception as e:
         raise Exception("Failed to delete project, error: " + e)
     return True
-    
+
 
 __all__ = ["projects"]

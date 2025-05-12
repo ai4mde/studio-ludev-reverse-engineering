@@ -56,7 +56,7 @@ def get_connected_enums(request: HttpRequest, node_id: str):
     node = Node.objects.get(pk=node_id)
     if not node:
         return 404, "Node not found"
-    
+
     edges_target = Edge.objects.filter(rel__source=node.cls)
     for edge in edges_target:
         if edge.rel.data['type'] != 'dependency':
@@ -110,14 +110,14 @@ def generate_attribute(request: HttpRequest, node_id: str, name: str, type: str,
     diagram = utils.get_diagram(request)
     if not diagram:
         return 404, "Diagram not found"
-    
+
     node = diagram.nodes.get(id=node_id)
     if not node:
         return 404, "Node not found"
-    
+
     if node.cls.data["type"] != "class":
         return 422, "Node is not a class"
-    
+
     diagrams = Diagram.objects.filter(system=diagram.system)
     diagram_data = [FullDiagram.from_orm(diagram) for diagram in diagrams]
     input_data = {
@@ -128,26 +128,26 @@ def generate_attribute(request: HttpRequest, node_id: str, name: str, type: str,
         "classifier_metadata": serializers.serialize('json', [node.cls]),
         "diagrams_metadata": diagram_data
     }
-    reply = llm_handler(prompt_name = "DIAGRAM_GENERATE_ATTRIBUTE", 
+    reply = llm_handler(prompt_name = "DIAGRAM_GENERATE_ATTRIBUTE",
                          model = model,
                          input_data = input_data)
 
     return remove_reply_markdown(reply)
-    
+
 
 @node.post("/{uuid:node_id}/generate_method/", response={200: str, 404: str, 422: str})
 def generate_method(request: HttpRequest, node_id: str, name: str, description: str, model: str = "mixtral-8x7b-32768"):
     diagram = utils.get_diagram(request)
     if not diagram:
         return 404, "Diagram not found"
-    
+
     node = diagram.nodes.get(id=node_id)
     if not node:
         return 404, "Node not found"
-    
+
     if node.cls.data["type"] != "class":
         return 422, "Node is not a class"
-    
+
     diagrams = Diagram.objects.filter(system=diagram.system)
     diagram_data = [FullDiagram.from_orm(diagram) for diagram in diagrams]
     input_data = {
@@ -158,10 +158,10 @@ def generate_method(request: HttpRequest, node_id: str, name: str, description: 
         "diagrams_metadata": diagram_data
     }
 
-    reply = llm_handler(prompt_name = "DIAGRAM_GENERATE_METHOD", 
+    reply = llm_handler(prompt_name = "DIAGRAM_GENERATE_METHOD",
                          model = model,
                          input_data = input_data)
 
     return remove_reply_markdown(reply)
-    
+
 __all__ = ["node"]

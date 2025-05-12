@@ -16,7 +16,7 @@ class Diagram(models.Model):
 
     def auto_layout(self):
         graph = nx.Graph()
-        
+
         for node in self.nodes.all():
             graph.add_node(node.id)
         for edge in self.edges.all():
@@ -66,7 +66,7 @@ class Edge(models.Model):
     @property
     def source(self):
         return self.diagram.nodes.filter(cls=self.rel.source).first()
-    
+
     @source.setter
     def source(self, value):
         self.rel.source = value
@@ -75,7 +75,7 @@ class Edge(models.Model):
     @property
     def target(self):
         return self.diagram.nodes.filter(cls=self.rel.target).first()
-    
+
     @target.setter
     def target(self, value):
         self.rel.target = value
