@@ -1,32 +1,104 @@
 import os
+from pathlib import Path
 import sys
 import uuid
 import django
 import inspect
+import argparse
 from django.conf import settings
 from django.apps import apps
 from django.db import models
 from django.db.models import ForeignKey, OneToOneField
-from diagram_template import diagram_template_obj
+from jinja2 import Template
 
-
-# Django setup
-sys.path.append('/home/maxkl/Documents/leidenuniv/softwareEngineering/2025-10-Reverse-Engineering/test_prototype/generated_prototypes/eb846e17-a261-470a-abeb-09cd29980a46/shop')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
-
-# Remove 'admin' app from INSTALLED_APPS before setup
-if 'admin' in settings.INSTALLED_APPS:
-    settings.INSTALLED_APPS = [app for app in settings.INSTALLED_APPS if app != 'admin']
-
+diagram_template = """
+{
+    "id": "{{ diagram_id }}",
+    "name": "Diagram",
+    "type": "classes",
+    "nodes": [
+        {% for node in nodes %}
+        {
+          "id": "{{ node.id }}",
+          "cls": {
+            {% if node.cls.type == 'enum' %}
+            "name": "{{ node.cls.name }}",
+            "type": "enum",
+            "literals": {{ node.cls.literals | tojson }},
+            "namespace": "{{ node.cls.namespace }}"
+            {% else %}
+            "leaf": {{ node.cls.leaf | lower }},
+            "name": "{{ node.cls.name }}",
+            "type": "class",
+            "methods": [
+              {% for method in node.cls.methods %}
+              {
+                "body": "{{ method.body }}",
+                "name": "{{ method.name }}",
+                "type": "{{ method.type }}",
+                "description": "{{ method.description }}"
+              }
+              {% if not loop.last %},{% endif %}
+              {% endfor %}
+            ],
+            "abstract": {{ node.cls.abstract | lower}},
+            "namespace": "{{ node.cls.namespace }}",
+            "attributes": [
+              {% for attribute in node.cls.attributes %}
+              {
+                "body": "{{ attribute.body }}",
+                "enum": "{{ attribute.enum }}",
+                "name": "{{ attribute.name }}",
+                "type": "{{ attribute.type }}",
+                "derived": "{{ attribute.derived | lower }}",
+                "description": "{{ attribute.description }}"
+              }
+              {% if not loop.last %},{% endif %}
+              {% endfor %}
+            ]
+            {% endif %}
+          },
+          "data": {
+            "position": {
+              "x": {{ node.data.position.x }},
+              "y": {{ node.data.position.y }}
+            }
+          },
+          "cls_ptr": "{{ node.cls_ptr }}"
+        }
+        {% if not loop.last %},{% endif %}
+        {% endfor %}
+    ],
+    "edges": [
+        {% for edge in edges %}
+        {
+            "id": "{{ edge.id }}",
+            "rel": {
+                "type": "{{ edge.rel.type }}",
+                "label": "{{ edge.rel.label }}",
+                "multiplicity": {
+                    "source": "{{ edge.rel.multiplicity.source }}",
+                    "target": "{{ edge.rel.multiplicity.target }}"
+                }
+            },
+            "data": {},
+            "rel_ptr": "{{ edge.rel_ptr }}",
+            "source_ptr": "{{ edge.source_ptr }}",
+            "target_ptr": "{{ edge.target_ptr }}"
+        }
+        {% if not loop.last %},{% endif %}
+        {% endfor %}
+    ],
+    "system": "{{ system_id }}",
+    "project": "{{ project_id }}",
+    "description": ""
+}
+"""
 
 DJANGO_GENERATED_METHODS = {
     'check', 'clean', 'clean_fields', 'delete', 'full_clean', 'save',
     'save_base', 'validate_unique'
 }
-
-
-django.setup()
-
 
 # Constants
 def extract_model_dependencies(model, all_the_models):
@@ -274,7 +346,7 @@ def initialize_diagram_data():
     """Initialize the basic data needed for the diagram"""
     return {
         'diagram_id': str(uuid.uuid4()),
-        'system_id': "195bab0b-b949-433b-aba1-160f18a84ecd",
+        'system_id': "28e89254-6b6f-4f83-91ff-8b3611f47d48",
         'project_id': "0ae9498f-3535-40d1-bf9f-33e250c21519",
         'nodes': [],
         'edges': [],
@@ -395,13 +467,38 @@ def initialize_model_ptr_map(models):
     return {model: str(uuid.uuid4()) for model in models}
 
 
-def generate_diagram_json():
+def generate_diagram_json(extract_path):
+    # Find the settings.py file
+    settings_files = list(Path(extract_path).glob('**/settings.py'))
+    if not settings_files:
+        return {
+            "success": False,
+            "message": "No Django settings.py file found in the extracted directory"
+        }
+
+
+    # Get the project root directory
+    project_root = settings_files[0].parent
+
+    project_name = project_root.name
+
+    # Add the project path to sys.path
+    sys.path.append(project_root.parent.as_posix())
+    # Set the Django environment
+    os.environ['DJANGO_SETTINGS_MODULE'] = f"{project_name}.settings"
+
+    # Remove duplicate 'admin' from INSTALLED_APPS dynamically
+    if settings.INSTALLED_APPS and 'admin' in settings.INSTALLED_APPS:
+        settings.INSTALLED_APPS = [app for app in settings.INSTALLED_APPS if app != 'admin']
+
+    django.setup()
+
     """Main function to generate diagram JSON"""
     data = initialize_diagram_data()
 
     for app_config in apps.get_app_configs():
-        #if app_config.name == 'shared_models':
-            print(f"Extracting models from: {app_config.verbose_name}")
+        if app_config.name == 'shared_models':  # Only process 'Shared_Models'
+            # print(f"Extracting models from: {app_config.path}")
 
             # First, collect all models (including parent classes)
             all_models = collect_all_models(app_config)
@@ -413,6 +510,8 @@ def generate_diagram_json():
             for model in app_config.get_models():
                 process_model(model, data, app_config)
 
+    # create the template object
+    diagram_template_obj = Template(diagram_template)
     rendered = diagram_template_obj.render(
         diagram_id=data['diagram_id'],
         project_id=data['project_id'],
@@ -423,6 +522,14 @@ def generate_diagram_json():
 
     return rendered
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-path", "-p", default=".", help="starting path")
+    args = parser.parse_args()
+
+    diagram = generate_diagram_json(args.path)
+
+    print(diagram)
 
 if __name__ == "__main__":
-    generate_diagram_json()
+    main()
