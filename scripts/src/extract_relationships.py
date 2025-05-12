@@ -207,7 +207,7 @@ def process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, sourc
             # Skip processing the edge if label starts with 'calls' and source/target match
             for edge in edges:
                 if edge.get('rel', {}).get('label', '').startswith('calls'):
-                    if edge.get('source_ptr') == target_ptr or edge.get('source_ptr') == source_ptr:
+                    if edge.get('source_ptr') == source_ptr and edge.get('target_ptr') == target_ptr:
                         print(f"Skipping edge with label starting with 'calls' between {source_ptr} and {target_ptr}: {edge}")
                         process = False
                         continue
