@@ -351,6 +351,7 @@ def create_attribute(field, enum_ref):
         "description": None
     }
 
+
 def create_model_node(model, cls_ptr, attributes):
     """Create model node"""
     return {
