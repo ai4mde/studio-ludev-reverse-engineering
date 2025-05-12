@@ -28,24 +28,24 @@ django.setup()
 
 
 # Fix: Add 2 blank lines before top-level function
-def extract_model_dependencies(model, all_models, data):
+def extract_method_dependencies(model, all_models, data):
     try:
         source_ptr = data['model_ptr_map'].get(model)
         if not source_ptr:
             return
 
-        methods = _get_model_methods(model)
+        methods = get_model_all_methods(model)
         if methods is None:
             return
 
         model_names = {m.__name__: m for m in all_models}
-        _add_dependency_edges(model, methods, model_names, data, source_ptr)
+        add_method_dependency_edges(model, methods, model_names, data, source_ptr)
 
     except Exception as outer_e:
         print(f"Unexpected error '{getattr(model, '__name__', str(model))}': {outer_e}")
 
 
-def _get_model_methods(model):
+def get_model_all_methods(model):
     try:
         return {
             name: inspect.getsource(func)
@@ -56,7 +56,7 @@ def _get_model_methods(model):
         return None
 
 
-def _add_dependency_edges(model, source_code_map, model_names, data, source_ptr):
+def add_method_dependency_edges(model, source_code_map, model_names, data, source_ptr):
     added_targets = set()
     for method_name, code in source_code_map.items():
         for other_model_name, other_model in model_names.items():
@@ -401,7 +401,7 @@ def process_model(model, data, app_config, is_show_method_dependency):
         data['nodes'].append(node)
 
     if is_show_method_dependency:
-        extract_model_dependencies(model, app_config.get_models(), data)
+        extract_method_dependencies(model, app_config.get_models(), data)
 
     process_model_relationships(model, data['model_ptr_map'], data['enum_ptr_map'], data['edges'])
 
