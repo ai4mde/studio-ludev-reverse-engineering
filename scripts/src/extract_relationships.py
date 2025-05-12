@@ -249,7 +249,11 @@ def process_one_to_one_field(field, model, edges, source_ptr, target_ptr):
 
     rel_type = get_relationship_type(field, model)
     if rel_type in ["composition", "association"]:
-        edges.append(create_edge(rel_type, "connects", multiplicity, target_ptr, source_ptr))
+        if rel_type == "composition":
+            edges.append(create_edge(rel_type, "compose", multiplicity, target_ptr, source_ptr))
+        else:
+            edges.append(create_edge(rel_type, "connect", multiplicity, source_ptr, target_ptr))
+
 
 
 def process_foreign_key_field(field, model, edges, source_ptr, target_ptr):
@@ -259,19 +263,15 @@ def process_foreign_key_field(field, model, edges, source_ptr, target_ptr):
 
     rel_type = get_relationship_type(field, model)
 
-    if rel_type in ["composition", "association"]:
-        if rel_type == "composition":
-            multiplicity = {
-                "target": "1..*" if not field.null else "*",
-                "source": "1"
-            }
-            edges.append(create_edge(rel_type, "connects", multiplicity, target_ptr, source_ptr))
-        else:
-            multiplicity = {
+    multiplicity = {
                 "source": "1..*" if not field.null else "*",
                 "target": "1"
             }
-            edges.append(create_edge(rel_type, "connects", multiplicity, source_ptr, target_ptr))
+    if rel_type in ["composition", "association"]:
+        if rel_type == "composition":
+            edges.append(create_edge(rel_type, "compose", multiplicity, target_ptr, source_ptr))
+        else:
+            edges.append(create_edge(rel_type, "connect", multiplicity, source_ptr, target_ptr))
 
 
 def process_enum_field(field, enum_ptr_map, edges, source_ptr):
