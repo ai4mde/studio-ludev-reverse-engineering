@@ -234,7 +234,7 @@ def process_many_to_many_field(field, edges, source_ptr, target_ptr):
         "source": "*",
         "target": "1..*" if not field.null else "*"
     }
-    edges.append(create_edge("association", "connects", multiplicity, source_ptr, target_ptr))
+    edges.append(create_edge("association", "connect", multiplicity, source_ptr, target_ptr))
 
 
 def process_one_to_one_field(field, model, edges, source_ptr, target_ptr):
@@ -278,7 +278,7 @@ def process_enum_field(field, enum_ptr_map, edges, source_ptr):
     """Process enum fields."""
     enum_ptr = enum_ptr_map.get(field.name)
     if enum_ptr:
-        edges.append(create_edge("dependency", "depends",
+        edges.append(create_edge("dependency", "depend",
                                  {"source": "1", "target": "1"}, source_ptr, enum_ptr))
 
 
