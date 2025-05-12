@@ -68,7 +68,7 @@ def add_method_dependency_edges(model, source_code_map, model_names, data, sourc
                     if target_ptr:
                         data['edges'].append(create_edge(
                             "dependency",
-                            f"calls {method_name}",
+                            f"calls",
                             {"source": "1", "target": "1"},
                             source_ptr,
                             target_ptr
