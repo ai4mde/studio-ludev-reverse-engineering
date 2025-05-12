@@ -342,6 +342,7 @@ def create_attribute(field, enum_ref):
         "description": None
     }
 
+
 def create_model_node(model, cls_ptr, attributes):
     """Create model node"""
     return {
@@ -440,6 +441,7 @@ def generate_diagram_json(show_method_dependency):
     )
 
     return rendered
+
 
 if __name__ == "__main__":
     to_show_method_dependency = False
