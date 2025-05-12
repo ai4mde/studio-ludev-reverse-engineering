@@ -27,11 +27,10 @@ class Course(models.Model):
 
 class TeacherService(models.Model):
     title = models.CharField(max_length=100)
-    teacher = models.OneToOneField(Teacher, null=True, on_delete=models.CASCADE)
-    courses = models.ManyToManyField(Course, null=True)
 
-    def get_experienced_teachers(self, min_years=5):
+    def get_experienced_teachers(self):
         experienced = []
+        min_years = 1
         for teacher in Teacher.objects.all():
             if teacher.years_of_experience() >= min_years:
                 experienced.append(teacher)
@@ -41,4 +40,3 @@ class TeacherService(models.Model):
         course.teacher = teacher
         course.save()
         return course
-

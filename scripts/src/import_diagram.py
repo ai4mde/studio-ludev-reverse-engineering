@@ -32,7 +32,8 @@ def call_endpoints_to_import_diagram():  # noqa: C901
 
     # Step 2: Generate and import the diagram
     try:
-        json_payload = generate_diagram_json()
+        to_show_method_dependency = False
+        json_payload = generate_diagram_json(to_show_method_dependency)
         payload = json.loads(json_payload)
 
         # Debug information

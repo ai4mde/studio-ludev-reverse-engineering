@@ -24,37 +24,58 @@ DJANGO_GENERATED_METHODS = {
     'save_base', 'validate_unique'
 }
 
-
 django.setup()
 
 
-# Constants
-def extract_model_dependencies(model, all_the_models):
-    dependencies = []
+# Fix: Add 2 blank lines before top-level function
+def extract_model_dependencies(model, all_models, data):
+    try:
+        source_ptr = data['model_ptr_map'].get(model)
+        if not source_ptr:
+            return
 
-    # Loop through each method in the model
-    for method_name, method in inspect.getmembers(model, predicate=inspect.isfunction):
-        # Get the source code of the method
-        try:
-            code = inspect.getsource(method)
-        except TypeError:  # This handles edge cases like non-methods
-            continue
+        methods = _get_model_methods(model)
+        if methods is None:
+            return
 
-        # print(f"Checking method: {method_name}")
+        model_names = {m.__name__: m for m in all_models}
+        _add_dependency_edges(model, methods, model_names, data, source_ptr)
 
-        for other_model in all_the_models:
-            # Ensure we are checking other models, not the current model
-            if other_model.__name__ != model.__name__:
-                # Check if the model's class name appears in the method code
-                if other_model.__name__ in code:
-                    # Additional logic to check if it's an actual dependency (not just name occurrence)
-                    dependencies.append({
-                        'model': model.__name__,
-                        'dependency': other_model.__name__,
-                        'method': method_name,
-                    })
+    except Exception as outer_e:
+        print(f"Unexpected error '{getattr(model, '__name__', str(model))}': {outer_e}")
 
-    return dependencies
+
+def _get_model_methods(model):
+    try:
+        return {
+            name: inspect.getsource(func)
+            for name, func in inspect.getmembers(model, predicate=inspect.isfunction)
+        }
+    except Exception as e:
+        print(f"Error retrieving source for model '{model.__name__}': {e}")
+        return None
+
+
+def _add_dependency_edges(model, source_code_map, model_names, data, source_ptr):
+    added_targets = set()
+    for method_name, code in source_code_map.items():
+        for other_model_name, other_model in model_names.items():
+            if other_model == model or other_model_name in added_targets:
+                continue
+            try:
+                if other_model_name in code:
+                    target_ptr = data['model_ptr_map'].get(other_model)
+                    if target_ptr:
+                        data['edges'].append(create_edge(
+                            "dependency",
+                            f"calls {method_name}",
+                            {"source": "1", "target": "1"},
+                            source_ptr,
+                            target_ptr
+                        ))
+                        added_targets.add(other_model_name)
+            except Exception as inner_e:
+                print(f"Error processing dependency from '{model.__name__}' to '{other_model_name}': {inner_e}")
 
 
 def get_relationship_type(field, model):
@@ -321,7 +342,6 @@ def create_attribute(field, enum_ref):
         "description": None
     }
 
-
 def create_model_node(model, cls_ptr, attributes):
     """Create model node"""
     return {
@@ -350,15 +370,14 @@ def create_model_node(model, cls_ptr, attributes):
     }
 
 
-def process_model(model, data, app_config):
+def process_model(model, data, app_config, is_show_method_dependency):
     """Process a single model"""
     cls_ptr = data['model_ptr_map'][model]  # Use existing UUID
 
     # Only create a node if it hasn't been processed yet
     if not any(node['id'] == cls_ptr for node in data['nodes']):
-        # print("model: ", model)
-        # print("dependencies", extract_model_dependencies(model, app_config.get_models()))
-        # print("models: ", app_config.get_models())
+        if is_show_method_dependency:
+            extract_model_dependencies(model, app_config.get_models(), data)
 
         attributes = []
         for field in model._meta.get_fields():
@@ -385,7 +404,7 @@ def collect_all_models(app_config):
         models.add(model)
         # Add all parent classes
         for parent in model.__bases__:
-            if (hasattr(parent, '_meta') and not parent.__name__.startswith('django.') and parent.__name__ != 'Model'):
+            if hasattr(parent, '_meta') and not parent.__name__.startswith('django.') and parent.__name__ != 'Model':
                 models.add(parent)
     return models
 
@@ -395,7 +414,7 @@ def initialize_model_ptr_map(models):
     return {model: str(uuid.uuid4()) for model in models}
 
 
-def generate_diagram_json():
+def generate_diagram_json(show_method_dependency):
     """Main function to generate diagram JSON"""
     data = initialize_diagram_data()
 
@@ -411,7 +430,7 @@ def generate_diagram_json():
 
             # Process all models
             for model in app_config.get_models():
-                process_model(model, data, app_config)
+                process_model(model, data, app_config, show_method_dependency)
 
     rendered = diagram_template_obj.render(
         diagram_id=data['diagram_id'],
@@ -423,6 +442,6 @@ def generate_diagram_json():
 
     return rendered
 
-
 if __name__ == "__main__":
-    generate_diagram_json()
+    to_show_method_dependency = False
+    generate_diagram_json(to_show_method_dependency)

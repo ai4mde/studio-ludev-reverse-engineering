@@ -1,5 +1,6 @@
-projects/
+frontend/src/venv/
 __pycache__
+projects/
 .vscode/
 .idea
 api/uploads/
