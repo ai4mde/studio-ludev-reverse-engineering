@@ -26,8 +26,8 @@ export const IndexPage: React.FC = () => {
         setIsUploading(true);
         setUploadProgress(0);
 
-        try {
-            const formData = new FormData();
+            try {
+                const formData = new FormData();
 
             // 确定上传类型：ZIP文件还是文件夹
             const isZipUpload = files[0].type === "application/zip";
@@ -57,10 +57,10 @@ export const IndexPage: React.FC = () => {
             }
 
             console.log("Starting upload...");
-            const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
                         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -71,10 +71,11 @@ export const IndexPage: React.FC = () => {
             });
 
             console.log("Upload response:", response.data);
-            setUploadResult(response.data);
-            setShowSnackbar(true);
-        } catch (error) {
-            console.error("Upload failed:", error);
+                setUploadResult(response.data);
+                setShowSnackbar(true);
+                console.log("Zip file uploaded:", response.data);
+            } catch (error) {
+                console.error("Upload failed:", error);
             // 显示更详细的错误信息
             const errorMessage = error.response
                 ? `Error: ${error.response.status} - ${error.response.data?.message || JSON.stringify(error.response.data)}`
@@ -82,11 +83,11 @@ export const IndexPage: React.FC = () => {
 
             console.error("Detailed error:", errorMessage);
 
-            setUploadResult({
-                success: false,
+                setUploadResult({
+                    success: false,
                 message: `Upload failed: ${errorMessage}`
-            });
-            setShowSnackbar(true);
+                });
+                setShowSnackbar(true);
         } finally {
             setIsUploading(false);
             // Reset file inputs
@@ -117,7 +118,7 @@ export const IndexPage: React.FC = () => {
         if (!uploadResult?.extract_path) {
             setJinjaResult({
                 success: false,
-                message: "No extraction path available. Please upload a project first."
+                message: "No extraction path available. Please upload a ZIP file first."
             });
             setShowSnackbar(true);
             return;
@@ -227,14 +228,14 @@ export const IndexPage: React.FC = () => {
                         <MenuItem onClick={handleZipUpload}>Upload ZIP File</MenuItem>
                         <MenuItem onClick={handleFolderUpload}>Upload Folder</MenuItem>
                     </Menu>
-                    <input
+                        <input
                         ref={fileInputRef}
-                        type="file"
-                        accept=".zip"
-                        onChange={handleFileUpload}
-                        style={{ display: "none" }}
-                    />
-                    {/* <input
+                            type="file"
+                            accept=".zip"
+                            onChange={handleFileUpload}
+                            style={{ display: "none" }}
+                        />
+                    <input
                         ref={folderInputRef}
                         type="file"
                         webkitdirectory="true"

@@ -28,24 +28,24 @@ django.setup()
 
 
 # Fix: Add 2 blank lines before top-level function
-def extract_model_dependencies(model, all_models, data):
+def extract_method_dependencies(model, all_models, data):
     try:
         source_ptr = data['model_ptr_map'].get(model)
         if not source_ptr:
             return
 
-        methods = _get_model_methods(model)
+        methods = get_model_all_methods(model)
         if methods is None:
             return
 
         model_names = {m.__name__: m for m in all_models}
-        _add_dependency_edges(model, methods, model_names, data, source_ptr)
+        add_method_dependency_edges(model, methods, model_names, data, source_ptr)
 
     except Exception as outer_e:
         print(f"Unexpected error '{getattr(model, '__name__', str(model))}': {outer_e}")
 
 
-def _get_model_methods(model):
+def get_model_all_methods(model):
     try:
         return {
             name: inspect.getsource(func)
@@ -56,7 +56,7 @@ def _get_model_methods(model):
         return None
 
 
-def _add_dependency_edges(model, source_code_map, model_names, data, source_ptr):
+def add_method_dependency_edges(model, source_code_map, model_names, data, source_ptr):
     added_targets = set()
     for method_name, code in source_code_map.items():
         for other_model_name, other_model in model_names.items():
@@ -68,7 +68,7 @@ def _add_dependency_edges(model, source_code_map, model_names, data, source_ptr)
                     if target_ptr:
                         data['edges'].append(create_edge(
                             "dependency",
-                            f"calls {method_name}",
+                            f"calls",
                             {"source": "1", "target": "1"},
                             source_ptr,
                             target_ptr
@@ -192,18 +192,27 @@ def process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, sourc
 
     for field in model._meta.get_fields():
         if not hasattr(field, 'get_internal_type'):
-            continue
+            continue  # Skip this field if it doesn't have 'get_internal_type' attribute
 
         if field.name in inherited_fields:
-            continue
+            continue  # Skip this field if its name is in inherited_fields
 
         if field.is_relation and hasattr(field, 'related_model') and field.related_model:
             target_model = field.related_model
             target_ptr = model_ptr_map.get(target_model)
             if not target_ptr:
-                continue
+                continue  # Skip if no target_ptr exists
 
-            process_relationship_field(field, model, edges, source_ptr, target_ptr)
+            process = True
+            # Skip processing the edge if label starts with 'calls' and source/target match
+            for edge in edges:
+                if edge.get('rel', {}).get('label', '').startswith('calls'):
+                    if edge.get('source_ptr') == source_ptr and edge.get('target_ptr') == target_ptr:
+                        print(f"Skipping edge with label starting with 'calls' between {source_ptr} and {target_ptr}: {edge}")
+                        process = False
+                        continue
+            if process:
+                process_relationship_field(field, model, edges, source_ptr, target_ptr)
 
         elif is_enum_field(field):
             process_enum_field(field, enum_ptr_map, edges, source_ptr)
@@ -225,7 +234,7 @@ def process_many_to_many_field(field, edges, source_ptr, target_ptr):
         "source": "*",
         "target": "1..*" if not field.null else "*"
     }
-    edges.append(create_edge("association", "connects", multiplicity, source_ptr, target_ptr))
+    edges.append(create_edge("association", "connect", multiplicity, source_ptr, target_ptr))
 
 
 def process_one_to_one_field(field, model, edges, source_ptr, target_ptr):
@@ -240,7 +249,11 @@ def process_one_to_one_field(field, model, edges, source_ptr, target_ptr):
 
     rel_type = get_relationship_type(field, model)
     if rel_type in ["composition", "association"]:
-        edges.append(create_edge(rel_type, "connects", multiplicity, target_ptr, source_ptr))
+        if rel_type == "composition":
+            edges.append(create_edge(rel_type, "compose", multiplicity, target_ptr, source_ptr))
+        else:
+            edges.append(create_edge(rel_type, "connect", multiplicity, source_ptr, target_ptr))
+
 
 
 def process_foreign_key_field(field, model, edges, source_ptr, target_ptr):
@@ -250,26 +263,22 @@ def process_foreign_key_field(field, model, edges, source_ptr, target_ptr):
 
     rel_type = get_relationship_type(field, model)
 
-    if rel_type in ["composition", "association"]:
-        if rel_type == "composition":
-            multiplicity = {
-                "target": "1..*" if not field.null else "*",
-                "source": "1"
-            }
-            edges.append(create_edge(rel_type, "connects", multiplicity, target_ptr, source_ptr))
-        else:
-            multiplicity = {
+    multiplicity = {
                 "source": "1..*" if not field.null else "*",
                 "target": "1"
             }
-            edges.append(create_edge(rel_type, "connects", multiplicity, source_ptr, target_ptr))
+    if rel_type in ["composition", "association"]:
+        if rel_type == "composition":
+            edges.append(create_edge(rel_type, "compose", multiplicity, target_ptr, source_ptr))
+        else:
+            edges.append(create_edge(rel_type, "connect", multiplicity, source_ptr, target_ptr))
 
 
 def process_enum_field(field, enum_ptr_map, edges, source_ptr):
     """Process enum fields."""
     enum_ptr = enum_ptr_map.get(field.name)
     if enum_ptr:
-        edges.append(create_edge("dependency", "depends",
+        edges.append(create_edge("dependency", "depend",
                                  {"source": "1", "target": "1"}, source_ptr, enum_ptr))
 
 
@@ -342,6 +351,7 @@ def create_attribute(field, enum_ref):
         "description": None
     }
 
+
 def create_model_node(model, cls_ptr, attributes):
     """Create model node"""
     return {
@@ -376,9 +386,6 @@ def process_model(model, data, app_config, is_show_method_dependency):
 
     # Only create a node if it hasn't been processed yet
     if not any(node['id'] == cls_ptr for node in data['nodes']):
-        if is_show_method_dependency:
-            extract_model_dependencies(model, app_config.get_models(), data)
-
         attributes = []
         for field in model._meta.get_fields():
             if not field.is_relation:
@@ -393,6 +400,9 @@ def process_model(model, data, app_config, is_show_method_dependency):
 
         node = create_model_node(model, cls_ptr, attributes)
         data['nodes'].append(node)
+
+    if is_show_method_dependency:
+        extract_method_dependencies(model, app_config.get_models(), data)
 
     process_model_relationships(model, data['model_ptr_map'], data['enum_ptr_map'], data['edges'])
 
@@ -441,6 +451,7 @@ def generate_diagram_json(show_method_dependency):
     )
 
     return rendered
+
 
 if __name__ == "__main__":
     to_show_method_dependency = False
