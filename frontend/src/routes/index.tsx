@@ -1,9 +1,9 @@
 import { chatbotOpenAtom } from "$lib/features/chatbot/atoms";
-import { Alert, Button, CircularProgress, Divider, Modal, ModalClose, ModalDialog, Snackbar, Typography } from "@mui/joy";
+import { Alert, Button, CircularProgress, Divider, LinearProgress, Menu, MenuItem, Modal, ModalClose, ModalDialog, Snackbar, Typography } from "@mui/joy";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { Bot, Box, Code, MessageSquare, Upload } from "lucide-react";
-import React, { useState } from "react";
+import { Bot, Box, ChevronDown, Code, MessageSquare, Upload } from "lucide-react";
+import React, { useRef, useState } from "react";
 
 export const IndexPage: React.FC = () => {
     const [, setChatbot] = useAtom(chatbotOpenAtom);
@@ -12,32 +12,105 @@ export const IndexPage: React.FC = () => {
     const [jinjaResult, setJinjaResult] = useState<{ success: boolean; message: string; diagram_json?: string } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [openModal, setOpenModal] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const folderInputRef = useRef<HTMLInputElement>(null);
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
-    const handleZipUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file && file.type === "application/zip") {
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        setIsUploading(true);
+        setUploadProgress(0);
+
             try {
                 const formData = new FormData();
-                formData.append('file', file);
+            
+            // 确定上传类型：ZIP文件还是文件夹
+            const isZipUpload = files[0].type === "application/zip";
+            console.log("Upload type:", isZipUpload ? "ZIP" : "Folder");
+            console.log("Number of files:", files.length);
+            
+            if (isZipUpload) {
+                // Zip file upload
+                formData.append('file', files[0]);
+                console.log("ZIP upload - file added to form:", files[0].name);
+            } else {
+                // Folder upload (multiple files)
+                console.log("Folder upload - files to process:", files.length);
+                
+                // 明确设置为文件夹上传
+                formData.append('is_zip', 'false');
+                
+                // 添加每个文件到formData，保留相对路径
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const path = file.webkitRelativePath || file.name;
+                    console.log(`Adding file ${i+1}/${files.length}:`, path);
+                    
+                    // 使用相对路径作为文件名
+                    formData.append(`files[${i}]`, file, path);
+                }
+            }
 
+            console.log("Starting upload...");
                 const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
-                });
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percentCompleted);
+                        console.log(`Upload progress: ${percentCompleted}%`);
+                    }
+                }
+            });
 
+            console.log("Upload response:", response.data);
                 setUploadResult(response.data);
                 setShowSnackbar(true);
                 console.log("Zip file uploaded:", response.data);
             } catch (error) {
                 console.error("Upload failed:", error);
+            // 显示更详细的错误信息
+            const errorMessage = error.response 
+                ? `Error: ${error.response.status} - ${error.response.data?.message || JSON.stringify(error.response.data)}`
+                : `Error: ${error.message || 'Unknown error'}`;
+            
+            console.error("Detailed error:", errorMessage);
+            
                 setUploadResult({
                     success: false,
-                    message: "Upload failed, please check API connection"
+                message: `Upload failed: ${errorMessage}`
                 });
                 setShowSnackbar(true);
-            }
+        } finally {
+            setIsUploading(false);
+            // Reset file inputs
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (folderInputRef.current) folderInputRef.current.value = '';
         }
+    };
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setMenuAnchor(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setMenuAnchor(null);
+    };
+
+    const handleZipUpload = () => {
+        handleMenuClose();
+        fileInputRef.current?.click();
+    };
+
+    const handleFolderUpload = () => {
+        handleMenuClose();
+        folderInputRef.current?.click();
     };
 
     const handleExtractJinja = async () => {
@@ -111,20 +184,51 @@ export const IndexPage: React.FC = () => {
                         </span>
                     </Button>
                     <Button
-                        component="label"
-                        htmlFor="upload-zip"
+                        onClick={handleMenuOpen}
+                        endDecorator={<ChevronDown size={16} />}
                     >
                         <Upload size={20} />
-                        <span className="pl-2">Upload zip file</span>
+                        <span className="pl-2">Upload Django Project</span>
+                    </Button>
+                    <Menu
+                        anchorEl={menuAnchor}
+                        open={Boolean(menuAnchor)}
+                        onClose={handleMenuClose}
+                        placement="bottom-start"
+                    >
+                        <MenuItem onClick={handleZipUpload}>Upload ZIP File</MenuItem>
+                        <MenuItem onClick={handleFolderUpload}>Upload Folder</MenuItem>
+                    </Menu>
                         <input
-                            id="upload-zip"
+                        ref={fileInputRef}
                             type="file"
                             accept=".zip"
-                            onChange={handleZipUpload}
+                            onChange={handleFileUpload}
                             style={{ display: "none" }}
                         />
-                    </Button>
+                    <input
+                        ref={folderInputRef}
+                        type="file"
+                        webkitdirectory="true"
+                        directory="true"
+                        multiple
+                        onChange={handleFileUpload}
+                        style={{ display: "none" }}
+                    />
                 </div>
+
+                {isUploading && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <Typography level="body-sm" className="mb-2">
+                            Uploading Project: {uploadProgress}%
+                        </Typography>
+                        <LinearProgress 
+                            determinate 
+                            value={uploadProgress} 
+                            sx={{ height: 10, borderRadius: 5 }}
+                        />
+                    </div>
+                )}
 
                 {uploadResult && uploadResult.success && (
                     <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
