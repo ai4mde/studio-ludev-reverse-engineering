@@ -1,10 +1,9 @@
 from pydantic import BaseModel, field_validator
 from typing import Union, Literal
-from metadata.specification.kernel import NamedElement, NamespacedElement
+from metadata.specification.kernel import NamedElement
 from ..usecase.classifiers import Actor
 from ..classes.classifiers import Class
 from ..kernel import Attribute
-import re
 
 
 class Category(NamedElement, BaseModel):
@@ -69,7 +68,7 @@ class Styling(BaseModel):
         if v < 0:
             raise ValueError('Invalid radius')
         return v
-    
+
 
 # TODO: fragments definition
 class Fragment(BaseModel):

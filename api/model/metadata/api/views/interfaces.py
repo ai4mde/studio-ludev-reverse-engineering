@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from metadata.api.schemas import CreateInterface, ReadInterface, UpdateInterface
 from metadata.models import System, Interface, Classifier
-from django.http import HttpRequest
 from metadata.api.views.defaulting import create_default_interface
 
 from ninja import Router
@@ -41,23 +40,23 @@ def create_default_interfaces(request, system_id: str):
     system = System.objects.get(pk=system_id)
     if not system:
         return []
-    
+
     actors = system.classifiers.filter(data__type='actor')
 
     out = []
     for actor in actors:
         interface = create_default_interface(system, actor)
         out.append(interface)
-    
+
     return out
 
 
 @interfaces.put("/{uuid:id}/", response=bool)
 def update_interface(request, id, interface: UpdateInterface):
-    try: 
+    try:
         Interface.objects.filter(id=id).update(name=interface.name,
                                                description=interface.description,
-                                               system=interface.system, 
+                                               system=interface.system,
                                                data=interface.data)
     except Interface.DoesNotExist:
         return False

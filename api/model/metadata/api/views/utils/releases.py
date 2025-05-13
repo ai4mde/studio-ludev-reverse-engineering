@@ -77,7 +77,7 @@ def serialize_diagrams(system: System):
 
 def load_interfaces(system: System, release: Release) -> bool:
     Interface.objects.filter(system=system).delete()
-    
+
     try:
         for interface in release.interfaces:
             Interface.objects.create(
@@ -135,7 +135,7 @@ def load_diagrams(system: System, release: Release) -> bool:
     Diagram.objects.filter(system=system).delete()
     Classifier.objects.filter(system=system).delete()
     Relation.objects.filter(system=system).delete()
-    
+
     try:
         for diagram in release.diagrams:
             Diagram.objects.create(

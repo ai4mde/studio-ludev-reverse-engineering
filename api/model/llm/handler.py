@@ -24,7 +24,7 @@ def call_openai(model: str, prompt: str) -> str:
         api_key=os.environ.get("OPENAI_API_KEY"),
     )
 
-    try: 
+    try:
         chat_completion = client.chat.completions.create(
             messages = [
                 {
@@ -43,7 +43,7 @@ def call_groq(model: str, prompt: str) -> str:
     client = Groq(
         api_key=os.environ.get("GROQ_API_KEY"),
     )
-    try: 
+    try:
         chat_completion = client.chat.completions.create(
         messages = [
             {
@@ -62,14 +62,14 @@ def llm_handler(prompt_name: str, model: str = "mixtral-8x7b-32768", input_data:
 
     if not input_data:
         raise Exception("No input data given")
-    
+
     if prompt_name == "DIAGRAM_GENERATE_ATTRIBUTE":
         prompt = DIAGRAM_GENERATE_ATTRIBUTE.format(data=input_data)
     elif prompt_name == "DIAGRAM_GENERATE_METHOD":
         prompt = DIAGRAM_GENERATE_METHOD.format(data=input_data)
     else:
         raise Exception("Invalid prompt name")
-    
+
     if model == 'gpt-4o':
         return call_openai(model = model, prompt = prompt)
     else:

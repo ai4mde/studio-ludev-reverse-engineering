@@ -3,3 +3,5 @@ __pycache__
 projects/
 .vscode/
 .idea
+api/uploads/
+.ruff_cache/
