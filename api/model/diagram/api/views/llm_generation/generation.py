@@ -1,5 +1,3 @@
-from diagram.models import System, Diagram
-from diagram.api.schemas import FullDiagram
 from typing import Dict, Any
 from openai import OpenAI
 import os
@@ -13,7 +11,7 @@ def execute_prompt(prompt_path: str, prompt_data: Dict[str, Any] ) -> str:
         )
     except Exception as e:
         raise Exception("Failed to format prompt, error: " + str(e))
-    
+
     messages = [{"role": "user", "content": prompt}]
     reply = None
 
@@ -29,7 +27,7 @@ def execute_prompt(prompt_path: str, prompt_data: Dict[str, Any] ) -> str:
         reply = chat.choices[0].message.content
     except Exception as e:
         raise Exception("Error while connecting to ChatGPT: " + str(e))
-    
+
     return reply
 
 
@@ -37,4 +35,4 @@ def remove_reply_markdown(reply: str) -> str:
     lines = reply.splitlines()
     if len(lines) > 2:
         return '\n'.join(lines[1:-1])
-    return ""   
+    return ""

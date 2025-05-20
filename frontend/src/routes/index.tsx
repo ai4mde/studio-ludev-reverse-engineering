@@ -11,6 +11,7 @@ export const IndexPage: React.FC = () => {
     const [showSnackbar, setShowSnackbar] = useState(false);
     const [jinjaResult, setJinjaResult] = useState<{ success: boolean; message: string; diagram_json?: string } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
@@ -25,8 +26,8 @@ export const IndexPage: React.FC = () => {
         setIsUploading(true);
         setUploadProgress(0);
 
-        try {
-            const formData = new FormData();
+            try {
+                const formData = new FormData();
 
             // 确定上传类型：ZIP文件还是文件夹
             const isZipUpload = files[0].type === "application/zip";
@@ -48,7 +49,7 @@ export const IndexPage: React.FC = () => {
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     const path = file.webkitRelativePath || file.name;
-                    console.log(`Adding file ${i+1}/${files.length}:`, path);
+                    console.log(`Adding file ${i + 1}/${files.length}:`, path);
 
                     // 使用相对路径作为文件名
                     formData.append(`files[${i}]`, file, path);
@@ -56,10 +57,10 @@ export const IndexPage: React.FC = () => {
             }
 
             console.log("Starting upload...");
-            const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
                         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -70,10 +71,11 @@ export const IndexPage: React.FC = () => {
             });
 
             console.log("Upload response:", response.data);
-            setUploadResult(response.data);
-            setShowSnackbar(true);
-        } catch (error) {
-            console.error("Upload failed:", error);
+                setUploadResult(response.data);
+                setShowSnackbar(true);
+                console.log("Zip file uploaded:", response.data);
+            } catch (error) {
+                console.error("Upload failed:", error);
             // 显示更详细的错误信息
             const errorMessage = error.response
                 ? `Error: ${error.response.status} - ${error.response.data?.message || JSON.stringify(error.response.data)}`
@@ -81,11 +83,11 @@ export const IndexPage: React.FC = () => {
 
             console.error("Detailed error:", errorMessage);
 
-            setUploadResult({
-                success: false,
+                setUploadResult({
+                    success: false,
                 message: `Upload failed: ${errorMessage}`
-            });
-            setShowSnackbar(true);
+                });
+                setShowSnackbar(true);
         } finally {
             setIsUploading(false);
             // Reset file inputs
@@ -116,7 +118,7 @@ export const IndexPage: React.FC = () => {
         if (!uploadResult?.extract_path) {
             setJinjaResult({
                 success: false,
-                message: "No extraction path available. Please upload a project first."
+                message: "No extraction path available. Please upload a ZIP file first."
             });
             setShowSnackbar(true);
             return;
@@ -149,8 +151,36 @@ export const IndexPage: React.FC = () => {
         }
     };
 
+    const handleImportDiagram = async (diagram: string) => {
+        setIsImporting(true);
+        try {
+            const importResponse = await axios.post("http://api.ai4mde.localhost/api/v1/diagram/import", diagram, { headers: { 'Content-Type': 'application/json' } });
+
+            if (importResponse.status === 200) {
+                const diagram_id = importResponse.data.id;
+                const layout_url = "http://api.ai4mde.localhost/api/v1/diagram/" + diagram_id + "/auto_layout";
+                const layoutResponse = await axios.post(layout_url, diagram);
+            }
+
+        } catch (error: any) {
+            if (error.response) {
+                console.log(`Import request failed with status ${error.response.status}: ${error.response.data}`);
+            } else if (error.request) {
+                console.log("No response received from the server.");
+            } else {
+                console.log(`Import request failed: ${error.message}`);
+            }
+        } finally {
+            setIsImporting(false);
+        }
+    };
+
     const handleCloseSnackbar = () => {
         setShowSnackbar(false);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
     };
 
     return (
@@ -198,13 +228,13 @@ export const IndexPage: React.FC = () => {
                         <MenuItem onClick={handleZipUpload}>Upload ZIP File</MenuItem>
                         <MenuItem onClick={handleFolderUpload}>Upload Folder</MenuItem>
                     </Menu>
-                    <input
+                        <input
                         ref={fileInputRef}
-                        type="file"
-                        accept=".zip"
-                        onChange={handleFileUpload}
-                        style={{ display: "none" }}
-                    />
+                            type="file"
+                            accept=".zip"
+                            onChange={handleFileUpload}
+                            style={{ display: "none" }}
+                        />
                     <input
                         ref={folderInputRef}
                         type="file"
@@ -213,7 +243,7 @@ export const IndexPage: React.FC = () => {
                         multiple
                         onChange={handleFileUpload}
                         style={{ display: "none" }}
-                    />
+                    /> */}
                 </div>
 
                 {isUploading && (
@@ -312,22 +342,23 @@ export const IndexPage: React.FC = () => {
 
                     <div className="mt-4 flex justify-end">
                         <Button
-                            color="primary"
                             onClick={() => {
                                 if (jinjaResult?.diagram_json) {
-                                    const blob = new Blob([jinjaResult.diagram_json], { type: 'application/json' });
-                                    const url = URL.createObjectURL(blob);
-                                    const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = 'diagram.json';
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
-                                    URL.revokeObjectURL(url);
+                                    handleImportDiagram(JSON.stringify(JSON.parse(jinjaResult.diagram_json), null, 2));
+                                    handleCloseModal();
                                 }
                             }}
+
+                            disabled={isImporting}
+                            color="primary"
+                            variant="solid"
                         >
-                            Download JSON
+                            {isImporting ? (
+                                <>
+                                    <CircularProgress size="sm" />
+                                    <span className="pl-2">Importing...</span>
+                                </>
+                            ) : "Import Project"}
                         </Button>
                     </div>
                 </ModalDialog>

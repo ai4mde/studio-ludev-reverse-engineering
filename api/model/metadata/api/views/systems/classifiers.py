@@ -35,13 +35,13 @@ def read_classifier(request: HttpRequest, classifier_id: str):
 
     if not system:
         return 404, "System not found"
-    
+
     try:
         classifier = system.classifiers.get(id=classifier_id)
     except Classifier.DoesNotExist:
         return 404, "Classifier not found"
 
-    return { 
+    return {
         "id": classifier.id,
         "data": classifier.data,
     }

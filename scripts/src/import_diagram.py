@@ -1,6 +1,6 @@
 import requests
 import json
-from scripts.src.extract_relationships import generate_diagram_json
+from extract_relationships import generate_diagram_json
 
 
 def call_endpoints_to_import_diagram():  # noqa: C901
@@ -32,7 +32,7 @@ def call_endpoints_to_import_diagram():  # noqa: C901
 
     # Step 2: Generate and import the diagram
     try:
-        to_show_method_dependency = False
+        to_show_method_dependency = True
         json_payload = generate_diagram_json(to_show_method_dependency)
         payload = json.loads(json_payload)
 

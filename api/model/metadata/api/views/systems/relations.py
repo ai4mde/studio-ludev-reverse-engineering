@@ -35,13 +35,13 @@ def read_relation(request: HttpRequest, relation_id: str):
 
     if not system:
         return 404, "System not found"
-    
+
     try:
         relation = system.relations.get(id=relation_id)
     except Relation.DoesNotExist:
         return 404, "Relation not found"
 
-    return { 
+    return {
         "id": relation.id,
         "data": relation.data,
     }
@@ -59,7 +59,7 @@ def read_classifier_relations(request: HttpRequest):
 
     if not system:
         return 404, "System not found"
-    
+
     associations = system.relations.filter(data__type='association')
     generalizations = system.relations.filter(data__type='generalization')
     compositions = system.relations.filter(data__type='composition')

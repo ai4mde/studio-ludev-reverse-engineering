@@ -38,7 +38,7 @@ class TeacherService(models.Model):
         return experienced
 
     def assign_teacher_to_course(self, teacher: Teacher, course: Course):
-        course.teacher = teacher
+        teacher.save()
         course.save()
         return course
 

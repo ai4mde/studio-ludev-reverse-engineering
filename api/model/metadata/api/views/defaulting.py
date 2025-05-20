@@ -23,10 +23,10 @@ class ModelAttribute():
         self.type = type
         self.derived = derived
         self.enum = enum
-        
+
 
 class DefaultUsecase():
-    def __init__(self, 
+    def __init__(self,
                  name: str,
                  crud_types: List[CrudType],
                  model: Dict[str, Any],
@@ -65,10 +65,10 @@ def get_class_acted_on(system: System, use_case_name: str) -> str:
         if cls.data['name'].lower() in use_case_name:
             return cls.id
 
-    return None 
+    return None
 
 
-def get_crud_type(use_case_name: str) -> CrudType:    
+def get_crud_type(use_case_name: str) -> CrudType:
     create_words = ['create', 'make', 'new', 'post']
     read_words = ['read', 'view', 'get', 'see']
     update_words = ['update', 'edit', 'patch', 'put']
@@ -79,13 +79,13 @@ def get_crud_type(use_case_name: str) -> CrudType:
 
     if [word for word in read_words if(word in use_case_name)]:
         return CrudType.READ
-    
+
     if [word for word in update_words if(word in use_case_name)]:
         return CrudType.UPDATE
-    
+
     if [word for word in delete_words if(word in use_case_name)]:
         return CrudType.DELETE
-    
+
     return CrudType.OTHER
 
 
@@ -105,7 +105,7 @@ def get_class_attributes(class_id: str) -> List[ModelAttribute]:
         )
         out.append(att)
     return out
-    
+
 
 def get_default_use_cases(system: System, relevant_use_cases: List[Classifier]) -> List[DefaultUsecase]:
     out = []
@@ -271,7 +271,7 @@ def get_default_interface_data(system: System, actor: Classifier) -> str:
 def create_default_interface(system: System, actor: Classifier) -> ReadInterface:
     if actor.data['type'] != 'actor':
         return 404, "Classifier is not an actor"
-    
+
     return Interface.objects.create(
         name = actor.data['name'],
         description = actor.data['name'] + " application",
