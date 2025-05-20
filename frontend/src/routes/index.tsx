@@ -243,7 +243,7 @@ export const IndexPage: React.FC = () => {
                         multiple
                         onChange={handleFileUpload}
                         style={{ display: "none" }}
-                    /> */}
+                    />
                 </div>
 
                 {isUploading && (

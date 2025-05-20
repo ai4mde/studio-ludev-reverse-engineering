@@ -19,7 +19,7 @@ def initialize_diagram_data():
     """Initialize the basic data needed for the diagram"""
     return {
         'diagram_id': str(uuid.uuid4()),
-        'system_id': "eb846e17-a261-470a-abeb-09cd29980a46",
+        'system_id': "a8465cb2-2df2-4a52-9946-6d762ebfd36f",
         'project_id': "",
         'nodes': [],
         'edges': [],
