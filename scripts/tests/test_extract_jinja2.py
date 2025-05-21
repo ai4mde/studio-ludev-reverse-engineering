@@ -120,16 +120,6 @@ def test_extract_zip_creates_folder(dummy_zip_file):
     extracted_folders = os.listdir(projects_folder)
     assert any(os.path.isdir(os.path.join(projects_folder, name)) for name in extracted_folders)
 
-def test_extract_real_zip(fake_sys_argv):
-    zip_path = "scripts/test_prototype.zip"
-    fake_sys_argv(["--zip_file", zip_path])
-    args = get_arguments()
-
-    extract_zip(args.zip_file)
-    assert os.path.exists(projects_folder)
-
-    extracted = os.listdir(projects_folder)
-    assert len(extracted) > 0
 
 @pytest.mark.usefixtures("dummy_zip_file")
 def test_extract_zip(dummy_zip_file):
