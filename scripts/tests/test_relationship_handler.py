@@ -43,11 +43,13 @@ def model_setup():
         'edges': []
     }
 
+
 @pytest.fixture
 def mock_uuid():
     with patch('uuid.uuid4') as mock:
         mock.return_value = "test-uuid"
         yield mock
+
 
 @pytest.fixture
 @isolate_apps("test")
@@ -91,11 +93,13 @@ def test_create_edge_with_valid_inputs():
     assert edge["source_ptr"] == source_ptr
     assert edge["target_ptr"] == target_ptr
 
+
 def test_create_edge_with_invalid_inputs():
     edge = create_edge("association", "connect",
                        {"source": "1", "target": "*"},
                        None, None)
     assert edge is None
+
 
 def test_process_inheritance_relationships(model_setup):
     source_ptr = model_setup['model_ptr_map'][model_setup['child_model']]
@@ -113,6 +117,7 @@ def test_process_inheritance_relationships(model_setup):
     assert edge["rel"]["type"] == "generalization"
     assert edge["rel"]["label"] == "inherits"
 
+
 def test_process_field_relationships(model_setup):
     source_ptr = model_setup['model_ptr_map'][model_setup['child_model']]
 
@@ -128,9 +133,9 @@ def test_process_field_relationships(model_setup):
              if e["rel"]["type"] in ["composition", "association", "generalization"]]
     assert len(edges) > 0
 
+
 @pytest.mark.parametrize("method_code,expected_edges", [
     ('def method_a(self):\n    return "ModelB"', 1),
-    ('def method_a(self):\n    return "Other"', 0),
 ])
 def test_extract_method_dependencies(dependency_setup, method_code, expected_edges):
     with patch('scripts.src.utils.helper.get_model_all_methods') as mock_get_methods:
@@ -148,10 +153,30 @@ def test_extract_method_dependencies(dependency_setup, method_code, expected_edg
         if expected_edges > 0:
             assert dependency_edges[0]["rel"]["label"].startswith("calls")
 
+
+@pytest.mark.parametrize("method_code,expected_edges", [
+    ('def method_a(self):\n    return "Other"', 0),
+])
+def test_extract_withpout_model_method_dependencies(dependency_setup, method_code, expected_edges):
+    with patch('scripts.src.utils.helper.get_model_all_methods') as mock_get_methods:
+        mock_get_methods.return_value = {'method_b': method_code}
+
+        extract_method_dependencies(
+            dependency_setup['model_b'],
+            [dependency_setup['model_b'], dependency_setup['model_b']],
+            dependency_setup['data']
+        )
+
+        dependency_edges = [e for e in dependency_setup['data']['edges']
+                            if e["rel"]["type"] == "dependency"]
+        assert len(dependency_edges) == expected_edges
+
+
 def test_relationship_type_detection(model_setup):
     field = model_setup['child_model']._meta.get_field('parent')
     rel_type = get_relationship_type(field, model_setup['child_model'])
-    assert rel_type in ["composition", "association"]
+    assert rel_type in ["inheritance"]
+
 
 def test_process_many_to_many_field():
     edges = []

@@ -28,24 +28,31 @@ def mock_enum_field():
 def mock_app_config():
     """Create mock AppConfig with models"""
     name_suffix = uuid.uuid4().hex[:6]
+    app_label = 'test'
 
     class BaseModel(models.Model):
         class Meta:
-            app_label = 'test'
+            app_label = 'test_app'
+
 
     class TestModel(BaseModel):
         class Meta:
-            app_label = 'test'
+            app_label = 'test_app'
 
-    # Register models under unique names to avoid conflicts
+
     BaseModel.__name__ = f"BaseModel{name_suffix}"
     TestModel.__name__ = f"TestModel{name_suffix}"
-    apps.register_model('test', BaseModel)
-    apps.register_model('test', TestModel)
+
+    for model in [BaseModel, TestModel]:
+        try:
+            apps.get_model(app_label, model.__name__)
+        except LookupError:
+            apps.register_model(app_label, model)
 
     config = Mock(spec=AppConfig)
     config.get_models.return_value = [TestModel]
     return config, TestModel, BaseModel
+
 
 
 @pytest.fixture
@@ -54,7 +61,7 @@ def test_model_with_methods():
     name = f"TestModel{uuid.uuid4().hex[:6]}"
 
     class Meta:
-        app_label = 'test'
+        app_label = 'test_exmaple'
 
     attrs = {
         '__module__': 'test',
@@ -100,14 +107,27 @@ def test_is_enum_field_valid(mock_enum_field):
 
 
 def test_is_enum_field_invalid():
+    """Test invalid enum field scenarios"""
     fieldinsp = Mock()
+
+    # Test when choices attribute is None
     fieldinsp.choices = None
     assert is_enum_field(fieldinsp) is False
 
+    # Test empty list case
     fieldinsp.choices = []
     assert is_enum_field(fieldinsp) is False
 
+    # Test invalid choice format
     fieldinsp.choices = [('A', 'Active'), ([], 'Invalid')]
+    assert is_enum_field(fieldinsp) is False
+
+    # Test malformed choices
+    fieldinsp.choices = [None]
+    assert is_enum_field(fieldinsp) is False
+
+    # Test non-binary tuple choices
+    fieldinsp.choices = [('A',)]
     assert is_enum_field(fieldinsp) is False
 
 # Model collection

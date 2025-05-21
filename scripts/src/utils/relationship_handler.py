@@ -114,7 +114,7 @@ def process_relationship_field(field, model, edges, source_ptr, target_ptr):
 def get_relationship_type(field, model):
     related_model = field.related_model
     if issubclass(model, related_model):
-        return 'unknown'
+        return 'inheritance'
 
     if isinstance(field, (ForeignKey, OneToOneField)):
         if field.remote_field.on_delete == models.CASCADE:

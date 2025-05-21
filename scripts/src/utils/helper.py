@@ -11,9 +11,24 @@ DJANGO_GENERATED_METHODS = {
 
 def is_enum_field(field):
     """
-    Check if the field is an enum field (choices are based on models.Choices).
+    Check if the field is an enum field (based on models.Choices).
     """
-    return hasattr(field, 'choices') and isinstance(field.choices, list) and isinstance(field.choices[0][0], (str, int))
+    if not hasattr(field, 'choices') or not isinstance(field.choices, list):
+        return False
+
+    if not field.choices:  # Check if list is empty
+        return False
+
+    try:
+        # Check if all choices are binary tuples and first element is string or integer
+        return all(
+            isinstance(choice, tuple) and
+            len(choice) == 2 and
+            isinstance(choice[0], (str, str))
+            for choice in field.choices
+        )
+    except (IndexError, TypeError):
+        return False
 
 
 def collect_all_valid_models(app_config):
