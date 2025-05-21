@@ -130,6 +130,7 @@ def test_is_enum_field_invalid():
     fieldinsp.choices = [('A',)]
     assert is_enum_field(fieldinsp) is False
 
+
 # Model collection
 def test_collect_all_valid_models(mock_app_config):
     config, test_model, parent_model = mock_app_config
@@ -152,6 +153,7 @@ def test_collect_all_valid_models_with_django_parent():
     assert len(models) == 1
     assert TestModel in models
 
+
 # Method retrieval
 def test_get_model_all_methods(test_model_with_methods):
     methods = get_model_all_methods(test_model_with_methods)
@@ -173,6 +175,7 @@ def test_get_model_all_methods_error(monkeypatch):
     result = get_model_all_methods(model)
     assert result is None
 
+
 # Pointer map
 def test_initialize_model_ptr_map():
     models = {Mock(), Mock(), Mock()}
@@ -182,6 +185,7 @@ def test_initialize_model_ptr_map():
     assert all(isinstance(ptr, str) for ptr in ptr_map.values())
     assert len(set(ptr_map.values())) == len(models)
 
+
 # Data integrity check
 def test_verify_data_integrity(mock_data, capsys):
     verify_data_integrity(mock_data)
@@ -189,6 +193,7 @@ def test_verify_data_integrity(mock_data, capsys):
 
     assert "Warning: Target node not found node3" in captured.out
     assert "Warning: Source node not found" not in captured.out
+
 
 # Custom method filtering
 def test_get_custom_methods(test_model_with_methods):
@@ -198,6 +203,7 @@ def test_get_custom_methods(test_model_with_methods):
     assert 'method_with_args' not in custom_methods
     assert '_private_method' not in custom_methods
     assert 'save' not in custom_methods
+
 
 # Method param checking
 @pytest.mark.parametrize("func,expected", [
