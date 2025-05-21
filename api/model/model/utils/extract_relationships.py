@@ -471,11 +471,9 @@ def generate_diagram_json(extract_path):
     # Find the settings.py file
     settings_files = list(Path(extract_path).glob('**/settings.py'))
     if not settings_files:
-        return {
-            "success": False,
-            "message": "No Django settings.py file found in the extracted directory"
-        }
-
+        # Use sys exit instead of raise ... to facilitate the script being run as subproccess 
+        # and being able to do error handling this way
+        sys.exit("No Django settings.py file found in the extracted directory")
 
     # Get the project root directory
     project_root = settings_files[0].parent
