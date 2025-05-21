@@ -1,5 +1,4 @@
 import uuid
-import inspect
 import pytest
 from unittest.mock import patch, Mock
 from django.db import models
@@ -14,7 +13,7 @@ from scripts.src.utils.relationship_handler import (
 )
 from scripts.src.utils.django_environment_setup import *
 
-configure_django_settings()
+configure_mock_django_settings()
 
 # --------- Fixtures ---------
 

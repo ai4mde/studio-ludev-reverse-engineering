@@ -21,3 +21,31 @@ def configure_django_settings():
     except Exception as e:
         print("Error setting up Django environment:", str(e))
         raise
+
+
+def configure_mock_django_settings():
+    # Only configure if not already done
+    if not settings.configured:
+        settings.configure(
+            DEBUG=True,
+            SECRET_KEY='mock-secret-key',
+            INSTALLED_APPS=[
+                # Add mock apps or real Django apps you need for your test
+                'django.contrib.contenttypes',
+                'django.contrib.auth',
+            ],
+            DATABASES={
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': ':memory:',  # In-memory DB for tests
+                }
+            },
+            DEFAULT_AUTO_FIELD='django.db.models.AutoField',
+        )
+
+    try:
+        django.setup()
+        print("Mock Django environment configured.")
+    except Exception as e:
+        print("Error setting up mock Django environment:", str(e))
+        raise

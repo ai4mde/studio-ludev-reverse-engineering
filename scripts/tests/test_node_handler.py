@@ -8,9 +8,7 @@ from scripts.src.utils.helper import get_custom_methods
 from scripts.src.utils.django_environment_setup import *
 from scripts.src.utils.node_handler import map_field_type, create_attribute, create_model_node, process_enum_field_node
 
-
-configure_django_settings()
-
+configure_mock_django_settings()
 
 # Test the process_enum_field_node function
 def test_process_enum_field_node_new_enum():

@@ -10,7 +10,7 @@ from scripts.src.utils.helper import (
 )
 from scripts.src.utils.django_environment_setup import *
 
-configure_django_settings()
+configure_mock_django_settings()
 
 # -------------------------
 # Fixtures
