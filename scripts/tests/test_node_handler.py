@@ -8,6 +8,8 @@ from scripts.src.utils.helper import get_custom_methods
 from scripts.src.utils.django_environment_setup import *
 from scripts.src.utils.node_handler import map_field_type, create_attribute, create_model_node, process_enum_field_node
 
+# To run this from the parent directory: python -m coverage run --source=scripts.src.utils.node_handler -m pytest -s -v scripts/tests/test_node_handler.py && python -m coverage report -m
+
 configure_mock_django_settings()
 
 # Test the process_enum_field_node function
