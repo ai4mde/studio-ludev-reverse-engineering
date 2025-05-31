@@ -10,6 +10,8 @@ from scripts.src.utils.node_handler import map_field_type, create_attribute, cre
 
 # To run this from the parent directory: python -m coverage run --source=scripts.src.utils.node_handler -m pytest -s -v scripts/tests/test_node_handler.py && python -m coverage report -m
 
+# 31/05/2025: Coverage report shows 100% coverage for this file, so no need to add more tests.
+
 configure_mock_django_settings()
 
 # Test the process_enum_field_node function

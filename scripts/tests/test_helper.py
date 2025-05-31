@@ -17,6 +17,8 @@ print(">> TESTS IMPORTING HELPER FROM:", helper.__file__)
 
 # python -m coverage run --source=scripts.src.utils.helper -m pytest -s -v scripts/tests/test_helper.py && python -m coverage report -m
 
+# 31/05/2025: Coverage report shows 100% coverage for this file, so no need to add more tests.
+
 configure_mock_django_settings()
 
 # -------------------------
