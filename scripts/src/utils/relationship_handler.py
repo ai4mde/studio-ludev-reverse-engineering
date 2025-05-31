@@ -60,9 +60,12 @@ def process_inheritance_relationships(model, model_ptr_map, edges, source_ptr):
                 parent_class.__name__ == 'Model' or
                 parent_class.__name__ == 'object'):
             continue
+        
+        # FIX: Safely get the target_ptr to prevent KeyError if parent_class is not in the map.
+        target_ptr = model_ptr_map.get(parent_class)
+        if not target_ptr:
+            continue
 
-        target_ptr = model_ptr_map[parent_class]
-        # print("target_ptr:  ", target_ptr)
         edges.append(create_edge("generalization", "inherits", {"source": "1", "target": "1"},
                                  source_ptr, target_ptr))
 
@@ -152,7 +155,6 @@ def process_one_to_one_field(field, model, edges, source_ptr, target_ptr):
             edges.append(create_edge(rel_type, "compose", multiplicity, target_ptr, source_ptr))
         else:
             edges.append(create_edge(rel_type, "connect", multiplicity, source_ptr, target_ptr))
-
 
 
 def process_foreign_key_field(field, model, edges, source_ptr, target_ptr):
