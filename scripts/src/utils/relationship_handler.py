@@ -1,4 +1,5 @@
 import uuid
+import re  # Import the regular expression module
 from django.db import models
 from django.db.models import ForeignKey, OneToOneField
 
@@ -35,33 +36,25 @@ def create_edge(rel_type, label, multiplicity, source_ptr, target_ptr):
 def process_model_relationships(model, model_ptr_map, enum_ptr_map, edges):
     """Process relationships between models and generate corresponding edges."""
     source_ptr = model_ptr_map[model]
-    # print("Processing model:", source_ptr, model)
 
-    # Step 1: Process inheritance relationships
     process_inheritance_relationships(model, model_ptr_map, edges, source_ptr)
-
-    # Step 2: Process other types of relationships
     process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, source_ptr)
 
 
 def process_inheritance_relationships(model, model_ptr_map, edges, source_ptr):
     """Process model inheritance relationships."""
     parent_classes = [base for base in model.__bases__ if hasattr(base, '__name__') and base is not object]
-
-    # Collect fields from parent classes (inherited fields)
     inherited_fields = set()
     for parent_class in parent_classes:
         if issubclass(parent_class, models.Model) and parent_class != models.Model:
             inherited_fields.update(f.name for f in parent_class._meta.get_fields() if hasattr(f, 'name'))
 
     for parent_class in parent_classes:
-        # print("parent_class:  ", parent_class)
         if (parent_class.__name__.startswith('django.') or
                 parent_class.__name__ == 'Model' or
                 parent_class.__name__ == 'object'):
             continue
         
-        # FIX: Safely get the target_ptr to prevent KeyError if parent_class is not in the map.
         target_ptr = model_ptr_map.get(parent_class)
         if not target_ptr:
             continue
@@ -78,19 +71,18 @@ def process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, sourc
 
     for field in model._meta.get_fields():
         if not hasattr(field, 'get_internal_type'):
-            continue  # Skip this field if it doesn't have 'get_internal_type' attribute
+            continue
 
         if field.name in inherited_fields:
-            continue  # Skip this field if its name is in inherited_fields
+            continue
 
         if field.is_relation and hasattr(field, 'related_model') and field.related_model:
             target_model = field.related_model
             target_ptr = model_ptr_map.get(target_model)
             if not target_ptr:
-                continue  # Skip if no target_ptr exists
+                continue
 
             process = True
-            # Skip processing the edge if label starts with 'calls' and source/target match
             for edge in edges:
                 if edge.get('rel', {}).get('label', '').startswith('calls'):
                     if edge.get('source_ptr') == source_ptr and edge.get('target_ptr') == target_ptr:
@@ -183,7 +175,6 @@ def process_enum_field(field, enum_ptr_map, edges, source_ptr):
                                  {"source": "1", "target": "1"}, source_ptr, enum_ptr))
 
 
-# Fix: Add 2 blank lines before top-level function
 def extract_method_dependencies(model, all_models, data):
     try:
         source_ptr = data['model_ptr_map'].get(model)
@@ -208,7 +199,9 @@ def add_method_dependency_edges(model, source_code_map, model_names, data, sourc
             if other_model == model or other_model_name in added_targets:
                 continue
             try:
-                if other_model_name in code:
+                # ROBUSTNESS FIX: Use a regular expression to match whole words only.
+                # This prevents false positives where a model name is a substring of another word.
+                if re.search(r'\b' + re.escape(other_model_name) + r'\b', code):
                     target_ptr = data['model_ptr_map'].get(other_model)
                     if target_ptr:
                         data['edges'].append(create_edge(
