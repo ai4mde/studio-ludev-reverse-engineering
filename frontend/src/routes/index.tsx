@@ -36,7 +36,6 @@ export const IndexPage: React.FC = () => {
         setUploadProgress(0);
 
         try {
-
             const formData = new FormData();
 
             // 确定上传类型：ZIP文件还是文件夹
@@ -165,11 +164,25 @@ export const IndexPage: React.FC = () => {
                 include_method_dependencies: includeMethodDependency
             });
 
-            setJinjaResult({
-                success: true,
-                message: "Extraction succesful",
-                diagram_json: response.data
-            });
+            
+            
+            if (response.data.success && response.data.diagram_json) {
+                setJinjaResult({
+                    success: true,
+                    message: "Extraction succesful",
+                    diagram_json: response.data
+                });
+                setOpenModal(true);
+                console.log("Jinja extracted:", response.data);
+            }
+            else {
+                console.error("Extraction failed:", response.data.message);
+                setJinjaResult({
+                    success: false,
+                    message: response.data.message
+                });
+            }
+
             return response.data.diagram_json;
         } catch (error) {
             console.error("Extraction failed:", error);
@@ -280,11 +293,7 @@ export const IndexPage: React.FC = () => {
             >
                 <Alert
                     variant="outlined"
-                    color={
-                        (uploadResult && !uploadResult.success) || (jinjaResult && !jinjaResult.success)
-                            ? "danger"
-                            : "success"
-                    }
+                    color={((uploadResult?.success && jinjaResult?.success) || uploadResult?.success && jinjaResult?.success === undefined) ? "success" : "danger"}
                     endDecorator={
                         <Button variant="plain" size="sm" onClick={handleCloseSnackbar}>
                             Close
