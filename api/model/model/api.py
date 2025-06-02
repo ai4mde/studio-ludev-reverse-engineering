@@ -209,7 +209,7 @@ def extract_jinja(request, data: ExtractJinjaRequest):
             return {
                 "success": True,
                 "message": "Jinja template extracted successfully",
-                "diagram_json": output
+                "diagram_json": output[0].decode(sys.stdout.encoding),
             }
         else:
             decoded_error = output[0].decode(sys.stdout.encoding)

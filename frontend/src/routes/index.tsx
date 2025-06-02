@@ -108,7 +108,6 @@ export const IndexPage: React.FC = () => {
         fileInputRef.current?.click();
     };
 
-
     const handleExtractJinja = async () => {
         if (!uploadResult?.extract_path) {
             setJinjaResult({
@@ -164,16 +163,14 @@ export const IndexPage: React.FC = () => {
                 include_method_dependencies: includeMethodDependency
             });
 
-            
-            
             if (response.data.success && response.data.diagram_json) {
                 setJinjaResult({
                     success: true,
                     message: "Extraction succesful",
                     diagram_json: response.data
                 });
-                setOpenModal(true);
                 console.log("Jinja extracted:", response.data);
+                return response.data.diagram_json;
             }
             else {
                 console.error("Extraction failed:", response.data.message);
@@ -181,9 +178,9 @@ export const IndexPage: React.FC = () => {
                     success: false,
                     message: response.data.message
                 });
+                setShowSnackbar(true);
             }
 
-            return response.data.diagram_json;
         } catch (error) {
             console.error("Extraction failed:", error);
             setJinjaResult({
@@ -300,7 +297,7 @@ export const IndexPage: React.FC = () => {
                         </Button>
                     }
                 >
-                    {importResult?.message}
+                    {!jinjaResult?.success && jinjaResult?.message || importResult?.message}
                 </Alert>
             </Snackbar>
 
@@ -309,7 +306,7 @@ export const IndexPage: React.FC = () => {
                     <ModalClose />
                     <Typography level="h4">Import Diagram</Typography>
                     <FormControl fullWidth sx={{ mt: 2 }}>
-                        <FormLabel>1. Upload .zip bestand</FormLabel>
+                        <FormLabel>1. Upload .zip file</FormLabel>
 
                         <div className="flex items-center gap-4">
                             <Typography level="body-sm">
@@ -436,7 +433,10 @@ export const IndexPage: React.FC = () => {
                             onClick={async () => {
                                 setIsImporting(true);
                                 const result = await handleExtractJinja();
-                                await handleImport(JSON.stringify(JSON.parse(result), null, 2));
+
+                                if (result) {
+                                    await handleImport(JSON.stringify(JSON.parse(result), null, 2));
+                                }
 
                                 setIsImporting(false);
                                 setPopupOpen(false)
