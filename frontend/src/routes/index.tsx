@@ -1,36 +1,36 @@
 import { chatbotOpenAtom } from "$lib/features/chatbot/atoms";
-import { Alert, Button, Divider, FormControl, FormLabel, Input, Modal, ModalClose, ModalDialog, Option, Select, Snackbar, Switch, Typography } from "@mui/joy";
+import { Alert, Button, CircularProgress, Divider, LinearProgress, Menu, MenuItem, Modal, ModalClose, ModalDialog, Snackbar, Typography } from "@mui/joy";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { Bot, Box, MessageSquare, Settings } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { Bot, Box, ChevronDown, Code, MessageSquare, Play, Upload } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { DragDropUpload } from "../components/DragDropUpload";
 
 export const IndexPage: React.FC = () => {
     const [, setChatbot] = useAtom(chatbotOpenAtom);
     const [uploadResult, setUploadResult] = useState<{ success: boolean; message: string; extract_path?: string } | null>(null);
-    const [UploadFileName, setUploadFileName] = useState("No file selected");
     const [showSnackbar, setShowSnackbar] = useState(false);
     const [jinjaResult, setJinjaResult] = useState<{ success: boolean; message: string; diagram_json?: string } | null>(null);
-    const [importResult, setImportResult] = useState<{ success: boolean; message: string; } | null>(null);
-    const [popupOpen, setPopupOpen] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
-    const [isImporting, setIsImporting] = useState(false);
-    const [projects, setProjects] = useState([]);
-    const [systems, setSystems] = useState([]);
-    const [selectedProjectId, setSelectedProjectId] = useState("");
-    const [selectedSystemId, setSelectedSystemId] = useState("");
-    const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
-    const [isCreatingNewSystem, setIsCreatingNewSystem] = useState(false);
-    const [newProjectName, setNewProjectName] = useState("");
-    const [newSystemName, setNewSystemName] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const folderInputRef = useRef<HTMLInputElement>(null);
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
-    const [includeMethodDependency, setIncludeMethodDependency] = useState(false);
+    // New state for drag-drop modals and method dependency
+    const [zipModalOpen, setZipModalOpen] = useState(false);
+    const [folderModalOpen, setFolderModalOpen] = useState(false);
+    const [isExecutingImport, setIsExecutingImport] = useState(false);
+    const [currentMethodDependency, setCurrentMethodDependency] = useState(true);
 
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
+    const handleFileUpload = async (files: FileList, includeMethodDependency: boolean) => {
         if (!files || files.length === 0) return;
+
+        // Store the method dependency setting for later use in Execute Import Diagram
+        setCurrentMethodDependency(includeMethodDependency);
 
         setIsUploading(true);
         setUploadProgress(0);
@@ -39,15 +39,15 @@ export const IndexPage: React.FC = () => {
             const formData = new FormData();
 
             // 确定上传类型：ZIP文件还是文件夹
-            const isZipUpload = files[0].type === "application/zip" || "x-zip-compressed";
+            const isZipUpload = files[0].type === "application/zip";
             console.log("Upload type:", isZipUpload ? "ZIP" : "Folder");
             console.log("Number of files:", files.length);
+            console.log("Method dependency setting:", includeMethodDependency);
 
             if (isZipUpload) {
                 // Zip file upload
                 formData.append('file', files[0]);
                 console.log("ZIP upload - file added to form:", files[0].name);
-                setUploadFileName(files[0].name);
             } else {
                 // Folder upload (multiple files)
                 console.log("Folder upload - files to process:", files.length);
@@ -82,6 +82,7 @@ export const IndexPage: React.FC = () => {
 
             console.log("Upload response:", response.data);
             setUploadResult(response.data);
+            setShowSnackbar(true);
             console.log("Zip file uploaded:", response.data);
         } catch (error) {
             console.error("Upload failed:", error);
@@ -101,13 +102,34 @@ export const IndexPage: React.FC = () => {
             setIsUploading(false);
             // Reset file inputs
             if (fileInputRef.current) fileInputRef.current.value = '';
+            if (folderInputRef.current) folderInputRef.current.value = '';
         }
     };
 
-    const handleZipUpload = () => {
-        fileInputRef.current?.click();
+    const handleFileUploadEvent = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            await handleFileUpload(files, currentMethodDependency);
+        }
     };
 
+    const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setMenuAnchor(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setMenuAnchor(null);
+    };
+
+    const handleZipUpload = () => {
+        handleMenuClose();
+        setZipModalOpen(true);
+    };
+
+    const handleFolderUpload = () => {
+        handleMenuClose();
+        setFolderModalOpen(true);
+    };
 
     const handleExtractJinja = async () => {
         if (!uploadResult?.extract_path) {
@@ -119,71 +141,21 @@ export const IndexPage: React.FC = () => {
             return;
         }
 
-        console.log("There is a zip file:", uploadResult?.extract_path);
-
-        var project_id = selectedProjectId
-        var system_id = selectedSystemId
-
-        if (isCreatingNewProject) {
-            const response = await axios.post('http://api.ai4mde.localhost/api/v1/metadata/projects/', {
-                name: newProjectName,
-                description: "",
-            });
-
-            setSelectedProjectId(response.data.id)
-            project_id = response.data.id
-
-            const response2 = await axios.post('http://api.ai4mde.localhost/api/v1/metadata/systems/', {
-                project: response.data.id,
-                name: newSystemName,
-                description: "",
-            });
-
-            setSelectedSystemId(response2.data.id)
-            system_id = response2.data.id
-        }
-
-        if (isCreatingNewSystem) {
-            const response2 = await axios.post('http://api.ai4mde.localhost/api/v1/metadata/systems/', {
-                project: selectedProjectId,
-                name: newSystemName,
-                description: "",
-            });
-
-            setSelectedSystemId(response2.data.id)
-            system_id = response2.data.id
-        }
-
-        console.log("Executing extraction script");
+        setIsLoading(true);
 
         try {
             const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/extract-jinja', {
-                extract_path: uploadResult.extract_path,
-                project_id: project_id,
-                system_id: system_id,
-                include_method_dependencies: includeMethodDependency
+                extract_path: uploadResult.extract_path
             });
 
-            
-            
+            setJinjaResult(response.data);
+            setShowSnackbar(true);
+
             if (response.data.success && response.data.diagram_json) {
-                setJinjaResult({
-                    success: true,
-                    message: "Extraction succesful",
-                    diagram_json: response.data
-                });
                 setOpenModal(true);
-                console.log("Jinja extracted:", response.data);
-            }
-            else {
-                console.error("Extraction failed:", response.data.message);
-                setJinjaResult({
-                    success: false,
-                    message: response.data.message
-                });
             }
 
-            return response.data.diagram_json;
+            console.log("Jinja extracted:", response.data);
         } catch (error) {
             console.error("Extraction failed:", error);
             setJinjaResult({
@@ -191,47 +163,21 @@ export const IndexPage: React.FC = () => {
                 message: "Jinja extraction failed, please check API connection"
             });
             setShowSnackbar(true);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const handleCloseSnackbar = () => {
-        setShowSnackbar(false);
-    };
-
-    useEffect(() => {
-        if (popupOpen) {
-            axios.get("http://api.ai4mde.localhost/api/v1/metadata/projects/")
-                .then((res) => setProjects(res.data))
-                .catch((err) => console.error("Failed to fetch projects", err));
-        }
-    }, [popupOpen]);
-
-    useEffect(() => {
-        if (selectedProjectId && selectedProjectId !== "new") {
-            axios.get(`http://api.ai4mde.localhost/api/v1/metadata/systems?project=${selectedProjectId}`)
-                .then((res) => setSystems(res.data))
-                .catch((err) => console.error("Failed to fetch systems", err));
-        } else {
-            setSystems([]);
-        }
-    }, [selectedProjectId]);
-
-
-    const handleImport = async (diagram: string) => {
-        console.log("Importing diagram");
+    const handleImportDiagram = async (diagram: string) => {
+        setIsImporting(true);
         try {
             const importResponse = await axios.post("http://api.ai4mde.localhost/api/v1/diagram/import", diagram, { headers: { 'Content-Type': 'application/json' } });
+
             if (importResponse.status === 200) {
                 const diagram_id = importResponse.data.id;
                 const layout_url = "http://api.ai4mde.localhost/api/v1/diagram/" + diagram_id + "/auto_layout";
                 const layoutResponse = await axios.post(layout_url, diagram);
             }
-
-            setImportResult({
-                success: true,
-                message: "Import successful! Go to the corresponding project so you view the diagram",
-            });
-            setShowSnackbar(true);
 
         } catch (error: any) {
             if (error.response) {
@@ -241,14 +187,50 @@ export const IndexPage: React.FC = () => {
             } else {
                 console.log(`Import request failed: ${error.message}`);
             }
+        } finally {
+            setIsImporting(false);
         }
     };
 
-    const canImport = isCreatingNewProject
-        ? newProjectName.trim() !== "" && newSystemName.trim() !== ""
-        : isCreatingNewSystem
-            ? newSystemName.trim() !== ""
-            : selectedProjectId && selectedSystemId;
+    const handleExecuteImportDiagram = async () => {
+        setIsExecutingImport(true);
+        try {
+            // Call the Python script endpoint with method dependency setting
+            const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/execute-import-diagram', {
+                include_method_dependency: currentMethodDependency
+            });
+
+            if (response.data.success) {
+                setJinjaResult({
+                    success: true,
+                    message: `Import diagram executed successfully with method dependency: ${currentMethodDependency}`
+                });
+            } else {
+                setJinjaResult({
+                    success: false,
+                    message: response.data.message || "Import diagram execution failed"
+                });
+            }
+            setShowSnackbar(true);
+        } catch (error) {
+            console.error("Execute import diagram failed:", error);
+            setJinjaResult({
+                success: false,
+                message: "Failed to execute import diagram"
+            });
+            setShowSnackbar(true);
+        } finally {
+            setIsExecutingImport(false);
+        }
+    };
+
+    const handleCloseSnackbar = () => {
+        setShowSnackbar(false);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+    };
 
     return (
         <div className="grid grid-cols-12 p-3 gap-3 w-full">
@@ -279,11 +261,128 @@ export const IndexPage: React.FC = () => {
                             Create a project & system by hand
                         </span>
                     </Button>
-                    <Button onClick={() => setPopupOpen(true)}>
-                        <span className="pl-2">Import via zip file</span>
+                    <Button
+                        onClick={handleMenuOpen}
+                        endDecorator={<ChevronDown size={16} />}
+                    >
+                        <Upload size={20} />
+                        <span className="pl-2">Upload Django Project</span>
                     </Button>
+                    <Menu
+                        anchorEl={menuAnchor}
+                        open={Boolean(menuAnchor)}
+                        onClose={handleMenuClose}
+                        placement="bottom-start"
+                    >
+                        <MenuItem onClick={handleZipUpload}>Upload ZIP File</MenuItem>
+                        <MenuItem onClick={handleFolderUpload}>Upload Folder</MenuItem>
+                    </Menu>
+
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".zip"
+                        onChange={handleFileUploadEvent}
+                        style={{ display: "none" }}
+                    />
+                    <input
+                        ref={folderInputRef}
+                        type="file"
+                        webkitdirectory="true"
+                        directory="true"
+                        multiple
+                        onChange={handleFileUploadEvent}
+                        style={{ display: "none" }}
+                    />
                 </div>
+
+                {isUploading && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <Typography level="body-sm" className="mb-2">
+                            Uploading Project: {uploadProgress}%
+                        </Typography>
+                        <LinearProgress
+                            determinate
+                            value={uploadProgress}
+                            sx={{ height: 10, borderRadius: 5 }}
+                        />
+                    </div>
+                )}
+
+                {uploadResult && uploadResult.success && (
+                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                        <h4 className="font-medium">File Upload Successful</h4>
+                        <p className="text-sm mt-1">Extraction Path: {uploadResult.extract_path}</p>
+                        <p className="text-sm mt-1">Method Dependency: {currentMethodDependency ? 'Enabled' : 'Disabled'}</p>
+
+                        <div className="mt-3 flex gap-2">
+                            <Button
+                                startDecorator={<Code size={16} />}
+                                onClick={handleExtractJinja}
+                                disabled={isLoading}
+                                color="primary"
+                                variant="solid"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <CircularProgress size="sm" />
+                                        <span className="pl-2">Processing...</span>
+                                    </>
+                                ) : "Extract Jinja"}
+                            </Button>
+
+                            <Button
+                                startDecorator={<Play size={16} />}
+                                onClick={handleExecuteImportDiagram}
+                                disabled={isExecutingImport}
+                                color="success"
+                                variant="solid"
+                            >
+                                {isExecutingImport ? (
+                                    <>
+                                        <CircularProgress size="sm" />
+                                        <span className="pl-2">Executing...</span>
+                                    </>
+                                ) : "Execute Import Diagram"}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {jinjaResult && jinjaResult.success && !openModal && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <h4 className="font-medium">Jinja Extraction Successful</h4>
+                        <p className="text-sm mt-1">{jinjaResult.message}</p>
+                        <Button
+                            size="sm"
+                            variant="outlined"
+                            onClick={() => setOpenModal(true)}
+                            className="mt-2"
+                        >
+                            View JSON Data
+                        </Button>
+                    </div>
+                )}
             </div>
+
+            {/* Drag and Drop Modals */}
+            <DragDropUpload
+                open={zipModalOpen}
+                onClose={() => setZipModalOpen(false)}
+                onFileUpload={handleFileUpload}
+                uploadType="zip"
+                title="Upload ZIP File"
+                initialMethodDependency={true}
+            />
+
+            <DragDropUpload
+                open={folderModalOpen}
+                onClose={() => setFolderModalOpen(false)}
+                onFileUpload={handleFileUpload}
+                uploadType="folder"
+                title="Upload Django Project Folder"
+                initialMethodDependency={true}
+            />
 
             <Snackbar
                 open={showSnackbar}
@@ -293,157 +392,58 @@ export const IndexPage: React.FC = () => {
             >
                 <Alert
                     variant="outlined"
-                    color={((uploadResult?.success && jinjaResult?.success) || uploadResult?.success && jinjaResult?.success === undefined) ? "success" : "danger"}
+                    color={(uploadResult?.success || jinjaResult?.success) ? "success" : "danger"}
                     endDecorator={
                         <Button variant="plain" size="sm" onClick={handleCloseSnackbar}>
                             Close
                         </Button>
                     }
                 >
-                    {importResult?.message}
+                    {jinjaResult?.message || uploadResult?.message}
                 </Alert>
             </Snackbar>
 
-            <Modal open={popupOpen} onClose={() => setPopupOpen(false)}>
-                <ModalDialog>
-                    <ModalClose />
-                    <Typography level="h4">Import Diagram</Typography>
-                    <FormControl fullWidth sx={{ mt: 2 }}>
-                        <FormLabel>1. Upload .zip bestand</FormLabel>
+            <Modal open={openModal} onClose={() => setOpenModal(false)}>
+                <ModalDialog
+                    variant="outlined"
+                    size="lg"
+                    sx={{
+                        width: '80%',
+                        maxWidth: '900px',
+                        maxHeight: '80vh',
+                        overflow: 'auto'
+                    }}
+                >
+                    <ModalClose onClick={() => setOpenModal(false)} />
+                    <Typography level="h4" component="h2" className="mb-4">
+                        Extracted Diagram JSON
+                    </Typography>
 
-                        <div className="flex items-center gap-4">
-                            <Typography level="body-sm">
-                                {UploadFileName}
-                            </Typography>
-                            <Button
-                                component="label"
-                                variant="soft"
-                                color="primary"
-                                onClick={handleZipUpload}
-                            >
-                                Upload ZIP File
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    onChange={handleFileUpload}
-                                    style={{ display: "none" }}
-                                />
-                            </Button>
-                        </div>
+                    <div className="bg-gray-100 p-4 rounded overflow-auto max-h-[500px]">
+                        <pre className="text-xs whitespace-pre-wrap">
+                            {jinjaResult?.diagram_json && JSON.stringify(JSON.parse(jinjaResult.diagram_json), null, 2)}
+                        </pre>
+                    </div>
 
-                    </FormControl>
-
-                    <FormControl fullWidth sx={{ mt: 2 }}>
-                        <FormLabel>2. Select Project</FormLabel>
-                        <Select
-                            value={selectedProjectId}
-                            onChange={(e, newValue) => {
-                                setSelectedProjectId(newValue);
-                                setSelectedSystemId("");
-                                setIsCreatingNewProject(newValue === "new");
-                            }}
-                            placeholder="Select a project"
-                        >
-                            {projects.map((project) => (
-                                <Option key={project.id} value={project.id}>
-                                    {project.name}
-                                </Option>
-                            ))}
-                            <Option value="new">+ Create new project</Option>
-                        </Select>
-                    </FormControl>
-
-                    {isCreatingNewProject && (
-                        <>
-                            <FormControl fullWidth sx={{ mt: 2 }}>
-                                <FormLabel>2a. Project Name</FormLabel>
-                                <Input
-                                    placeholder="Enter new project name"
-                                    value={newProjectName}
-                                    onChange={(e) => setNewProjectName(e.target.value)}
-                                />
-                            </FormControl>
-                            <FormControl fullWidth sx={{ mt: 2 }}>
-                                <FormLabel>2b. System Name</FormLabel>
-                                <Input
-                                    placeholder="Enter new system name"
-                                    value={newSystemName}
-                                    onChange={(e) => setNewSystemName(e.target.value)}
-                                />
-                            </FormControl>
-                        </>
-                    )}
-
-                    {!isCreatingNewProject && (
-                        <FormControl fullWidth sx={{ mt: 2 }}>
-                            <FormLabel>3. Select System</FormLabel>
-                            <Select
-                                value={selectedSystemId}
-                                onChange={(e, newValue) => {
-                                    setSelectedSystemId(newValue);
-                                    setIsCreatingNewSystem(newValue === "new");
-                                }}
-                                placeholder="Select a system"
-                            >
-                                {systems.map((system) => (
-                                    <Option key={system.id} value={system.id}>
-                                        {system.name}
-                                    </Option>
-                                ))}
-                                <Option value="new">+ Create new system</Option>
-                            </Select>
-                        </FormControl>
-                    )}
-
-                    {!isCreatingNewProject && isCreatingNewSystem && (
-                        <FormControl fullWidth sx={{ mt: 2 }}>
-                            <FormLabel>3a. System Name</FormLabel>
-                            <Input
-                                placeholder="Enter new system name"
-                                value={newSystemName}
-                                onChange={(e) => setNewSystemName(e.target.value)}
-                            />
-                        </FormControl>
-                    )}
-
-                    <FormControl orientation="horizontal" sx={{ justifyContent: 'space-between' }}>
-                        <div>
-                            <FormLabel>
-                                <Settings size={16} className="inline mr-2" />
-                                Include Method Dependencies
-                            </FormLabel>
-                            <Typography level="body-sm" className="text-gray-600">
-                                Include method dependencies in the diagram generation
-                            </Typography>
-                        </div>
-                        <Switch
-                            checked={includeMethodDependency}
-                            onChange={(event) => setIncludeMethodDependency(event.target.checked)}
-                            color={includeMethodDependency ? 'success' : 'neutral'}
-                        />
-                    </FormControl>
-
-                    <div className="flex justify-end gap-2 mt-4">
-                        <Button variant="plain"
-                            onClick={() => {
-                                setPopupOpen(false)
-                                setIsImporting(false);
-                            }}>
-                            Cancel
-                        </Button>
+                    <div className="mt-4 flex justify-end">
                         <Button
-                            loading={isImporting}
-                            onClick={async () => {
-                                setIsImporting(true);
-                                const result = await handleExtractJinja();
-                                await handleImport(JSON.stringify(JSON.parse(result), null, 2));
-
-                                setIsImporting(false);
-                                setPopupOpen(false)
+                            onClick={() => {
+                                if (jinjaResult?.diagram_json) {
+                                    handleImportDiagram(JSON.stringify(JSON.parse(jinjaResult.diagram_json), null, 2));
+                                    handleCloseModal();
+                                }
                             }}
-                            disabled={!canImport || isImporting}
+
+                            disabled={isImporting}
+                            color="primary"
+                            variant="solid"
                         >
-                            Import Diagram
+                            {isImporting ? (
+                                <>
+                                    <CircularProgress size="sm" />
+                                    <span className="pl-2">Importing...</span>
+                                </>
+                            ) : "Import Project"}
                         </Button>
                     </div>
                 </ModalDialog>

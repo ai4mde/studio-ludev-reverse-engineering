@@ -1,11 +1,16 @@
 import requests
 import json
-from extract_prototype_main import generate_diagram_json
+import argparse
+import sys
+from extract_relationships import generate_diagram_json
 
 
-def call_endpoints_to_import_diagram():  # noqa: C901
+def call_endpoints_to_import_diagram(to_show_method_dependency=True):  # noqa: C901
     """
     Generate a diagram including authentication, import, and auto-layout.
+    
+    Args:
+        to_show_method_dependency (bool): Whether to include method dependencies in the diagram
     """
     # Step 1: Obtain authentication token
     auth_url = "http://api.ai4mde.localhost/api/v1/auth/token"
@@ -32,7 +37,6 @@ def call_endpoints_to_import_diagram():  # noqa: C901
 
     # Step 2: Generate and import the diagram
     try:
-        to_show_method_dependency = True
         json_payload = generate_diagram_json(to_show_method_dependency)
         payload = json.loads(json_payload)
 
@@ -95,5 +99,34 @@ def call_endpoints_to_import_diagram():  # noqa: C901
             print(f"Auto-layout request failed: {e}")
 
 
+def main():
+    """
+    Main function that handles command line arguments and calls the import diagram function.
+    """
+    parser = argparse.ArgumentParser(description='Import Django project diagram to AI4MDE')
+    parser.add_argument(
+        '--include-method-dependency', 
+        action='store_true', 
+        default=True,
+        help='Include method dependencies in the diagram (default: True)'
+    )
+    parser.add_argument(
+        '--no-method-dependency', 
+        action='store_true',
+        help='Exclude method dependencies from the diagram'
+    )
+    
+    args = parser.parse_args()
+    
+    # Handle the logic for method dependency
+    if args.no_method_dependency:
+        to_show_method_dependency = False
+    else:
+        to_show_method_dependency = args.include_method_dependency
+    
+    print(f"Method dependency setting: {to_show_method_dependency}")
+    call_endpoints_to_import_diagram(to_show_method_dependency)
+
+
 if __name__ == "__main__":
-    call_endpoints_to_import_diagram()
+    main()
