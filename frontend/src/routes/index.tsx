@@ -2,8 +2,9 @@ import { chatbotOpenAtom } from "$lib/features/chatbot/atoms";
 import { Alert, Button, CircularProgress, Divider, LinearProgress, Menu, MenuItem, Modal, ModalClose, ModalDialog, Snackbar, Typography } from "@mui/joy";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { Bot, Box, ChevronDown, Code, MessageSquare, Upload } from "lucide-react";
+import { Bot, Box, ChevronDown, Code, MessageSquare, Play, Upload } from "lucide-react";
 import React, { useRef, useState } from "react";
+import { DragDropUpload } from "../components/DragDropUpload";
 
 export const IndexPage: React.FC = () => {
     const [, setChatbot] = useAtom(chatbotOpenAtom);
@@ -19,20 +20,29 @@ export const IndexPage: React.FC = () => {
     const folderInputRef = useRef<HTMLInputElement>(null);
     const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
+    // New state for drag-drop modals and method dependency
+    const [zipModalOpen, setZipModalOpen] = useState(false);
+    const [folderModalOpen, setFolderModalOpen] = useState(false);
+    const [isExecutingImport, setIsExecutingImport] = useState(false);
+    const [currentMethodDependency, setCurrentMethodDependency] = useState(true);
+
+    const handleFileUpload = async (files: FileList, includeMethodDependency: boolean) => {
         if (!files || files.length === 0) return;
+
+        // Store the method dependency setting for later use in Execute Import Diagram
+        setCurrentMethodDependency(includeMethodDependency);
 
         setIsUploading(true);
         setUploadProgress(0);
 
-            try {
-                const formData = new FormData();
+        try {
+            const formData = new FormData();
 
             // 确定上传类型：ZIP文件还是文件夹
             const isZipUpload = files[0].type === "application/zip";
             console.log("Upload type:", isZipUpload ? "ZIP" : "Folder");
             console.log("Number of files:", files.length);
+            console.log("Method dependency setting:", includeMethodDependency);
 
             if (isZipUpload) {
                 // Zip file upload
@@ -57,10 +67,10 @@ export const IndexPage: React.FC = () => {
             }
 
             console.log("Starting upload...");
-                const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
+            const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
                         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -71,11 +81,11 @@ export const IndexPage: React.FC = () => {
             });
 
             console.log("Upload response:", response.data);
-                setUploadResult(response.data);
-                setShowSnackbar(true);
-                console.log("Zip file uploaded:", response.data);
-            } catch (error) {
-                console.error("Upload failed:", error);
+            setUploadResult(response.data);
+            setShowSnackbar(true);
+            console.log("Zip file uploaded:", response.data);
+        } catch (error) {
+            console.error("Upload failed:", error);
             // 显示更详细的错误信息
             const errorMessage = error.response
                 ? `Error: ${error.response.status} - ${error.response.data?.message || JSON.stringify(error.response.data)}`
@@ -83,16 +93,23 @@ export const IndexPage: React.FC = () => {
 
             console.error("Detailed error:", errorMessage);
 
-                setUploadResult({
-                    success: false,
+            setUploadResult({
+                success: false,
                 message: `Upload failed: ${errorMessage}`
-                });
-                setShowSnackbar(true);
+            });
+            setShowSnackbar(true);
         } finally {
             setIsUploading(false);
             // Reset file inputs
             if (fileInputRef.current) fileInputRef.current.value = '';
             if (folderInputRef.current) folderInputRef.current.value = '';
+        }
+    };
+
+    const handleFileUploadEvent = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            await handleFileUpload(files, currentMethodDependency);
         }
     };
 
@@ -106,12 +123,12 @@ export const IndexPage: React.FC = () => {
 
     const handleZipUpload = () => {
         handleMenuClose();
-        fileInputRef.current?.click();
+        setZipModalOpen(true);
     };
 
     const handleFolderUpload = () => {
         handleMenuClose();
-        folderInputRef.current?.click();
+        setFolderModalOpen(true);
     };
 
     const handleExtractJinja = async () => {
@@ -175,6 +192,38 @@ export const IndexPage: React.FC = () => {
         }
     };
 
+    const handleExecuteImportDiagram = async () => {
+        setIsExecutingImport(true);
+        try {
+            // Call the Python script endpoint with method dependency setting
+            const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/execute-import-diagram', {
+                include_method_dependency: currentMethodDependency
+            });
+
+            if (response.data.success) {
+                setJinjaResult({
+                    success: true,
+                    message: `Import diagram executed successfully with method dependency: ${currentMethodDependency}`
+                });
+            } else {
+                setJinjaResult({
+                    success: false,
+                    message: response.data.message || "Import diagram execution failed"
+                });
+            }
+            setShowSnackbar(true);
+        } catch (error) {
+            console.error("Execute import diagram failed:", error);
+            setJinjaResult({
+                success: false,
+                message: "Failed to execute import diagram"
+            });
+            setShowSnackbar(true);
+        } finally {
+            setIsExecutingImport(false);
+        }
+    };
+
     const handleCloseSnackbar = () => {
         setShowSnackbar(false);
     };
@@ -228,20 +277,21 @@ export const IndexPage: React.FC = () => {
                         <MenuItem onClick={handleZipUpload}>Upload ZIP File</MenuItem>
                         <MenuItem onClick={handleFolderUpload}>Upload Folder</MenuItem>
                     </Menu>
-                        <input
+
+                    <input
                         ref={fileInputRef}
-                            type="file"
-                            accept=".zip"
-                            onChange={handleFileUpload}
-                            style={{ display: "none" }}
-                        />
+                        type="file"
+                        accept=".zip"
+                        onChange={handleFileUploadEvent}
+                        style={{ display: "none" }}
+                    />
                     <input
                         ref={folderInputRef}
                         type="file"
                         webkitdirectory="true"
                         directory="true"
                         multiple
-                        onChange={handleFileUpload}
+                        onChange={handleFileUploadEvent}
                         style={{ display: "none" }}
                     />
                 </div>
@@ -263,6 +313,7 @@ export const IndexPage: React.FC = () => {
                     <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
                         <h4 className="font-medium">File Upload Successful</h4>
                         <p className="text-sm mt-1">Extraction Path: {uploadResult.extract_path}</p>
+                        <p className="text-sm mt-1">Method Dependency: {currentMethodDependency ? 'Enabled' : 'Disabled'}</p>
 
                         <div className="mt-3 flex gap-2">
                             <Button
@@ -278,6 +329,21 @@ export const IndexPage: React.FC = () => {
                                         <span className="pl-2">Processing...</span>
                                     </>
                                 ) : "Extract Jinja"}
+                            </Button>
+
+                            <Button
+                                startDecorator={<Play size={16} />}
+                                onClick={handleExecuteImportDiagram}
+                                disabled={isExecutingImport}
+                                color="success"
+                                variant="solid"
+                            >
+                                {isExecutingImport ? (
+                                    <>
+                                        <CircularProgress size="sm" />
+                                        <span className="pl-2">Executing...</span>
+                                    </>
+                                ) : "Execute Import Diagram"}
                             </Button>
                         </div>
                     </div>
@@ -298,6 +364,25 @@ export const IndexPage: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* Drag and Drop Modals */}
+            <DragDropUpload
+                open={zipModalOpen}
+                onClose={() => setZipModalOpen(false)}
+                onFileUpload={handleFileUpload}
+                uploadType="zip"
+                title="Upload ZIP File"
+                initialMethodDependency={true}
+            />
+
+            <DragDropUpload
+                open={folderModalOpen}
+                onClose={() => setFolderModalOpen(false)}
+                onFileUpload={handleFileUpload}
+                uploadType="folder"
+                title="Upload Django Project Folder"
+                initialMethodDependency={true}
+            />
 
             <Snackbar
                 open={showSnackbar}
