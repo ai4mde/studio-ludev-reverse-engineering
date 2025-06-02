@@ -4,20 +4,20 @@ from django.db import models
 
 
 class Project(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    project_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=255)
     description = models.TextField()
 
 
 class System(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    system_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField()
 
 
 class Release(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    release_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     created_at = models.DateTimeField(auto_now_add=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     system = models.ForeignKey(System, on_delete=models.CASCADE)
@@ -29,7 +29,7 @@ class Release(models.Model):
 
 
 class Classifier(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    classifier_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     system = models.ForeignKey(
         System, on_delete=models.CASCADE, related_name="classifiers"
     )
@@ -37,8 +37,7 @@ class Classifier(models.Model):
 
 
 class Interface(models.Model):
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    interface_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     system = models.ForeignKey(System, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -47,7 +46,7 @@ class Interface(models.Model):
 
 
 class Relation(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    relation_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     data = models.JSONField()
     system = models.ForeignKey(
         System, on_delete=models.CASCADE, related_name="relations"
