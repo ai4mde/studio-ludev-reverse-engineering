@@ -11,8 +11,7 @@ from django.db import models
 from django.db.models import ForeignKey, OneToOneField
 from jinja2 import Template
 
-diagram_template = """
-{
+diagram_template = """{
     "id": "{{ diagram_id }}",
     "name": "Diagram",
     "type": "classes",
@@ -92,41 +91,63 @@ diagram_template = """
     "system": "{{ system_id }}",
     "project": "{{ project_id }}",
     "description": ""
-}
-"""
+}"""
 
 DJANGO_GENERATED_METHODS = {
     'check', 'clean', 'clean_fields', 'delete', 'full_clean', 'save',
     'save_base', 'validate_unique'
 }
 
-# Constants
-def extract_model_dependencies(model, all_the_models):
-    dependencies = []
+# Fix: Add 2 blank lines before top-level function
+def extract_method_dependencies(model, all_models, data):
+    try:
+        source_ptr = data['model_ptr_map'].get(model)
+        if not source_ptr:
+            return
 
-    # Loop through each method in the model
-    for method_name, method in inspect.getmembers(model, predicate=inspect.isfunction):
-        # Get the source code of the method
-        try:
-            code = inspect.getsource(method)
-        except TypeError:  # This handles edge cases like non-methods
-            continue
+        methods = get_model_all_methods(model)
+        if methods is None:
+            return
 
-        # print(f"Checking method: {method_name}")
+        model_names = {m.__name__: m for m in all_models}
+        add_method_dependency_edges(model, methods, model_names, data, source_ptr)
 
-        for other_model in all_the_models:
-            # Ensure we are checking other models, not the current model
-            if other_model.__name__ != model.__name__:
-                # Check if the model's class name appears in the method code
-                if other_model.__name__ in code:
-                    # Additional logic to check if it's an actual dependency (not just name occurrence)
-                    dependencies.append({
-                        'model': model.__name__,
-                        'dependency': other_model.__name__,
-                        'method': method_name,
-                    })
+    except Exception as outer_e:
+        print(f"Unexpected error '{getattr(model, '__name__', str(model))}': {outer_e}")
 
-    return dependencies
+
+def get_model_all_methods(model):
+    try:
+        return {
+            name: inspect.getsource(func)
+            for name, func in inspect.getmembers(model, predicate=inspect.isfunction)
+        }
+    except Exception as e:
+        print(f"Error retrieving source for model '{model.__name__}': {e}")
+        return None
+
+
+def add_method_dependency_edges(model, source_code_map, model_names, data, source_ptr):
+    added_targets = set()
+    for method_name, code in source_code_map.items():
+        for other_model_name, other_model in model_names.items():
+            if other_model == model or other_model_name in added_targets:
+                continue
+            try:
+                if other_model_name in code:
+                    target_ptr = data['model_ptr_map'].get(other_model)
+                    if target_ptr:
+                        data['edges'].append(create_edge(
+                            "dependency",
+                            f"calls",
+                            {"source": "1", "target": "1"},
+                            source_ptr,
+                            target_ptr
+                        ))
+                        added_targets.add(other_model_name)
+            except Exception as inner_e:
+                print(f"Error processing dependency from '{model.__name__}' to '{other_model_name}': {inner_e}")
+
 
 
 def get_relationship_type(field, model):
@@ -342,12 +363,12 @@ def create_edge(rel_type, label, multiplicity, source_ptr, target_ptr):
 
 
 # Functions related to diagram initialization
-def initialize_diagram_data():
+def initialize_diagram_data(project_id, system_id):
     """Initialize the basic data needed for the diagram"""
     return {
         'diagram_id': str(uuid.uuid4()),
-        'system_id': "28e89254-6b6f-4f83-91ff-8b3611f47d48",
-        'project_id': "0ae9498f-3535-40d1-bf9f-33e250c21519",
+        'project_id': project_id,
+        'system_id': system_id,
         'nodes': [],
         'edges': [],
         'model_ptr_map': {},
@@ -422,7 +443,7 @@ def create_model_node(model, cls_ptr, attributes):
     }
 
 
-def process_model(model, data, app_config):
+def process_model(model, data, app_config, is_show_method_dependency):
     """Process a single model"""
     cls_ptr = data['model_ptr_map'][model]  # Use existing UUID
 
@@ -447,6 +468,9 @@ def process_model(model, data, app_config):
         node = create_model_node(model, cls_ptr, attributes)
         data['nodes'].append(node)
 
+    if is_show_method_dependency:
+        extract_method_dependencies(model, app_config.get_models(), data)
+
     process_model_relationships(model, data['model_ptr_map'], data['enum_ptr_map'], data['edges'])
 
 
@@ -467,7 +491,7 @@ def initialize_model_ptr_map(models):
     return {model: str(uuid.uuid4()) for model in models}
 
 
-def generate_diagram_json(extract_path):
+def generate_diagram_json(extract_path, project_id, system_id, method_dependencies):
     # Find the settings.py file
     settings_files = list(Path(extract_path).glob('**/settings.py'))
     if not settings_files:
@@ -492,7 +516,7 @@ def generate_diagram_json(extract_path):
     django.setup()
 
     """Main function to generate diagram JSON"""
-    data = initialize_diagram_data()
+    data = initialize_diagram_data(project_id, system_id)
 
     for app_config in apps.get_app_configs():
         if app_config.name == 'shared_models':  # Only process 'Shared_Models'
@@ -506,7 +530,7 @@ def generate_diagram_json(extract_path):
 
             # Process all models
             for model in app_config.get_models():
-                process_model(model, data, app_config)
+                process_model(model, data, app_config, method_dependencies)
 
     # create the template object
     diagram_template_obj = Template(diagram_template)
@@ -522,10 +546,13 @@ def generate_diagram_json(extract_path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-path", "-p", default=".", help="starting path")
+    parser.add_argument("--path", "-p", default=".", help="starting path")
+    parser.add_argument("--project_id", "-pid", help="id of the project the diagram needs to be added to")
+    parser.add_argument("--system_id", "-sid", help="id of the system the diagram needs to be added to")
+    parser.add_argument("--method_dependencies", "-md", help="if method dependencies should be included or not")
     args = parser.parse_args()
 
-    diagram = generate_diagram_json(args.path)
+    diagram = generate_diagram_json(args.path, args.project_id, args.system_id, bool(args.method_dependencies))
 
     print(diagram)
 
