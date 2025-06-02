@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 
-from scripts.src.utils.helper import is_enum_field, get_custom_methods
+from .helper import is_enum_field, get_custom_methods
 
 
 def process_enum_field_node(field, enum_ptr_map):

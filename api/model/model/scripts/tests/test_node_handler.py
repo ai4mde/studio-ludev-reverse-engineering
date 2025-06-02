@@ -1,16 +1,18 @@
-import uuid
-import types
 import pytest
 from django.db import models
-from django.apps import apps
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../..")))
 from unittest.mock import Mock, patch
-from scripts.src.utils.helper import get_custom_methods
-from scripts.src.utils.django_environment_setup import *
-from scripts.src.utils.node_handler import map_field_type, create_attribute, create_model_node, process_enum_field_node
+from api.model.model.scripts.src.utils.helper import get_custom_methods
+from api.model.model.scripts.src.utils.django_environment_setup import *
+from api.model.model.scripts.src.utils.node_handler import map_field_type, create_attribute, create_model_node, process_enum_field_node
 
 # To run this from the parent directory: python -m coverage run --source=scripts.src.utils.node_handler -m pytest -s -v scripts/tests/test_node_handler.py && python -m coverage report -m
 
 # 31/05/2025: Coverage report shows 100% coverage for this file, so no need to add more tests.
+
+
+#  python -m coverage run --source=scripts.src.utils.node_handler -m pytest -s -v scripts/tests/test_node_handler.py && python -m coverage report -m
 
 configure_mock_django_settings()
 
@@ -66,7 +68,7 @@ def test_map_field_type_enum():
     field = Mock()
     field.choices = [("A", "Active"), ("I", "Inactive")]
 
-    with patch('scripts.src.utils.helper.is_enum_field', return_value=True):
+    with patch('api.model.model.scripts.src.utils.helper.is_enum_field', return_value=True):
         assert map_field_type(field) == "enum"
 
 
@@ -76,7 +78,7 @@ def test_create_attribute_normal_field():
     field = Mock()
     field.name = "test_field"
 
-    with patch('scripts.src.utils.node_handler.map_field_type', return_value="str"):
+    with patch('api.model.model.scripts.src.utils.node_handler.map_field_type', return_value="str"):
         attribute = create_attribute(field, None)
 
         assert attribute["name"] == "test_field"
@@ -93,7 +95,7 @@ def test_create_attribute_enum_field():
     field.name = "status"
     enum_ref = "enum-uuid"
 
-    with patch('scripts.src.utils.node_handler.map_field_type', return_value="enum"):
+    with patch('api.model.model.scripts.src.utils.node_handler.map_field_type', return_value="enum"):
         attribute = create_attribute(field, enum_ref)
 
         assert attribute["name"] == "status"
@@ -109,7 +111,7 @@ def test_create_model_node_empty():
     cls_ptr = "test-ptr"
     attributes = []
 
-    with patch('scripts.src.utils.helper.get_custom_methods', return_value=[]):
+    with patch('api.model.model.scripts.src.utils.helper.get_custom_methods', return_value=[]):
         node = create_model_node(model, cls_ptr, attributes)
 
         assert node["id"] == cls_ptr
@@ -135,7 +137,7 @@ def test_create_model_node_with_methods_and_attributes():
     attributes = [{"name": "field1", "type": "str"}]
     custom_methods = get_custom_methods(model)  # Extract methods using the actual helper
 
-    with patch('scripts.src.utils.helper.get_custom_methods', return_value=custom_methods):
+    with patch('api.model.model.scripts.src.utils.helper.get_custom_methods', return_value=custom_methods):
         node = create_model_node(model, cls_ptr, attributes)
 
         # Basic structure checks

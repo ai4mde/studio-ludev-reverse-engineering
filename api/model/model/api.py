@@ -197,7 +197,7 @@ def extract_jinja(request, data: ExtractJinjaRequest):
         # Open subprocess with extraction
         res = subprocess.Popen([
             "python3", 
-            "/usr/src/model/model/utils/extract_relationships.py", 
+            "/usr/src/model/model/scripts/src/extract_prototype_main.py",
             "-p", extract_path, 
             "-pid", project_id, 
             "-sid", system_id,
@@ -240,7 +240,7 @@ def execute_import_diagram(request, data: ExecuteImportDiagramRequest):
         include_method_dependency = data.include_method_dependency
         
         # Try the simplified script first for testing
-        cmd = ["python3", "/usr/src/scripts/src/import_diagram_simple.py"]
+        cmd = ["python3", "/usr/src/model/model/scripts/src/import_diagram_simple.py"]
         if include_method_dependency:
             cmd.append("--include-method-dependency")
         else:
@@ -249,7 +249,7 @@ def execute_import_diagram(request, data: ExecuteImportDiagramRequest):
         print(f"Executing command: {' '.join(cmd)}")
         
         # Execute the import diagram script
-        p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd="/usr/src/scripts/src")
+        p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd="/usr/src/model/model/scripts/src")
         
         output, error = p1.communicate()
         output_text = output.decode() if output else ""
@@ -265,7 +265,7 @@ def execute_import_diagram(request, data: ExecuteImportDiagramRequest):
             }
         else:
             # If simplified script fails, try the original one
-            cmd_original = ["python3", "/usr/src/scripts/src/import_diagram.py"]
+            cmd_original = ["python3", "/usr/src/model/model/scripts/src/import_diagram.py"]
             if include_method_dependency:
                 cmd_original.append("--include-method-dependency")
             else:
@@ -273,7 +273,7 @@ def execute_import_diagram(request, data: ExecuteImportDiagramRequest):
             
             print(f"Simplified script failed, trying original: {' '.join(cmd_original)}")
             
-            p2 = subprocess.Popen(cmd_original, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd="/usr/src/scripts/src")
+            p2 = subprocess.Popen(cmd_original, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd="/usr/src/model/model/scripts/src")
             output2, error2 = p2.communicate()
             output_text2 = output2.decode() if output2 else ""
             

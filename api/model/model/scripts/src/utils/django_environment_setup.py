@@ -2,9 +2,21 @@ import os
 import sys
 import django
 from django.conf import settings
+from pathlib import Path
 
+def configure_django_settings(extract_path):
+    # Find the settings.py file
+    settings_files = list(Path(extract_path).glob('**/settings.py'))
+    if not settings_files:
+        # Use sys exit instead of raise ... to facilitate the script being run as subproccess
+        # and being able to do error handling this way
+        sys.exit("No Django settings.py file found in the extracted directory")
 
-def configure_django_settings():
+    # Get the project root directory
+    project_root = settings_files[0].parent
+
+    project_name = project_root.name
+
     # Absolute path to the *parent* folder of `shop`
     project_root = '/home/luoluo/PycharmProjects/2025-10-Reverse-Engineering-ludev/test_prototype/generated_prototypes/eb846e17-a261-470a-abeb-09cd29980a46/shop'
 

@@ -3,7 +3,7 @@ import re  # Import the regular expression module
 from django.db import models
 from django.db.models import ForeignKey, OneToOneField
 
-from scripts.src.utils.helper import is_enum_field, get_model_all_methods
+from .helper import is_enum_field, get_model_all_methods
 
 
 def create_edge(rel_type, label, multiplicity, source_ptr, target_ptr):

@@ -1,26 +1,22 @@
-import os
-import sys
 import uuid
-import django
+
+import argparse
 from django.apps import apps
-from django.conf import settings
-from scripts.src.utils.diagram_template import diagram_template_obj
-from scripts.src.utils.node_handler import process_enum_field_node, create_attribute, create_model_node
-from scripts.src.utils.relationship_handler import extract_method_dependencies, process_model_relationships
-from scripts.src.utils.helper import is_enum_field, collect_all_valid_models, initialize_model_ptr_map, verify_data_integrity
-from scripts.src.utils.django_environment_setup import configure_django_settings
 
-
-configure_django_settings()
+from api.model.model.scripts.src.utils.diagram_template import diagram_template_obj
+from api.model.model.scripts.src.utils.node_handler import process_enum_field_node, create_attribute, create_model_node
+from api.model.model.scripts.src.utils.relationship_handler import extract_method_dependencies, process_model_relationships
+from api.model.model.scripts.src.utils.helper import is_enum_field, collect_all_valid_models, initialize_model_ptr_map, verify_data_integrity
+from api.model.model.scripts.src.utils.django_environment_setup import configure_django_settings
 
 
 # Functions related to diagram initialization
-def initialize_diagram_data():
+def initialize_diagram_data(project_id, system_id):
     """Initialize the basic data needed for the diagram"""
     return {
         'diagram_id': str(uuid.uuid4()),
-        'system_id': "a8465cb2-2df2-4a52-9946-6d762ebfd36f",
-        'project_id': "",
+        'project_id': project_id,
+        'system_id': system_id,
         'nodes': [],
         'edges': [],
         'model_ptr_map': {},
@@ -78,9 +74,9 @@ def process_model(model, data, app_config, is_show_method_dependency):
         print(f"Error processing model: {model.__name__ if model else 'Unknown'}, error: {str(e)}")
 
 
-def generate_diagram_json(show_method_dependency):
+def generate_diagram_json(project_id, system_id, show_method_dependencies):
     """Main function to generate diagram JSON"""
-    data = initialize_diagram_data()
+    data = initialize_diagram_data(project_id, system_id)
 
     for app_config in apps.get_app_configs():
         if app_config.name == 'shared_models':
@@ -94,7 +90,7 @@ def generate_diagram_json(show_method_dependency):
 
             # Process all models
             for model in app_config.get_models():
-                process_model(model, data, app_config, show_method_dependency)
+                process_model(model, data, app_config, show_method_dependencies)
 
     verify_data_integrity(data)
     rendered = diagram_template_obj.render(
@@ -108,6 +104,19 @@ def generate_diagram_json(show_method_dependency):
     return rendered
 
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", "-p", default=".", help="starting path")
+    parser.add_argument("--project_id", "-pid", help="id of the project the diagram needs to be added to")
+    parser.add_argument("--system_id", "-sid", help="id of the system the diagram needs to be added to")
+    parser.add_argument("--method_dependencies", "-md", help="if method dependencies should be included or not")
+    args = parser.parse_args()
+
+    configure_django_settings(args.path)
+    diagram = generate_diagram_json(args.project_id, args.system_id, bool(args.method_dependencies))
+
+    print(diagram)
+
+
 if __name__ == "__main__":
-    to_show_method_dependency = False
-    generate_diagram_json(to_show_method_dependency)
+    main()

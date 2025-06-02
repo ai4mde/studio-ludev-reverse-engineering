@@ -1,13 +1,10 @@
 import pytest
-import os
-import sys
 import zipfile
 import pathlib
 import shutil
-
-
-from scripts.src.extract_jinja2 import get_arguments, extract_zip, get_project_root, projects_folder
-
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../..")))
+from api.model.model.scripts.src.extract_jinja2 import get_arguments, extract_zip, get_project_root, projects_folder
 
 # Start testing method with test_
 
@@ -121,7 +118,7 @@ def test_extract_zip_creates_folder(dummy_zip_file):
     assert any(os.path.isdir(os.path.join(projects_folder, name)) for name in extracted_folders)
 
 def test_extract_real_zip(fake_sys_argv):
-    zip_path = "scripts/test_prototype.zip"
+    zip_path = "api/model/model/scripts/test_prototype.zip"
     fake_sys_argv(["--zip_file", zip_path])
     args = get_arguments()
 
