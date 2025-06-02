@@ -1,4 +1,5 @@
 import subprocess
+import sys
 from diagram.api import diagram_router
 from django.http import HttpResponse
 import zipfile
@@ -188,18 +189,23 @@ def extract_jinja(request, data: ExtractJinjaRequest):
         extract_path =  data.extract_path
 
         # Open subprocess with extraction
-        p1 = subprocess.Popen(["python3", "/usr/src/model/model/utils/extract_relationships.py", "-p", extract_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        res = subprocess.Popen(["python3", "/usr/src/model/model/utils/extract_relationships.py", "-p", extract_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-        diagram_json, error = p1.communicate()
-        # Generate the diagram JSON
-
-        return {
-            "success": True,
-            "message": "Jinja template extracted successfully",
-            "diagram_json": diagram_json
-        }
-
-    except Exception as e:
+        output = res.communicate()
+        if res.returncode == 0:
+            return {
+                "success": True,
+                "message": "Jinja template extracted successfully",
+                "diagram_json": output
+            }
+        else:
+            decoded_error = output[0].decode(sys.stdout.encoding)
+            print(f"Error: {decoded_error}")
+            return {
+                "success": False,
+                "message": f"Error extracting Jinja template: {str(decoded_error)}"
+            }
+    except OSError as e:
         return {
             "success": False,
             "message": f"Error extracting Jinja template: {str(e)}"
