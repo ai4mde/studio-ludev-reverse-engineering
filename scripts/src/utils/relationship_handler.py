@@ -157,8 +157,8 @@ def process_foreign_key_field(field, model, edges, source_ptr, target_ptr):
     rel_type = get_relationship_type(field, model)
 
     multiplicity = {
-                "source": "1..*" if not field.null else "*",
-                "target": "1"
+                "source": "1",
+                "target": "1..*" if not field.null else "*"
             }
     if rel_type in ["composition", "association"]:
         if rel_type == "composition":
