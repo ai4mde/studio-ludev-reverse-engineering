@@ -2,7 +2,7 @@ import { chatbotOpenAtom } from "$lib/features/chatbot/atoms";
 import { Alert, Button, Divider, FormControl, FormLabel, Input, Modal, ModalClose, ModalDialog, Option, Select, Snackbar, Switch, Typography } from "@mui/joy";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { Bot, Box, MessageSquare, Settings } from "lucide-react";
+import { Bot, Box, MessageSquare, Settings, Upload, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 export const IndexPage: React.FC = () => {
@@ -25,6 +25,7 @@ export const IndexPage: React.FC = () => {
     const [isCreatingNewSystem, setIsCreatingNewSystem] = useState(false);
     const [newProjectName, setNewProjectName] = useState("");
     const [newSystemName, setNewSystemName] = useState("");
+    const [isDragOver, setIsDragOver] = useState(false);
 
     const [includeMethodDependency, setIncludeMethodDependency] = useState(false);
 
@@ -104,8 +105,56 @@ export const IndexPage: React.FC = () => {
         }
     };
 
+    const handleFileDrop = async (files: FileList) => {
+        if (!files || files.length === 0) return;
+
+        const file = files[0];
+        setUploadFileName(file.name);
+
+        // 创建一个模拟的事件对象
+        const mockEvent = {
+            target: {
+                files: files
+            }
+        } as React.ChangeEvent<HTMLInputElement>;
+
+        await handleFileUpload(mockEvent);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleFileDrop(files);
+        }
+    };
+
     const handleZipUpload = () => {
         fileInputRef.current?.click();
+    };
+
+    const handleClearUpload = () => {
+        setUploadResult(null);
+        setUploadFileName("No file selected");
+        setUploadProgress(0);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleExtractJinja = async () => {
@@ -308,26 +357,91 @@ export const IndexPage: React.FC = () => {
                     <FormControl fullWidth sx={{ mt: 2 }}>
                         <FormLabel>1. Upload .zip file</FormLabel>
 
-                        <div className="flex items-center gap-4">
-                            <Typography level="body-sm">
-                                {UploadFileName}
-                            </Typography>
-                            <Button
-                                component="label"
-                                variant="soft"
-                                color="primary"
-                                onClick={handleZipUpload}
-                            >
-                                Upload ZIP File
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    onChange={handleFileUpload}
-                                    style={{ display: "none" }}
-                                />
-                            </Button>
-                        </div>
+                        <div
+                            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors relative ${isDragOver
+                                ? 'border-blue-400 bg-blue-50'
+                                : isUploading
+                                    ? 'border-gray-300 bg-gray-50'
+                                    : uploadResult?.success
+                                        ? 'border-green-400 bg-green-50'
+                                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                                }`}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            onClick={!isUploading && !uploadResult?.success ? handleZipUpload : undefined}
+                        >
+                            {uploadResult?.success && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleClearUpload();
+                                    }}
+                                    className="absolute top-2 right-2 p-1 rounded-full bg-red-100 hover:bg-red-200 text-red-600 transition-colors"
+                                    title="Clear upload"
+                                >
+                                    <X size={16} />
+                                </button>
+                            )}
 
+                            {isUploading ? (
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="w-full bg-gray-200 rounded-full h-2">
+                                        <div
+                                            className="bg-blue-600 h-2 rounded-full transition-all"
+                                            style={{ width: `${uploadProgress}%` }}
+                                        ></div>
+                                    </div>
+                                    <Typography level="body-sm">
+                                        Uploading... {uploadProgress}%
+                                    </Typography>
+                                </div>
+                            ) : uploadResult?.success ? (
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full">
+                                        <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <Typography level="body-md" className="font-medium text-green-700">
+                                            Upload Successful!
+                                        </Typography>
+                                        <Typography level="body-sm" className="text-gray-600 mt-1">
+                                            File: {UploadFileName}
+                                        </Typography>
+                                        <Typography level="body-sm" className="text-gray-500 mt-1">
+                                            Click the × button to upload a different file
+                                        </Typography>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-3">
+                                    <Upload size={32} className="text-gray-400" />
+                                    <div>
+                                        <Typography level="body-md" className="font-medium">
+                                            {isDragOver ? 'Drop your ZIP file here' : 'Drag & drop your ZIP file here'}
+                                        </Typography>
+                                        <Typography level="body-sm" className="text-gray-500 mt-1">
+                                            or click to browse files
+                                        </Typography>
+                                    </div>
+                                    {UploadFileName !== "No file selected" && (
+                                        <Typography level="body-sm" className="text-blue-600 font-medium">
+                                            Selected: {UploadFileName}
+                                        </Typography>
+                                    )}
+                                </div>
+                            )}
+
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".zip"
+                                onChange={handleFileUpload}
+                                style={{ display: "none" }}
+                            />
+                        </div>
                     </FormControl>
 
                     <FormControl fullWidth sx={{ mt: 2 }}>
