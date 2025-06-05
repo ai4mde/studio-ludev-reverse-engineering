@@ -354,7 +354,7 @@ export const IndexPage: React.FC = () => {
                 <ModalDialog>
                     <ModalClose />
                     <Typography level="h4">Import Diagram</Typography>
-                    <FormControl fullWidth sx={{ mt: 2 }}>
+                    <FormControl sx={{ mt: 2 }}>
                         <FormLabel>1. Upload .zip file</FormLabel>
 
                         <div
@@ -444,7 +444,7 @@ export const IndexPage: React.FC = () => {
                         </div>
                     </FormControl>
 
-                    <FormControl fullWidth sx={{ mt: 2 }}>
+                    <FormControl sx={{ mt: 2 }}>
                         <FormLabel>2. Select Project</FormLabel>
                         <Select
                             value={selectedProjectId}
@@ -466,7 +466,7 @@ export const IndexPage: React.FC = () => {
 
                     {isCreatingNewProject && (
                         <>
-                            <FormControl fullWidth sx={{ mt: 2 }}>
+                            <FormControl sx={{ mt: 2 }}>
                                 <FormLabel>2a. Project Name</FormLabel>
                                 <Input
                                     placeholder="Enter new project name"
@@ -474,7 +474,7 @@ export const IndexPage: React.FC = () => {
                                     onChange={(e) => setNewProjectName(e.target.value)}
                                 />
                             </FormControl>
-                            <FormControl fullWidth sx={{ mt: 2 }}>
+                            <FormControl sx={{ mt: 2 }}>
                                 <FormLabel>2b. System Name</FormLabel>
                                 <Input
                                     placeholder="Enter new system name"
@@ -486,7 +486,7 @@ export const IndexPage: React.FC = () => {
                     )}
 
                     {!isCreatingNewProject && (
-                        <FormControl fullWidth sx={{ mt: 2 }}>
+                        <FormControl sx={{ mt: 2 }}>
                             <FormLabel>3. Select System</FormLabel>
                             <Select
                                 value={selectedSystemId}
@@ -507,7 +507,7 @@ export const IndexPage: React.FC = () => {
                     )}
 
                     {!isCreatingNewProject && isCreatingNewSystem && (
-                        <FormControl fullWidth sx={{ mt: 2 }}>
+                        <FormControl sx={{ mt: 2 }}>
                             <FormLabel>3a. System Name</FormLabel>
                             <Input
                                 placeholder="Enter new system name"
