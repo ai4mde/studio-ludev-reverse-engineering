@@ -68,11 +68,11 @@ def get_auth(request):
 class ZipUploadResponse(Schema):
     success: bool
     message: str
-    extract_path: str = None
+    extract_path: str
 
 
 @api.post("/utils/upload-zip", response=ZipUploadResponse, tags=["utils"])
-def upload_zip(request, file: UploadedFile = None, is_zip: str = None):
+def upload_zip(request, file: UploadedFile, is_zip: str):
     try:
         # 打印调试信息
         print(f"Upload request received: is_zip={is_zip}")
@@ -179,7 +179,7 @@ class ExtractJinjaRequest(Schema):
 class ExtractJinjaResponse(Schema):
     success: bool
     message: str
-    diagram_json: str = None
+    diagram_json: str
 
 
 @api.post("/utils/extract-jinja", response=ExtractJinjaResponse, tags=["utils"])

@@ -1,6 +1,6 @@
 import requests
 import json
-from extract_prototype_main import generate_diagram_json
+from scripts.src.extract_prototype_main import generate_diagram_json
 
 
 def call_endpoints_to_import_diagram():  # noqa: C901

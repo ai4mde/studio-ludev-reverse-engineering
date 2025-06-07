@@ -1,9 +1,5 @@
-import os
-import sys
 import uuid
-import django
 from django.apps import apps
-from django.conf import settings
 from scripts.src.utils.diagram_template import diagram_template_obj
 from scripts.src.utils.node_handler import process_enum_field_node, create_attribute, create_model_node
 from scripts.src.utils.relationship_handler import extract_method_dependencies, process_model_relationships

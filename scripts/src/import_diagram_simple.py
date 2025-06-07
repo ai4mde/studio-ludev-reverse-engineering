@@ -1,5 +1,4 @@
 import requests
-import json
 import argparse
 import sys
 import uuid
@@ -12,7 +11,7 @@ def call_endpoints_to_import_diagram_simple(to_show_method_dependency=True):
     Args:
         to_show_method_dependency (bool): Whether to include method dependencies in the diagram
     """
-    print(f"Simplified import diagram execution started")
+    print("Simplified import diagram execution started")
     print(f"Method dependency setting: {to_show_method_dependency}")
     
     # Step 1: Obtain authentication token
@@ -188,7 +187,7 @@ def main():
     else:
         to_show_method_dependency = args.include_method_dependency
     
-    print(f"Starting simplified import diagram execution")
+    print("Starting simplified import diagram execution")
     print(f"Method dependency setting: {to_show_method_dependency}")
     
     success = call_endpoints_to_import_diagram_simple(to_show_method_dependency)

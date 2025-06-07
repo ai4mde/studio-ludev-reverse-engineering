@@ -176,7 +176,7 @@ export const IndexPage: React.FC = () => {
             if (importResponse.status === 200) {
                 const diagram_id = importResponse.data.id;
                 const layout_url = "http://api.ai4mde.localhost/api/v1/diagram/" + diagram_id + "/auto_layout";
-                const layoutResponse = await axios.post(layout_url, diagram);
+                await axios.post(layout_url, diagram);
             }
 
         } catch (error: any) {
@@ -288,8 +288,6 @@ export const IndexPage: React.FC = () => {
                     <input
                         ref={folderInputRef}
                         type="file"
-                        webkitdirectory="true"
-                        directory="true"
                         multiple
                         onChange={handleFileUploadEvent}
                         style={{ display: "none" }}

@@ -8,7 +8,7 @@ from scripts.src.utils.helper import is_enum_field, get_model_all_methods
 
 def create_edge(rel_type, label, multiplicity, source_ptr, target_ptr):
     """Create an edge object."""
-    print(f"Creating edge:")
+    print("Creating edge:")
     print(f"  Type: {rel_type}")
     print(f"  Label: {label}")
     print(f"  Source node: {source_ptr}")
@@ -206,7 +206,7 @@ def add_method_dependency_edges(model, source_code_map, model_names, data, sourc
                     if target_ptr:
                         data['edges'].append(create_edge(
                             "dependency",
-                            f"calls",
+                            "calls",
                             {"source": "1", "target": "1"},
                             source_ptr,
                             target_ptr

@@ -1,6 +1,8 @@
 import inspect
 import uuid
 import pytest
+import os
+import scripts.src.utils.helper as helper
 from django.db import models
 from django.apps import AppConfig, apps
 from unittest.mock import Mock
@@ -8,11 +10,9 @@ from scripts.src.utils.helper import (
     collect_all_valid_models, is_enum_field, get_model_all_methods,
     verify_data_integrity, initialize_model_ptr_map, get_custom_methods, is_method_without_args
 )
-from scripts.src.utils.django_environment_setup import *
+from scripts.src.utils.django_environment_setup import configure_mock_django_settings
 
-import os
 print(">> CURRENT WORKING DIRECTORY:", os.getcwd())
-import scripts.src.utils.helper as helper
 print(">> TESTS IMPORTING HELPER FROM:", helper.__file__)
 
 # python -m coverage run --source=scripts.src.utils.helper -m pytest -s -v scripts/tests/test_helper.py && python -m coverage report -m
