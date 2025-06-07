@@ -1,44 +1,59 @@
+import uuid
+
 from django.db import models
-from django.utils import timezone
 
 
-class Teacher(models.Model):
-    name = models.CharField(max_length=100)
-    subject = models.CharField(max_length=50)
-    hire_date = models.DateField()
-
-    def years_of_experience(self):
-        return timezone.now().year - self.hire_date.year
+class Project(models.Model):
+    project_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    name = models.CharField(max_length=255)
+    description = models.TextField()
 
 
-class Course(models.Model):
-    title = models.CharField(max_length=100)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    start_date = models.DateField()
-    end_date = models.DateField()
-
-    def duration_in_weeks(self):
-        return (self.end_date - self.start_date).days // 7
-
-    def is_active(self):
-        today = timezone.now().date()
-        return self.start_date <= today <= self.end_date
+class System(models.Model):
+    system_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    description = models.TextField()
 
 
-class TeacherService(models.Model):
-    title = models.CharField(max_length=100)
-    teacher = models.OneToOneField(Teacher, null=True, on_delete=models.CASCADE)
-    courses = models.ManyToManyField(Course, null=True)
+class Release(models.Model):
+    release_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    system = models.ForeignKey(System, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    diagrams = models.JSONField()
+    metadata = models.JSONField()
+    interfaces = models.JSONField()
+    release_notes = models.JSONField()
 
-    def get_experienced_teachers(self, min_years=5):
-        experienced = []
-        for teacher in Teacher.objects.all():
-            if teacher.years_of_experience() >= min_years:
-                experienced.append(teacher)
-        return experienced
 
-    def assign_teacher_to_course(self, teacher: Teacher, course: Course):
-        teacher.save()
-        course.save()
-        return course
+class Classifier(models.Model):
+    classifier_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    system = models.ForeignKey(
+        System, on_delete=models.CASCADE, related_name="classifiers"
+    )
+    data = models.JSONField()
 
+
+class Interface(models.Model):
+    interface_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    system = models.ForeignKey(System, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    actor = models.ForeignKey(Classifier, on_delete=models.CASCADE, null=True)
+    data = models.JSONField(default=dict)
+
+
+class Relation(models.Model):
+    relation_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    data = models.JSONField()
+    system = models.ForeignKey(
+        System, on_delete=models.CASCADE, related_name="relations"
+    )
+    source = models.ForeignKey(
+        Classifier, related_name="relations_to", on_delete=models.CASCADE
+    )
+    target = models.ForeignKey(
+        Classifier, related_name="relations_from", on_delete=models.CASCADE
+    )

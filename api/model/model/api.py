@@ -69,11 +69,11 @@ def get_auth(request):
 class ZipUploadResponse(Schema):
     success: bool
     message: str
-    extract_path: str = None
+    extract_path: str
 
 
 @api.post("/utils/upload-zip", response=ZipUploadResponse, tags=["utils"])
-def upload_zip(request, file: UploadedFile = None, is_zip: str = None):
+def upload_zip(request, file: UploadedFile, is_zip: str):
     try:
         # 打印调试信息
         print(f"Upload request received: is_zip={is_zip}")
@@ -183,7 +183,7 @@ class ExtractJinjaRequest(Schema):
 class ExtractJinjaResponse(Schema):
     success: bool
     message: str
-    diagram_json: str = None
+    diagram_json: str
 
 
 @api.post("/utils/extract-jinja", response=ExtractJinjaResponse, tags=["utils"])
@@ -222,4 +222,84 @@ def extract_jinja(request, data: ExtractJinjaRequest):
         return {
             "success": False,
             "message": f"Error extracting Jinja template: {str(e)}"
+        }
+
+
+class ExecuteImportDiagramRequest(Schema):
+    include_method_dependency: bool = True
+
+
+class ExecuteImportDiagramResponse(Schema):
+    success: bool
+    message: str
+
+
+@api.post("/utils/execute-import-diagram", response=ExecuteImportDiagramResponse, tags=["utils"])
+def execute_import_diagram(request, data: ExecuteImportDiagramRequest):
+    try:
+        include_method_dependency = data.include_method_dependency
+        
+        # Try the simplified script first for testing
+        cmd = ["python3", "/usr/src/scripts/src/import_diagram_simple.py"]
+        if include_method_dependency:
+            cmd.append("--include-method-dependency")
+        else:
+            cmd.append("--no-method-dependency")
+        
+        print(f"Executing command: {' '.join(cmd)}")
+        
+        # Execute the import diagram script
+        p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd="/usr/src/scripts/src")
+        
+        output, error = p1.communicate()
+        output_text = output.decode() if output else ""
+        
+        print(f"Script output: {output_text}")
+        print(f"Return code: {p1.returncode}")
+        
+        # Check if the process was successful
+        if p1.returncode == 0:
+            return {
+                "success": True,
+                "message": f"Import diagram executed successfully with method dependency: {include_method_dependency}. Output: {output_text[-100:]}"
+            }
+        else:
+            # If simplified script fails, try the original one
+            cmd_original = ["python3", "/usr/src/scripts/src/import_diagram.py"]
+            if include_method_dependency:
+                cmd_original.append("--include-method-dependency")
+            else:
+                cmd_original.append("--no-method-dependency")
+            
+            print(f"Simplified script failed, trying original: {' '.join(cmd_original)}")
+            
+            p2 = subprocess.Popen(cmd_original, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd="/usr/src/scripts/src")
+            output2, error2 = p2.communicate()
+            output_text2 = output2.decode() if output2 else ""
+            
+            if p2.returncode == 0:
+                return {
+                    "success": True,
+                    "message": f"Import diagram executed successfully with original script. Method dependency: {include_method_dependency}"
+                }
+            else:
+                # Both failed, provide detailed error
+                if "No module named" in output_text2 or "DJANGO_SETTINGS_MODULE" in output_text2:
+                    return {
+                        "success": False,
+                        "message": f"Django configuration error: The script requires a properly configured Django project. Please ensure you have uploaded a valid Django project and extracted it first. Simplified script output: {output_text[:100]}... Original script error: {output_text2[:100]}..."
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "message": f"Both scripts failed. Simplified: {output_text[:100]}... Original: {output_text2[:100]}..."
+                    }
+
+    except Exception as e:
+        import traceback
+        print(f"Error executing import diagram: {str(e)}")
+        print(traceback.format_exc())
+        return {
+            "success": False,
+            "message": f"Error executing import diagram: {str(e)}"
         }

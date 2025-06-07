@@ -169,8 +169,8 @@ export const IndexPage: React.FC = () => {
 
         console.log("There is a zip file:", uploadResult?.extract_path);
 
-        var project_id = selectedProjectId
-        var system_id = selectedSystemId
+        let project_id = selectedProjectId
+        let system_id = selectedSystemId
 
         if (isCreatingNewProject) {
             const response = await axios.post('http://api.ai4mde.localhost/api/v1/metadata/projects/', {
@@ -270,7 +270,7 @@ export const IndexPage: React.FC = () => {
             if (importResponse.status === 200) {
                 const diagram_id = importResponse.data.id;
                 const layout_url = "http://api.ai4mde.localhost/api/v1/diagram/" + diagram_id + "/auto_layout";
-                const layoutResponse = await axios.post(layout_url, diagram);
+                await axios.post(layout_url, diagram);
             }
 
             setImportResult({

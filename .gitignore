@@ -5,3 +5,4 @@ projects/
 .idea
 api/uploads/
 .ruff_cache/
+.coverage
