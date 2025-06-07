@@ -1,8 +1,8 @@
 import { chatbotOpenAtom } from "$lib/features/chatbot/atoms";
-import { Alert, Button, Divider, FormControl, FormLabel, Input, Modal, ModalClose, ModalDialog, Option, Select, Snackbar, Switch, Typography } from "@mui/joy";
+import { Alert, Button, Divider, FormControl, FormLabel, Input, Modal, ModalClose, ModalDialog, Option, Select, Snackbar, Switch, Tooltip, Typography } from "@mui/joy";
 import axios from "axios";
 import { useAtom } from "jotai";
-import { Bot, Box, MessageSquare, Settings, Upload, X } from "lucide-react";
+import { Bot, Box, Import, MessageSquare, Settings, Upload, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 export const IndexPage: React.FC = () => {
@@ -10,13 +10,14 @@ export const IndexPage: React.FC = () => {
     const [uploadResult, setUploadResult] = useState<{ success: boolean; message: string; extract_path?: string } | null>(null);
     const [UploadFileName, setUploadFileName] = useState("No file selected");
     const [showSnackbar, setShowSnackbar] = useState(false);
-    const [jinjaResult, setJinjaResult] = useState<{ success: boolean; message: string; diagram_json?: string } | null>(null);
-    const [importResult, setImportResult] = useState<{ success: boolean; message: string; } | null>(null);
+    const [jinjaResult, setJinjaResult] = useState<{ success: boolean; header: string; message: string; diagram_json?: string } | null>(null);
+    const [importResult, setImportResult] = useState<{ success: boolean; header: string; message: string; } | null>(null);
     const [popupOpen, setPopupOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
+    const [errorOccured, setIsError] = useState(false);
     const [projects, setProjects] = useState([]);
     const [systems, setSystems] = useState([]);
     const [selectedProjectId, setSelectedProjectId] = useState("");
@@ -26,6 +27,7 @@ export const IndexPage: React.FC = () => {
     const [newProjectName, setNewProjectName] = useState("");
     const [newSystemName, setNewSystemName] = useState("");
     const [isDragOver, setIsDragOver] = useState(false);
+    const [toolTipOpen, setToolTipOpen] = useState(true);
 
     const [includeMethodDependency, setIncludeMethodDependency] = useState(false);
 
@@ -157,12 +159,23 @@ export const IndexPage: React.FC = () => {
         }
     };
 
+    const handleTooltipOpen = () => {
+        setToolTipOpen(true);
+    };
+
+    const handleTooltipClose = () => {
+        setToolTipOpen(false);
+
+    };
+
     const handleExtractJinja = async () => {
         if (!uploadResult?.extract_path) {
             setJinjaResult({
                 success: false,
-                message: "No extraction path available. Please upload a ZIP file first."
+                header: "No extraction path available",
+                message: "Please upload a ZIP file first."
             });
+            setIsError(true);
             setShowSnackbar(true);
             return;
         }
@@ -215,6 +228,7 @@ export const IndexPage: React.FC = () => {
             if (response.data.success && response.data.diagram_json) {
                 setJinjaResult({
                     success: true,
+                    header: "",
                     message: "Extraction succesful",
                     diagram_json: response.data
                 });
@@ -225,8 +239,10 @@ export const IndexPage: React.FC = () => {
                 console.error("Extraction failed:", response.data.message);
                 setJinjaResult({
                     success: false,
+                    header: "Extraction failed",
                     message: response.data.message
                 });
+                setIsError(true);
                 setShowSnackbar(true);
             }
 
@@ -234,8 +250,10 @@ export const IndexPage: React.FC = () => {
             console.error("Extraction failed:", error);
             setJinjaResult({
                 success: false,
+                header: "Extraction failed",
                 message: "Jinja extraction failed, please check API connection"
             });
+            setIsError(true);
             setShowSnackbar(true);
         }
     };
@@ -244,11 +262,27 @@ export const IndexPage: React.FC = () => {
         setShowSnackbar(false);
     };
 
+    const clearSettings = () => {
+        setSelectedProjectId("");
+        setSelectedSystemId("");
+        setIsCreatingNewProject(false);
+        setIsCreatingNewSystem(false);
+        setIsImporting(false);
+        handleClearUpload();
+        setIncludeMethodDependency(false);
+        setToolTipOpen(false);
+        setIsError(false);
+        setJinjaResult(null);
+        setImportResult(null);
+    }
+
     useEffect(() => {
         if (popupOpen) {
             axios.get("http://api.ai4mde.localhost/api/v1/metadata/projects/")
                 .then((res) => setProjects(res.data))
                 .catch((err) => console.error("Failed to fetch projects", err));
+        } else {
+            clearSettings();
         }
     }, [popupOpen]);
 
@@ -275,10 +309,12 @@ export const IndexPage: React.FC = () => {
 
             setImportResult({
                 success: true,
-                message: "Import successful! Go to the corresponding project so you view the diagram",
+                header: "Import successful!",
+                message: "Go to the corresponding project so you view the diagram",
             });
             setShowSnackbar(true);
-
+            console.log("Import succesful");
+            return true;
         } catch (error: any) {
             if (error.response) {
                 console.log(`Import request failed with status ${error.response.status}: ${error.response.data}`);
@@ -289,6 +325,18 @@ export const IndexPage: React.FC = () => {
             }
         }
     };
+
+    const handleImportWrapper = async () => {
+        setIsImporting(true);
+        const extractionResponse = await handleExtractJinja();
+        if (extractionResponse) {
+            const importResponse = handleImport(JSON.stringify(JSON.parse(extractionResponse), null, 2));
+            setIsImporting(false);
+            if (importResponse) {
+                setPopupOpen(false);
+            }
+        }
+    }
 
     const canImport = isCreatingNewProject
         ? newProjectName.trim() !== "" && newSystemName.trim() !== ""
@@ -325,7 +373,10 @@ export const IndexPage: React.FC = () => {
                             Create a project & system by hand
                         </span>
                     </Button>
-                    <Button onClick={() => setPopupOpen(true)}>
+                    <Button
+                        component="a"
+                        onClick={() => setPopupOpen(true)}>
+                        <Import size={20} />
                         <span className="pl-2">Import via zip file</span>
                     </Button>
                 </div>
@@ -333,29 +384,33 @@ export const IndexPage: React.FC = () => {
 
             <Snackbar
                 open={showSnackbar}
-                autoHideDuration={6000}
+                autoHideDuration={errorOccured ? null : 6000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
                 <Alert
                     variant="outlined"
-                    color={((uploadResult?.success && jinjaResult?.success) || uploadResult?.success && jinjaResult?.success === undefined) ? "success" : "danger"}
+                    color={!errorOccured ? "success" : "danger"}
                     endDecorator={
                         <Button variant="plain" size="sm" onClick={handleCloseSnackbar}>
                             Close
                         </Button>
                     }
                 >
-                    {!jinjaResult?.success && jinjaResult?.message || importResult?.message}
+                    {(!jinjaResult?.success || importResult?.success) &&
+                        <div>
+                            <Typography level="title-lg">{jinjaResult?.header || importResult?.header}</Typography>
+                            <Typography level="body-sm">{jinjaResult?.message || importResult?.message}</Typography>
+                        </div>}
                 </Alert>
             </Snackbar>
 
             <Modal open={popupOpen} onClose={() => setPopupOpen(false)}>
-                <ModalDialog>
+                <ModalDialog sx={{ width: 1 / 3 }}>
                     <ModalClose />
                     <Typography level="h4">Import Diagram</Typography>
                     <FormControl sx={{ mt: 2 }}>
-                        <FormLabel>1. Upload .zip file</FormLabel>
+                        <FormLabel>1. Upload Django Project</FormLabel>
 
                         <div
                             className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors relative ${isDragOver
@@ -375,7 +430,7 @@ export const IndexPage: React.FC = () => {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleClearUpload();
+                                        clearSettings();
                                     }}
                                     className="absolute top-2 right-2 p-1 rounded-full bg-red-100 hover:bg-red-200 text-red-600 transition-colors"
                                     title="Clear upload"
@@ -446,28 +501,41 @@ export const IndexPage: React.FC = () => {
 
                     <FormControl sx={{ mt: 2 }}>
                         <FormLabel>2. Select Project</FormLabel>
-                        <Select
-                            value={selectedProjectId}
-                            onChange={(e, newValue) => {
-                                setSelectedProjectId(newValue);
-                                setSelectedSystemId("");
-                                setIsCreatingNewProject(newValue === "new");
-                            }}
-                            placeholder="Select a project"
+                        <Tooltip title={uploadResult ?
+                            "Select the project you want the import to be added to" : "Upload a Django project first"}
+                            size="md"
+                            placement="bottom"
+                            disableHoverListener={!toolTipOpen}
                         >
-                            {projects.map((project) => (
-                                <Option key={project.id} value={project.id}>
-                                    {project.name}
-                                </Option>
-                            ))}
-                            <Option value="new">+ Create new project</Option>
-                        </Select>
+                            <span>
+                                <Select
+                                    disabled={!uploadResult}
+                                    value={selectedProjectId}
+                                    onChange={(e, newValue) => {
+                                        setSelectedProjectId(newValue);
+                                        setSelectedSystemId("");
+                                        setIsCreatingNewProject(newValue === "new");
+                                        handleTooltipOpen();
+                                    }}
+                                    placeholder="Select a project"
+                                    onClose={handleTooltipOpen}
+                                    onListboxOpenChange={handleTooltipClose}
+                                >
+                                    {projects.map((project) => (
+                                        <Option key={project.id} value={project.id}>
+                                            {project.name}
+                                        </Option>
+                                    ))}
+                                    <Option value="new">+ Create new project and system</Option>
+                                </Select>
+                            </span>
+                        </Tooltip>
                     </FormControl>
 
                     {isCreatingNewProject && (
                         <>
                             <FormControl sx={{ mt: 2 }}>
-                                <FormLabel>2a. Project Name</FormLabel>
+                                <FormLabel>Project Name</FormLabel>
                                 <Input
                                     placeholder="Enter new project name"
                                     value={newProjectName}
@@ -475,7 +543,7 @@ export const IndexPage: React.FC = () => {
                                 />
                             </FormControl>
                             <FormControl sx={{ mt: 2 }}>
-                                <FormLabel>2b. System Name</FormLabel>
+                                <FormLabel>System Name</FormLabel>
                                 <Input
                                     placeholder="Enter new system name"
                                     value={newSystemName}
@@ -486,29 +554,42 @@ export const IndexPage: React.FC = () => {
                     )}
 
                     {!isCreatingNewProject && (
-                        <FormControl sx={{ mt: 2 }}>
-                            <FormLabel>3. Select System</FormLabel>
-                            <Select
-                                value={selectedSystemId}
-                                onChange={(e, newValue) => {
-                                    setSelectedSystemId(newValue);
-                                    setIsCreatingNewSystem(newValue === "new");
-                                }}
-                                placeholder="Select a system"
-                            >
-                                {systems.map((system) => (
-                                    <Option key={system.id} value={system.id}>
-                                        {system.name}
-                                    </Option>
-                                ))}
-                                <Option value="new">+ Create new system</Option>
-                            </Select>
-                        </FormControl>
+                        <Tooltip title={selectedProjectId ?
+                            "Select the system you want the import to be added to" : "Select or create a project first"}
+                            size="md"
+                            placement="bottom"
+                            disableHoverListener={!toolTipOpen}
+                        >
+                            <span>
+                                <FormControl sx={{ mt: 3 }}>
+                                    <FormLabel>3. Select System</FormLabel>
+                                    <Select
+                                        disabled={!selectedProjectId}
+                                        value={selectedSystemId}
+                                        onChange={(e, newValue) => {
+                                            setSelectedSystemId(newValue);
+                                            setIsCreatingNewSystem(newValue === "new");
+                                            handleTooltipOpen();
+                                        }}
+                                        placeholder="Select a system"
+                                        onClose={handleTooltipOpen}
+                                        onListboxOpenChange={handleTooltipClose}
+                                    >
+                                        {systems.map((system) => (
+                                            <Option key={system.id} value={system.id}>
+                                                {system.name}
+                                            </Option>
+                                        ))}
+                                        <Option value="new">+ Create new system</Option>
+                                    </Select>
+                                </FormControl>
+                            </span>
+                        </Tooltip>
                     )}
 
                     {!isCreatingNewProject && isCreatingNewSystem && (
                         <FormControl sx={{ mt: 2 }}>
-                            <FormLabel>3a. System Name</FormLabel>
+                            <FormLabel>System Name</FormLabel>
                             <Input
                                 placeholder="Enter new system name"
                                 value={newSystemName}
@@ -516,15 +597,18 @@ export const IndexPage: React.FC = () => {
                             />
                         </FormControl>
                     )}
-
+                    <Typography sx={{ mt: 5, fontSize: 10 }}>
+                        Advanced settings
+                    </Typography>
+                    <Divider />
                     <FormControl orientation="horizontal" sx={{ justifyContent: 'space-between' }}>
                         <div>
                             <FormLabel>
                                 <Settings size={16} className="inline mr-2" />
                                 Include Method Dependencies
                             </FormLabel>
-                            <Typography level="body-sm" className="text-gray-600">
-                                Include method dependencies in the diagram generation
+                            <Typography sx={{ fontSize: 10 }}>
+                                Include method dependencies in the diagram generation.
                             </Typography>
                         </div>
                         <Switch
@@ -534,28 +618,17 @@ export const IndexPage: React.FC = () => {
                         />
                     </FormControl>
 
-                    <div className="flex justify-end gap-2 mt-4">
+                    <div className="flex justify-end gap-2 margin-4">
                         <Button variant="plain"
                             onClick={() => {
                                 setPopupOpen(false)
-                                setIsImporting(false);
                             }}>
                             Cancel
                         </Button>
                         <Button
-                            loading={isImporting}
-                            onClick={async () => {
-                                setIsImporting(true);
-                                const result = await handleExtractJinja();
-
-                                if (result) {
-                                    await handleImport(JSON.stringify(JSON.parse(result), null, 2));
-                                }
-
-                                setIsImporting(false);
-                                setPopupOpen(false)
-                            }}
-                            disabled={!canImport || isImporting}
+                            loading={isImporting && !errorOccured}
+                            onClick={handleImportWrapper}
+                            disabled={!canImport || isImporting || errorOccured}
                         >
                             Import Diagram
                         </Button>
