@@ -7,17 +7,15 @@ import React, { useEffect, useRef, useState } from "react";
 
 export const IndexPage: React.FC = () => {
     const [, setChatbot] = useAtom(chatbotOpenAtom);
-    const [uploadResult, setUploadResult] = useState<{ success: boolean; message: string; extract_path?: string } | null>(null);
+    const [uploadResult, setUploadResult] = useState<{ success: boolean; extract_path?: string } | null>(null);
     const [UploadFileName, setUploadFileName] = useState("No file selected");
     const [showSnackbar, setShowSnackbar] = useState(false);
-    const [jinjaResult, setJinjaResult] = useState<{ success: boolean; header: string; message: string; diagram_json?: string } | null>(null);
-    const [importResult, setImportResult] = useState<{ success: boolean; header: string; message: string; } | null>(null);
+    const [message, setMessage] = useState<{ isError: boolean; header: string; message: string; } | null>(null);
     const [popupOpen, setPopupOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
-    const [errorOccured, setIsError] = useState(false);
     const [projects, setProjects] = useState([]);
     const [systems, setSystems] = useState([]);
     const [selectedProjectId, setSelectedProjectId] = useState("");
@@ -70,7 +68,7 @@ export const IndexPage: React.FC = () => {
             }
 
             console.log("Starting upload...");
-            const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/upload-zip', formData, {
+            const response = await axios.post('http://api.ai4mde.localhost/api/v1/importer/importer/upload_zip', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -90,14 +88,15 @@ export const IndexPage: React.FC = () => {
             console.error("Upload failed:", error);
             // 显示更详细的错误信息
             const errorMessage = error.response
-                ? `Error: ${error.response.status} - ${error.response.data?.message || JSON.stringify(error.response.data)}`
+                ? `Error: HTTP ${error.response.status} `
                 : `Error: ${error.message || 'Unknown error'}`;
 
             console.error("Detailed error:", errorMessage);
 
-            setUploadResult({
-                success: false,
-                message: `Upload failed: ${errorMessage}`
+            setMessage({
+                isError: true,
+                header: `Upload failed: ${error.code}`,
+                message: `Upload request failed: ${error.message}.`
             });
             setShowSnackbar(true);
         } finally {
@@ -170,12 +169,11 @@ export const IndexPage: React.FC = () => {
 
     const handleExtractJinja = async () => {
         if (!uploadResult?.extract_path) {
-            setJinjaResult({
-                success: false,
+            setMessage({
+                isError: true,
                 header: "No extraction path available",
                 message: "Please upload a ZIP file first."
             });
-            setIsError(true);
             setShowSnackbar(true);
             return;
         }
@@ -218,7 +216,7 @@ export const IndexPage: React.FC = () => {
         console.log("Executing extraction script");
 
         try {
-            const response = await axios.post('http://api.ai4mde.localhost/api/v1/utils/extract-jinja', {
+            const response = await axios.post('http://api.ai4mde.localhost/api/v1/importer/importer/extract_jinja', {
                 extract_path: uploadResult.extract_path,
                 project_id: project_id,
                 system_id: system_id,
@@ -226,34 +224,26 @@ export const IndexPage: React.FC = () => {
             });
 
             if (response.data.success && response.data.diagram_json) {
-                setJinjaResult({
-                    success: true,
-                    header: "",
-                    message: "Extraction succesful",
-                    diagram_json: response.data
-                });
                 console.log("Jinja extracted:", response.data);
                 return response.data.diagram_json;
             }
             else {
                 console.error("Extraction failed:", response.data.message);
-                setJinjaResult({
-                    success: false,
+                setMessage({
+                    isError: true,
                     header: "Extraction failed",
                     message: response.data.message
                 });
-                setIsError(true);
                 setShowSnackbar(true);
             }
 
         } catch (error) {
             console.error("Extraction failed:", error);
-            setJinjaResult({
-                success: false,
+            setMessage({
+                isError: true,
                 header: "Extraction failed",
                 message: "Jinja extraction failed, please check API connection"
             });
-            setIsError(true);
             setShowSnackbar(true);
         }
     };
@@ -271,9 +261,7 @@ export const IndexPage: React.FC = () => {
         handleClearUpload();
         setIncludeMethodDependency(false);
         setToolTipOpen(false);
-        setIsError(false);
-        setJinjaResult(null);
-        setImportResult(null);
+        setMessage(null)
     }
 
     useEffect(() => {
@@ -307,8 +295,8 @@ export const IndexPage: React.FC = () => {
                 await axios.post(layout_url, diagram);
             }
 
-            setImportResult({
-                success: true,
+            setMessage({
+                isError: false,
                 header: "Import successful!",
                 message: "Go to the corresponding project so you view the diagram",
             });
@@ -316,13 +304,19 @@ export const IndexPage: React.FC = () => {
             console.log("Import succesful");
             return true;
         } catch (error: any) {
-            if (error.response) {
-                console.log(`Import request failed with status ${error.response.status}: ${error.response.data}`);
-            } else if (error.request) {
-                console.log("No response received from the server.");
-            } else {
-                console.log(`Import request failed: ${error.message}`);
-            }
+            console.error("Import failed:", error);
+            const errorMessage = error.response
+                ? `Error: HTTP ${error.response.status} `
+                : `Error: ${error.message || 'Unknown error'}`;
+
+            console.error("Detailed error:", errorMessage);
+
+            setMessage({
+                isError: true,
+                header: `Import failed: ${error.code}`,
+                message: `Import request failed: ${error.message}.`
+            });
+            setShowSnackbar(true);
         }
     };
 
@@ -384,23 +378,23 @@ export const IndexPage: React.FC = () => {
 
             <Snackbar
                 open={showSnackbar}
-                autoHideDuration={errorOccured ? null : 6000}
+                autoHideDuration={!message?.isError ? null : 6000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
                 <Alert
                     variant="outlined"
-                    color={!errorOccured ? "success" : "danger"}
+                    color={!message?.isError ? "success" : "danger"}
                     endDecorator={
                         <Button variant="plain" size="sm" onClick={handleCloseSnackbar}>
                             Close
                         </Button>
                     }
                 >
-                    {(!jinjaResult?.success || importResult?.success) &&
+                    {message !== null &&
                         <div>
-                            <Typography level="title-lg">{jinjaResult?.header || importResult?.header}</Typography>
-                            <Typography level="body-sm">{jinjaResult?.message || importResult?.message}</Typography>
+                            <Typography level="title-lg">{message?.header}</Typography>
+                            <Typography level="body-sm">{message?.message}</Typography>
                         </div>}
                 </Alert>
             </Snackbar>
@@ -626,9 +620,9 @@ export const IndexPage: React.FC = () => {
                             Cancel
                         </Button>
                         <Button
-                            loading={isImporting && !errorOccured}
+                            loading={isImporting && !message?.isError}
                             onClick={handleImportWrapper}
-                            disabled={!canImport || isImporting || errorOccured}
+                            disabled={!canImport || isImporting || message?.isError}
                         >
                             Import Diagram
                         </Button>
