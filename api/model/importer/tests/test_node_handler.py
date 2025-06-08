@@ -3,9 +3,9 @@ from django.db import models
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../..")))
 from unittest.mock import Mock, patch
-from api.model.model.scripts.src.utils.helper import get_custom_methods
-from api.model.model.scripts.src.utils.django_environment_setup import *
-from api.model.model.scripts.src.utils.node_handler import map_field_type, create_attribute, create_model_node, process_enum_field_node
+from api.model.importer.src.utils.helper import get_custom_methods
+from api.model.importer.src.utils.django_environment_setup import *
+from api.model.importer.src.utils.node_handler import map_field_type, create_attribute, create_model_node, process_enum_field_node
 
 # To run this from the parent directory: python -m coverage run --source=scripts.src.utils.node_handler -m pytest -s -v scripts/tests/test_node_handler.py && python -m coverage report -m
 
