@@ -1,0 +1,39 @@
+{% extends "user_base.html" %}
+{% block content %}
+
+<div>
+
+    <h2>customer_cart</h2>
+
+    <p>cart description</p>
+
+    <table>
+        <tr>
+            <th>cart_id</th>
+            <th>customer_id</th>
+            <th>num_of_items</th>
+        </tr>
+        {% for Cart in Cart_list %}
+        <tr>
+            
+            <td style="text-align:center;">{{ Cart.cart_id }}</td><td style="text-align:center;">{{ Cart.customer_id }}</td>
+            <td style="text-align:center;">{{ Cart.num_of_items }}</td>
+            
+            
+            <td>
+                <form action="{% url 'shopping_cart_customer_cart_get_num_of_items' Cart.id %}" method="post">
+                    {% csrf_token %}
+                        <input type="submit" value="get_num_of_items"/>
+                </form>
+            </td>
+            </tr>
+        {% endfor %}
+
+        
+    </table>
+    
+
+    
+</div>
+
+{% endblock %}

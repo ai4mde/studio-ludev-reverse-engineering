@@ -1,9 +1,16 @@
+import subprocess
+import sys
 from diagram.api import diagram_router
 from django.http import HttpResponse
+import zipfile
+from datetime import datetime
+from pathlib import Path
 from metadata.api import metadata_router
 from prose.api import prose_router
 from generator.api import generator_router
+from importer.api import importer_router
 from ninja import NinjaAPI, Schema
+from ninja.files import UploadedFile
 
 from model.auth import auth, create_token
 
@@ -18,6 +25,7 @@ api.add_router("/metadata/", metadata_router)
 api.add_router("/diagram/", diagram_router)
 api.add_router("/prose/", prose_router)
 api.add_router("/generator/", generator_router)
+api.add_router("/importer/", importer_router)
 
 
 class GetTokenSchema(Schema):

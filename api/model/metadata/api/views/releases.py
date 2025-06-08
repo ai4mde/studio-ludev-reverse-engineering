@@ -32,10 +32,10 @@ def create_release(request, system_id: str, name: str, release_notes: Optional[s
         return 422
     if not system:
         return 404, "System not found"
-    
+
     serialized_interfaces = serialize_interfaces(system=system)
     serialized_diagrams = serialize_diagrams(system=system)
-    
+
     return Release.objects.create(
         name=name,
         project=system.project,
@@ -52,20 +52,20 @@ def load_release(request, release_id):
     release = Release.objects.get(id=release_id)
     if not release:
         return 404, "Release not found"
-    
+
     system = release.system
     if not system:
         return 404, "System not found"
-    
+
     if not load_diagrams(system=system, release=release):
         return 422
-    
+
     if not load_interfaces(system=system, release=release):
         return 422
-    
+
     return 200
-    
-    
+
+
 
 
 
@@ -85,6 +85,6 @@ def delete_release(request, release_id):
     except Exception as e:
         raise Exception("Failed to delete release, error: " + e)
     return True
-    
+
 
 __all__ = ["releases"]

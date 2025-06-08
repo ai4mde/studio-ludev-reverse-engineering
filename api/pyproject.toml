@@ -23,12 +23,13 @@ requests = "^2.32.3"
 openai = "^1.47.0"
 networkx = "^3.4.2"
 numpy = "^2.2.1"
+groq = "^0.15.0"
 
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.12.1"
 ruff = "^0.1.13"
-django-stubs = {extras = ["compatible-mypy"], version = "^4.2.7"}
+django-stubs = { extras = ["compatible-mypy"], version = "^4.2.7" }
 
 [build-system]
 requires = ["poetry-core"]
@@ -36,6 +37,21 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
+mypy_path = ['$MYPY_CONFIG_FILE_DIR/model/','$MYPY_CONFIG_FILE_DIR/model/importer/src/']
 
 [tool.django-stubs]
 django_settings_module = "model.settings"
+
+[tool.ruff]
+line-length = 127
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+select = ["E4", "E7", "E9", "F"]
+ignore = []
+
+[tool.pytest.ini_options]
+# ignore DeprecationWarning raised by locale.getdefaultlocale in django utils
+filterwarnings = ["ignore::DeprecationWarning:django.utils.encoding.*:"]

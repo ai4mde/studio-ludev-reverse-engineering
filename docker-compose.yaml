@@ -39,6 +39,8 @@ services:
       - ai4mde_traefik
     volumes:
       - ./api/model:/usr/src/model:ro
+      - ./api/uploads:/usr/src/uploads
+      - ./scripts:/usr/src/scripts:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.studio-api.rule=Host(`api.ai4mde.localhost`)"

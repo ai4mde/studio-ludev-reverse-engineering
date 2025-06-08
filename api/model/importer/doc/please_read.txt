@@ -1,0 +1,351 @@
+
+
+What's left:
+    1.The methods of each class is not included in the json output, so please include it, and please make sure only including the existing methods defined.
+    2.Test the json with the endpoint given in Diagram app to generate diagram which is mentioned in the meeting record, revise the code until this works.
+    3.Add the functionality to import the prototype as a zip file or folder, what existing now is just a relative path to the prototype.
+    4.Test the endpoint created(the one existing has not been tested and may not be working), to return the json representation of the uml diagram by calling the endpoint.
+
+
+Current Output:
+
+myenv) luoluo@luoluo-GS65-Stealth-9SD:~/文档/update/studio-ludev-reverse-engineering/scripts$ python extract_jinja2.py
+Extracting models from: Shared_Models
+
+{
+    "diagrams": [
+        {
+            "id": "51d7eba0-e1d2-4949-9d8a-4f1bea043018",
+            "name": "Diagram",
+            "type": "classes",
+            "edges": [
+
+                {
+                    "id": "ce9c4529-af0e-4e11-b75e-5fc36b6c57e8",
+                    "rel": {
+                        "type": "association",
+                        "label": "in",
+                        "multiplicity": {
+                            "source": "0..1",
+                            "target": "1"
+                        }
+                    },
+                    "data": {},
+                    "rel_ptr": "294f5397-9e36-4f5a-96ea-9a6ae47474c9",
+                    "source_ptr": "13889a27-b924-4835-8c2a-826241e66584",
+                    "target_ptr": "c960aa17-adb3-4b7c-85e5-d60580465293"
+                }
+                ,
+
+                {
+                    "id": "32377ec2-562a-426b-bda5-5fe09bbcf393",
+                    "rel": {
+                        "type": "association",
+                        "label": "has",
+                        "multiplicity": {
+                            "source": "1",
+                            "target": "1"
+                        }
+                    },
+                    "data": {},
+                    "rel_ptr": "8a8d6680-fba8-4844-8d96-7b7dc57cbf84",
+                    "source_ptr": "780451a7-6e28-409d-a5cf-95c6530d51de",
+                    "target_ptr": "fe3aa5e0-ee46-43cb-9b24-4d03c0700231"
+                }
+
+
+            ],
+            "nodes": [
+
+                {
+                    "id": "0b5bc07f-8923-4c4d-b3f7-2f0159493260",
+                    "cls": {
+                        "leaf": false,
+                        "name": "Product",
+                        "type": "class",
+                        "methods": [
+
+                        ],
+                        "abstract": false,
+                        "namespace": "",
+                        "attributes": [
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "id",
+                                "type": "bigautofield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "product_id",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "product_name",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "product_description",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "price",
+                                "type": "integerfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "cart_id",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "product_category",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "Cart",
+                                "type": "foreignkey",
+                                "derived": false,
+                                "description": null
+                            }
+
+
+                        ]
+                    },
+                    "data": {
+                        "position": {
+                            "x": 0,
+                            "y": 0
+                        }
+                    },
+                    "cls_ptr": "13889a27-b924-4835-8c2a-826241e66584"
+                }
+                ,
+
+                {
+                    "id": "0937779d-1134-4459-9181-acc7ff2197a1",
+                    "cls": {
+                        "leaf": false,
+                        "name": "Customer",
+                        "type": "class",
+                        "methods": [
+
+                        ],
+                        "abstract": false,
+                        "namespace": "",
+                        "attributes": [
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "id",
+                                "type": "bigautofield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "customer_id",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "customer_name",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "customer_email",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "customer_date_of_birth",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "has_membership",
+                                "type": "booleanfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "Cart",
+                                "type": "onetoonefield",
+                                "derived": false,
+                                "description": null
+                            }
+
+
+                        ]
+                    },
+                    "data": {
+                        "position": {
+                            "x": 0,
+                            "y": 0
+                        }
+                    },
+                    "cls_ptr": "50e7a68e-8a95-4344-b489-2539f54d6f03"
+                }
+                ,
+
+                {
+                    "id": "90f23014-9d0e-4b17-b83e-808bf7ad4aab",
+                    "cls": {
+                        "leaf": false,
+                        "name": "Cart",
+                        "type": "class",
+                        "methods": [
+
+                        ],
+                        "abstract": false,
+                        "namespace": "",
+                        "attributes": [
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "product",
+                                "type": "foreignkey",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "customer",
+                                "type": "onetoonefield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "id",
+                                "type": "bigautofield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "cart_id",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "customer_id",
+                                "type": "charfield",
+                                "derived": false,
+                                "description": null
+                            }
+                            ,
+
+                            {
+                                "body": null,
+                                "enum": null,
+                                "name": "num_of_items",
+                                "type": "integerfield",
+                                "derived": false,
+                                "description": null
+                            }
+
+
+                        ]
+                    },
+                    "data": {
+                        "position": {
+                            "x": 0,
+                            "y": 0
+                        }
+                    },
+                    "cls_ptr": "780451a7-6e28-409d-a5cf-95c6530d51de"
+                }
+
+
+            ],
+            "system": "c79c758a-d2c5-4e2c-bf71-eadcaf769299",
+            "project": "99fc3c09-07bc-43d2-bf59-429f99a35839",
+            "description": ""
+        }
+    ]
+}

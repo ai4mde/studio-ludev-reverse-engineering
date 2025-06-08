@@ -49,7 +49,7 @@ def delete_system(request, id):
     except Exception as e:
         raise Exception("Failed to delete system, error: " + e)
     return True
-    
+
 
 systems.add_router("/{uuid:system_id}/meta", meta, tags=["metadata"])
 systems.add_router("/{uuid:system_id}/classifiers", classifiers, tags=["metadata"])
