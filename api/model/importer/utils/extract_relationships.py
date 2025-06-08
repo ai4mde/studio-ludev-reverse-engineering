@@ -9,89 +9,7 @@ from django.conf import settings
 from django.apps import apps
 from django.db import models
 from django.db.models import ForeignKey, OneToOneField
-from jinja2 import Template
-
-diagram_template = """{
-    "id": "{{ diagram_id }}",
-    "name": "Diagram",
-    "type": "classes",
-    "nodes": [
-        {% for node in nodes %}
-        {
-          "id": "{{ node.id }}",
-          "cls": {
-            {% if node.cls.type == 'enum' %}
-            "name": "{{ node.cls.name }}",
-            "type": "enum",
-            "literals": {{ node.cls.literals | tojson }},
-            "namespace": "{{ node.cls.namespace }}"
-            {% else %}
-            "leaf": {{ node.cls.leaf | lower }},
-            "name": "{{ node.cls.name }}",
-            "type": "class",
-            "methods": [
-              {% for method in node.cls.methods %}
-              {
-                "body": "{{ method.body }}",
-                "name": "{{ method.name }}",
-                "type": "{{ method.type }}",
-                "description": "{{ method.description }}"
-              }
-              {% if not loop.last %},{% endif %}
-              {% endfor %}
-            ],
-            "abstract": {{ node.cls.abstract | lower}},
-            "namespace": "{{ node.cls.namespace }}",
-            "attributes": [
-              {% for attribute in node.cls.attributes %}
-              {
-                "body": "{{ attribute.body }}",
-                "enum": "{{ attribute.enum }}",
-                "name": "{{ attribute.name }}",
-                "type": "{{ attribute.type }}",
-                "derived": "{{ attribute.derived | lower }}",
-                "description": "{{ attribute.description }}"
-              }
-              {% if not loop.last %},{% endif %}
-              {% endfor %}
-            ]
-            {% endif %}
-          },
-          "data": {
-            "position": {
-              "x": {{ node.data.position.x }},
-              "y": {{ node.data.position.y }}
-            }
-          },
-          "cls_ptr": "{{ node.cls_ptr }}"
-        }
-        {% if not loop.last %},{% endif %}
-        {% endfor %}
-    ],
-    "edges": [
-        {% for edge in edges %}
-        {
-            "id": "{{ edge.id }}",
-            "rel": {
-                "type": "{{ edge.rel.type }}",
-                "label": "{{ edge.rel.label }}",
-                "multiplicity": {
-                    "source": "{{ edge.rel.multiplicity.source }}",
-                    "target": "{{ edge.rel.multiplicity.target }}"
-                }
-            },
-            "data": {},
-            "rel_ptr": "{{ edge.rel_ptr }}",
-            "source_ptr": "{{ edge.source_ptr }}",
-            "target_ptr": "{{ edge.target_ptr }}"
-        }
-        {% if not loop.last %},{% endif %}
-        {% endfor %}
-    ],
-    "system": "{{ system_id }}",
-    "project": "{{ project_id }}",
-    "description": ""
-}"""
+from .diagram_template import diagram_template_obj
 
 DJANGO_GENERATED_METHODS = {
     'check', 'clean', 'clean_fields', 'delete', 'full_clean', 'save',
@@ -139,7 +57,7 @@ def add_method_dependency_edges(model, source_code_map, model_names, data, sourc
                     if target_ptr:
                         data['edges'].append(create_edge(
                             "dependency",
-                            f"calls",
+                            "calls",
                             {"source": "1", "target": "1"},
                             source_ptr,
                             target_ptr
@@ -497,7 +415,12 @@ def generate_diagram_json(extract_path, project_id, system_id, method_dependenci
     if not settings_files:
         # Use sys exit instead of raise ... to facilitate the script being run as subproccess 
         # and being able to do error handling this way
-        sys.exit("No Django settings.py file found in the extracted directory")
+        sys.exit("No Django settings.py file found in the extracted directory. Verify the integrity of your Django project or try to import another file/folder")
+
+    if os.stat(settings_files[0]).st_size == 0:
+        # Use sys exit instead of raise ... to facilitate the script being run as subproccess 
+        # and being able to do error handling this way
+        sys.exit("Django settings.py is empty. Verify the integrity of your Django project or try to import another file/folder")
 
     # Get the project root directory
     project_root = settings_files[0].parent
@@ -533,7 +456,6 @@ def generate_diagram_json(extract_path, project_id, system_id, method_dependenci
                 process_model(model, data, app_config, method_dependencies)
 
     # create the template object
-    diagram_template_obj = Template(diagram_template)
     rendered = diagram_template_obj.render(
         diagram_id=data['diagram_id'],
         project_id=data['project_id'],

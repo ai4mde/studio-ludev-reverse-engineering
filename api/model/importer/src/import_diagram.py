@@ -2,13 +2,13 @@ import requests
 import json
 import argparse
 import sys
-from  extract_prototype_main import generate_diagram_json
+from extract_prototype_main import generate_diagram_json
 
 
-def call_endpoints_to_import_diagram(to_show_method_dependency=True):  # noqa: C901
+def call_endpoints_to_import_diagram():  # noqa: C901
     """
     Generate a diagram including authentication, import, and auto-layout.
-
+    
     Args:
         to_show_method_dependency (bool): Whether to include method dependencies in the diagram
     """
@@ -37,7 +37,7 @@ def call_endpoints_to_import_diagram(to_show_method_dependency=True):  # noqa: C
 
     # Step 2: Generate and import the diagram
     try:
-        json_payload = generate_diagram_json(project_id, system_id, to_show_method_dependency)
+        json_payload = generate_diagram_json(to_show_method_dependency)
         payload = json.loads(json_payload)
 
         # Debug information
@@ -105,28 +105,28 @@ def main():
     """
     parser = argparse.ArgumentParser(description='Import Django project diagram to AI4MDE')
     parser.add_argument(
-        '--include-method-dependency',
-        action='store_true',
+        '--include-method-dependency', 
+        action='store_true', 
         default=True,
         help='Include method dependencies in the diagram (default: True)'
     )
     parser.add_argument(
-        '--no-method-dependency',
+        '--no-method-dependency', 
         action='store_true',
         help='Exclude method dependencies from the diagram'
     )
-
+    
     args = parser.parse_args()
-
+    
     # Handle the logic for method dependency
     if args.no_method_dependency:
         to_show_method_dependency = False
     else:
         to_show_method_dependency = args.include_method_dependency
-
+    
     print(f"Method dependency setting: {to_show_method_dependency}")
     call_endpoints_to_import_diagram(to_show_method_dependency)
 
 
 if __name__ == "__main__":
-    generate_diagram_json()
+    main()

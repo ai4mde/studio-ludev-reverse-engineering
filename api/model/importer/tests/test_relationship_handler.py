@@ -101,24 +101,29 @@ def extended_model_setup():
     """ Fixture for testing various relationship types and edge cases. """
     class Owner(models.Model):
         name = models.CharField(max_length=50)
-        class Meta: app_label = 'test'
+        class Meta: 
+            app_label = 'test'
 
     class Profile(models.Model):
         owner = models.OneToOneField(Owner, on_delete=models.CASCADE)
-        class Meta: app_label = 'test'
+        class Meta: 
+            app_label = 'test'
 
     class Account(models.Model):
         owner = models.OneToOneField(Owner, on_delete=models.CASCADE, null=True)
-        class Meta: app_label = 'test'
+        class Meta: 
+            app_label = 'test'
 
     class Ticket(models.Model):
         owner = models.ForeignKey(Owner, on_delete=models.SET_NULL, null=True)
         status = models.CharField(max_length=10, choices=[(tag.name, tag.value) for tag in StatusEnum])
-        class Meta: app_label = 'test'
+        class Meta: 
+            app_label = 'test'
         
     class ModelWithM2M(models.Model):
         tickets = models.ManyToManyField(Ticket, null=True)
-        class Meta: app_label = 'test'
+        class Meta: 
+            app_label = 'test'
 
     model_map = {
         Owner: str(uuid.uuid4()),
