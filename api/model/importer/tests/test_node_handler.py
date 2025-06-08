@@ -69,7 +69,7 @@ def test_map_field_type_enum():
     field = Mock()
     field.choices = [("A", "Active"), ("I", "Inactive")]
 
-    with patch('api.model.model.scripts.src.utils.helper.is_enum_field', return_value=True):
+    with patch('api.model.importer.src.utils.helper.is_enum_field', return_value=True):
         assert map_field_type(field) == "enum"
 
 
@@ -79,7 +79,7 @@ def test_create_attribute_normal_field():
     field = Mock()
     field.name = "test_field"
 
-    with patch('api.model.model.scripts.src.utils.node_handler.map_field_type', return_value="str"):
+    with patch('api.model.importer.src.utils.node_handler.map_field_type', return_value="str"):
         attribute = create_attribute(field, None)
 
         assert attribute["name"] == "test_field"
@@ -96,7 +96,7 @@ def test_create_attribute_enum_field():
     field.name = "status"
     enum_ref = "enum-uuid"
 
-    with patch('api.model.model.scripts.src.utils.node_handler.map_field_type', return_value="enum"):
+    with patch('api.model.importer.src.utils.node_handler.map_field_type', return_value="enum"):
         attribute = create_attribute(field, enum_ref)
 
         assert attribute["name"] == "status"
@@ -112,7 +112,7 @@ def test_create_model_node_empty():
     cls_ptr = "test-ptr"
     attributes = []
 
-    with patch('api.model.model.scripts.src.utils.helper.get_custom_methods', return_value=[]):
+    with patch('api.model.importer.src.utils.helper.get_custom_methods', return_value=[]):
         node = create_model_node(model, cls_ptr, attributes)
 
         assert node["id"] == cls_ptr
@@ -138,7 +138,7 @@ def test_create_model_node_with_methods_and_attributes():
     attributes = [{"name": "field1", "type": "str"}]
     custom_methods = get_custom_methods(model)  # Extract methods using the actual helper
 
-    with patch('api.model.model.scripts.src.utils.helper.get_custom_methods', return_value=custom_methods):
+    with patch('api.model.importer.src.utils.helper.get_custom_methods', return_value=custom_methods):
         node = create_model_node(model, cls_ptr, attributes)
 
         # Basic structure checks

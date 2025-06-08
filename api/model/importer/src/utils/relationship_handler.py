@@ -11,7 +11,6 @@ def create_edge(rel_type, label, multiplicity, source_ptr, target_ptr):
     """Create an edge object."""
     if not source_ptr or not target_ptr:
         sys.exit("Warning: Invalid node pointers")
-        return None
 
     return {
         "id": str(uuid.uuid4()),

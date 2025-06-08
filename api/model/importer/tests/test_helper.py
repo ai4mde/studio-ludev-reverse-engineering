@@ -196,10 +196,8 @@ def test_initialize_model_ptr_map():
     assert len(set(ptr_map.values())) == len(models)
 
 def test_verify_data_integrity(mock_data, capsys):
-    verify_data_integrity(mock_data)
-    captured = capsys.readouterr()
-    assert "Warning: Target node not found node3" in captured.out
-    assert "Warning: Source node not found" not in captured.out
+    with pytest.raises(SystemExit, match='Warning: Target node not found node3') as pytest_wrapped_e:
+        assert verify_data_integrity(mock_data)
 
 def test_get_custom_methods(test_model_with_methods):
     custom_methods = get_custom_methods(test_model_with_methods)
@@ -266,7 +264,5 @@ def test_verify_data_integrity_source_missing(capsys):
             {'source_ptr': 'n2', 'target_ptr': 'n1'}  # source missing, target OK
         ]
     }
-    verify_data_integrity(data)
-    out = capsys.readouterr().out
-    assert "Warning: Source node not found n2" in out
-    assert "Warning: Target node not found" not in out
+    with pytest.raises(SystemExit, match='Warning: Source node not found n2') as pytest_wrapped_e:
+        assert verify_data_integrity(data)

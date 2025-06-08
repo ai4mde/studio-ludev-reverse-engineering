@@ -156,10 +156,8 @@ def test_create_edge_with_valid_inputs():
     assert edge["target_ptr"] == target_ptr
 
 def test_create_edge_with_invalid_inputs():
-    edge = create_edge("association", "connect",
-                       {"source": "1", "target": "*"},
-                       None, None)
-    assert edge is None
+    with pytest.raises(SystemExit, match='Warning: Invalid node pointers') as pytest_wrapped_e:
+        assert create_edge("association", "connect", {"source": "1", "target": "*"}, None, None)
 
 def test_process_inheritance_relationships(model_setup):
     source_ptr = model_setup['model_ptr_map'][model_setup['child_model']]
@@ -244,11 +242,11 @@ def test_process_foreign_key_field_association(extended_model_setup):
     assert edge['source_ptr'] == source_ptr
     assert edge['target_ptr'] == target_ptr
 
-@patch('api.model.model.scripts.src.utils.relationship_handler.process_enum_field')
+@patch('api.model.importer.src.utils.relationship_handler.process_enum_field')
 def test_process_field_relationships_with_enum(mock_process_enum, extended_model_setup):
     model = extended_model_setup['Ticket']
     source_ptr = extended_model_setup['model_ptr_map'][model]
-    with patch('api.model.model.scripts.src.utils.helper.is_enum_field') as mock_is_enum:
+    with patch('api.model.importer.src.utils.helper.is_enum_field') as mock_is_enum:
         mock_is_enum.side_effect = lambda f: f.name == 'status'
         process_field_relationships(
             model,
@@ -310,7 +308,7 @@ def test_process_enum_field_no_enum_ptr():
     assert len(edges) == 0
 
 def test_extract_method_dependencies_no_methods(dependency_setup):
-    with patch('api.model.model.scripts.src.utils.helper.get_model_all_methods') as mock_get_methods:
+    with patch('api.model.importer.src.utils.helper.get_model_all_methods') as mock_get_methods:
         mock_get_methods.return_value = None
         extract_method_dependencies(
             dependency_setup['model_a'],
@@ -325,9 +323,10 @@ def test_add_method_dependency_edges_exception_handling(dependency_setup, capsys
     source_ptr = dependency_setup['data']['model_ptr_map'][model_a]
     model_names = {model_a.__name__: model_a, model_b.__name__: model_b, 123: "Invalid Model"}
     source_code_map = {'method_a': 'some code with ModelB'}
-    add_method_dependency_edges(model_a, source_code_map, model_names, dependency_setup['data'], source_ptr)
-    captured = capsys.readouterr()
-    assert f"Error processing dependency from '{model_a.__name__}'" in captured.out
+
+    matchRegex = f"Error processing dependency from '{model_a.__name__}'"
+    with pytest.raises(SystemExit, match=matchRegex) as pytest_wrapped_e:
+        assert add_method_dependency_edges(model_a, source_code_map, model_names, dependency_setup['data'], source_ptr)
 
 def test_process_many_to_many_field_with_null(extended_model_setup):
     edges = []
@@ -351,8 +350,8 @@ def test_process_inheritance_relationships_skips_django_base():
     process_inheritance_relationships(AnotherModel, model_ptr_map, edges, source_ptr)
     assert len(edges) == 0
 
-@patch('api.model.model.scripts.src.utils.relationship_handler.process_field_relationships')
-@patch('api.model.model.scripts.src.utils.relationship_handler.process_inheritance_relationships')
+@patch('api.model.importer.src.utils.relationship_handler.process_field_relationships')
+@patch('api.model.importer.src.utils.relationship_handler.process_inheritance_relationships')
 def test_process_model_relationships(mock_inheritance, mock_fields, model_setup):
     model = model_setup['child_model']
     model_ptr_map = model_setup['model_ptr_map']
@@ -378,7 +377,7 @@ def test_extract_method_dependencies_creates_edge(dependency_setup):
     Tests that a dependency edge IS created when a model name is in the code.
     """
     method_code = 'def method_a(self):\n    return "ModelB"'
-    with patch('api.model.model.scripts.src.utils.helper.get_model_all_methods') as mock_get_methods:
+    with patch('api.model.importer.src.utils.helper.get_model_all_methods') as mock_get_methods:
         mock_get_methods.return_value = {'method_a': method_code}
         isolated_data = copy.deepcopy(dependency_setup['data'])
         
