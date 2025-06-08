@@ -10,6 +10,6 @@ npm --prefix ./frontend/ run lint_index
 # Ruff
 ruff check ./api/model/importer/
 # MyPi
-mypy --follow-imports=skip ./api/model/importer/
+mypy --follow-imports=skip --config-file="./api/pyproject.toml" ./api/model/importer/
 # Unit tests
 pytest

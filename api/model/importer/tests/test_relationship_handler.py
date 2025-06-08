@@ -156,7 +156,7 @@ def test_create_edge_with_valid_inputs():
     assert edge["target_ptr"] == target_ptr
 
 def test_create_edge_with_invalid_inputs():
-    with pytest.raises(SystemExit, match='Warning: Invalid node pointers') as pytest_wrapped_e:
+    with pytest.raises(SystemExit, match='Warning: Invalid node pointers'):
         assert create_edge("association", "connect", {"source": "1", "target": "*"}, None, None)
 
 def test_process_inheritance_relationships(model_setup):
@@ -325,7 +325,7 @@ def test_add_method_dependency_edges_exception_handling(dependency_setup, capsys
     source_code_map = {'method_a': 'some code with ModelB'}
 
     matchRegex = f"Error processing dependency from '{model_a.__name__}'"
-    with pytest.raises(SystemExit, match=matchRegex) as pytest_wrapped_e:
+    with pytest.raises(SystemExit, match=matchRegex):
         assert add_method_dependency_edges(model_a, source_code_map, model_names, dependency_setup['data'], source_ptr)
 
 def test_process_many_to_many_field_with_null(extended_model_setup):

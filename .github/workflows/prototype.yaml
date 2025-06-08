@@ -53,10 +53,10 @@ jobs:
 
     - name: Lint with ruff
       run: |
-          ruff check ./api/model/model ./scripts
+          ruff check ./api/model/importer/
 
     - name: Python type check with mypy
-      run : mypy --follow-imports=skip ./api/model/model/api.py
+      run : mypy --follow-imports=skip --config-file="./api/pyproject.toml" ./api/model/importer/
       
     - name: Test with pytest
       run: |
