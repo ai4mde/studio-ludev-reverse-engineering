@@ -9,7 +9,7 @@ from django.conf import settings
 from django.apps import apps
 from django.db import models
 from django.db.models import ForeignKey, OneToOneField
-from diagram_template import diagram_template_obj
+from .diagram_template import diagram_template_obj
 
 DJANGO_GENERATED_METHODS = {
     'check', 'clean', 'clean_fields', 'delete', 'full_clean', 'save',

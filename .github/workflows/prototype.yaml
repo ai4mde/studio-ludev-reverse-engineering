@@ -31,11 +31,11 @@ jobs:
 
     - name: Run ESLint
       working-directory: ./frontend
-      run: npm run lint_index.tsx
+      run: npm run lint_index
 
     - name: Check TypeScript compilation
       working-directory: ./frontend
-      run: npm run tsc_index.tsx
+      run: npm run tsc
 
   backend:
     runs-on: ubuntu-latest
