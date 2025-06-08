@@ -8,8 +8,8 @@ npm --prefix ./frontend/ run lint_index
 
 # beacked tests
 # Ruff
-ruff check ./api/model/model ./scripts
+ruff check ./api/model/importer/
 # MyPi
-mypy --follow-imports=skip ./scripts/src/ ./scripts/tests/
+mypy --follow-imports=skip ./api/model/importer/
 # Unit tests
 pytest
