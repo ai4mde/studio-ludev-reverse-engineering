@@ -5,30 +5,60 @@ name: Python application
 
 on:
   push:
-    branches: [ "prototype" ]
+    branches:
+    - "main"
+    - "prototype"
 
 permissions:
   contents: read
 
 jobs:
-  build:
-
+  frontend:
     runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
+    - name: Install cached dependencies
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+        cache-dependency-path: frontend/package.json
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Run ESLint
+      working-directory: ./frontend
+      run: npm run lint_index
+
+    - name: Check TypeScript compilation
+      working-directory: ./frontend
+      run: npm run tsc
+
+  backend:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
           python-version: '3.13'
           cache: 'pip' # caching pip dependencies
-    - run: pip install -r ./scrips/requirements.txt
-    - name: Lint with flake8
+
+    - name: Install dependencies      
+      run: pip install -r ${{ github.workspace }}/requirements.txt
+
+    - name: Lint with ruff
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          ruff check ./api/model/importer/
+
+    - name: Python type check with mypy
+      run : mypy --follow-imports=skip --config-file="./api/pyproject.toml" ./api/model/importer/
+      
     - name: Test with pytest
       run: |
         pytest
