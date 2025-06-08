@@ -1,5 +1,3 @@
-# This is the complete test script with the previously failing test removed.
-
 import uuid
 import pytest
 from unittest.mock import patch, Mock
@@ -7,10 +5,8 @@ from django.db import models
 from django.test.utils import isolate_apps
 from enum import Enum
 import copy
-import os, sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../..")))
 # Assuming the following imports are from the user's project structure
-from api.model.model.scripts.src.utils.relationship_handler import (
+from api.model.importer.src.utils.relationship_handler import (
     process_field_relationships,
     get_relationship_type,
     extract_method_dependencies,
@@ -23,7 +19,7 @@ from api.model.model.scripts.src.utils.relationship_handler import (
     process_model_relationships,
     add_method_dependency_edges
 )
-from api.model.model.scripts.src.utils.django_environment_setup import configure_mock_django_settings
+from api.model.importer.src.utils.django_environment_setup import configure_mock_django_settings
 
 # Configure the mock Django environment for the tests
 configure_mock_django_settings()

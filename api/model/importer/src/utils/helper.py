@@ -1,4 +1,5 @@
 import inspect
+import sys
 import uuid
 from django.db import models
 
@@ -65,9 +66,9 @@ def verify_data_integrity(data):
         source = edge.get('source_ptr')
         target = edge.get('target_ptr')
         if not any(node.get('id') == source for node in data.get('nodes', [])):
-            print(f"Warning: Source node not found {source}")  # line 68
+            sys.exit(f"Warning: Source node not found {source}")  # line 68
         if not any(node.get('id') == target for node in data.get('nodes', [])):
-            print(f"Warning: Target node not found {target}")
+            sys.exit(f"Warning: Target node not found {target}")
 
 
 def get_custom_methods(model):

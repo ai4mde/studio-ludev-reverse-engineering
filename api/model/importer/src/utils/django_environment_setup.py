@@ -8,30 +8,33 @@ def configure_django_settings(extract_path):
     # Find the settings.py file
     settings_files = list(Path(extract_path).glob('**/settings.py'))
     if not settings_files:
-        # Use sys exit instead of raise ... to facilitate the script being run as subproccess
+        # Use sys exit instead of raise ... to facilitate the script being run as subproccess 
         # and being able to do error handling this way
-        sys.exit("No Django settings.py file found in the extracted directory")
+        sys.exit("No Django settings.py file found in the extracted directory. Verify the integrity of your Django project or try to import another file/folder")
+
+    if os.stat(settings_files[0]).st_size == 0:
+        # Use sys exit instead of raise ... to facilitate the script being run as subproccess 
+        # and being able to do error handling this way
+        sys.exit("Django settings.py is empty. Verify the integrity of your Django project or try to import another file/folder")
 
     # Get the project root directory
     project_root = settings_files[0].parent
 
     project_name = project_root.name
 
-    # Absolute path to the *parent* folder of `shop`
-    project_root = '/home/luoluo/PycharmProjects/2025-10-Reverse-Engineering-ludev/test_prototype/generated_prototypes/eb846e17-a261-470a-abeb-09cd29980a46/shop'
+    # Add the project path to sys.path
+    sys.path.append(project_root.parent.as_posix())
+    # Set the Django environment
+    os.environ['DJANGO_SETTINGS_MODULE'] = f"{project_name}.settings"
 
-    # Django setup
-    sys.path.append(project_root)
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'shop.settings')
-
-    # Remove 'admin' app from INSTALLED_APPS before setup
-    if 'admin' in settings.INSTALLED_APPS:
+    # Remove duplicate 'admin' from INSTALLED_APPS dynamically
+    if settings.INSTALLED_APPS and 'admin' in settings.INSTALLED_APPS:
         settings.INSTALLED_APPS = [app for app in settings.INSTALLED_APPS if app != 'admin']
 
     try:
         django.setup()
     except Exception as e:
-        print("Error setting up Django environment:", str(e))
+        sys.exit(f"Error setting up Django environment: {str(e)}")
         raise
 
 
@@ -57,7 +60,6 @@ def configure_mock_django_settings():
 
     try:
         django.setup()
-        print("Mock Django environment configured.")
     except Exception as e:
-        print("Error setting up mock Django environment:", str(e))
+        sys.exit(f"Error setting up mock Django environment: {str(e)}")
         raise

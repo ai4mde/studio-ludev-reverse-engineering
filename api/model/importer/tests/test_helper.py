@@ -6,8 +6,6 @@ import api.model.importer.src.utils.helper as helper
 from django.db import models
 from django.apps import AppConfig, apps
 from unittest.mock import Mock
-import os, sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../..")))
 from api.model.importer.src.utils.helper import (
     verify_data_integrity, 
     collect_all_valid_models, 
@@ -17,7 +15,7 @@ from api.model.importer.src.utils.helper import (
     get_custom_methods, 
     is_method_without_args
 )
-from api.model.importer.src.utils.django_environment_setup import *
+from api.model.importer.src.utils.django_environment_setup import configure_mock_django_settings
 
 print(">> CURRENT WORKING DIRECTORY:", os.getcwd())
 print(">> TESTS IMPORTING HELPER FROM:", helper.__file__)

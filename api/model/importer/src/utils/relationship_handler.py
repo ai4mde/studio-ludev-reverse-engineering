@@ -1,3 +1,4 @@
+import sys
 import uuid
 import re  # Import the regular expression module
 from django.db import models
@@ -8,14 +9,8 @@ from .helper import is_enum_field, get_model_all_methods
 
 def create_edge(rel_type, label, multiplicity, source_ptr, target_ptr):
     """Create an edge object."""
-    print("Creating edge:")
-    print(f"  Type: {rel_type}")
-    print(f"  Label: {label}")
-    print(f"  Source node: {source_ptr}")
-    print(f"  Target node: {target_ptr}")
-
     if not source_ptr or not target_ptr:
-        print("Warning: Invalid node pointers")
+        sys.exit("Warning: Invalid node pointers")
         return None
 
     return {
@@ -86,7 +81,6 @@ def process_field_relationships(model, model_ptr_map, enum_ptr_map, edges, sourc
             for edge in edges:
                 if edge.get('rel', {}).get('label', '').startswith('calls'):
                     if edge.get('source_ptr') == source_ptr and edge.get('target_ptr') == target_ptr:
-                        print(f"Skipping edge with label starting with 'calls' between {source_ptr} and {target_ptr}: {edge}")
                         process = False
                         continue
             if process:
@@ -189,7 +183,7 @@ def extract_method_dependencies(model, all_models, data):
         add_method_dependency_edges(model, methods, model_names, data, source_ptr)
 
     except Exception as outer_e:
-        print(f"Unexpected error '{getattr(model, '__name__', str(model))}': {outer_e}")
+        sys.exit(f"Unexpected error '{getattr(model, '__name__', str(model))}': {outer_e}")
 
 
 def add_method_dependency_edges(model, source_code_map, model_names, data, source_ptr):
@@ -213,4 +207,4 @@ def add_method_dependency_edges(model, source_code_map, model_names, data, sourc
                         ))
                         added_targets.add(other_model_name)
             except Exception as inner_e:
-                print(f"Error processing dependency from '{model.__name__}' to '{other_model_name}': {inner_e}")
+                sys.exit(f"Error processing dependency from '{model.__name__}' to '{other_model_name}': {inner_e}")

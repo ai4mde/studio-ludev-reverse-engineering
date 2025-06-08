@@ -121,7 +121,7 @@ def extract_jinja(request, data: ExtractJinjaRequest):
         # Open subprocess with extraction
         res = subprocess.Popen([
             "python3", 
-            "/usr/src/model/importer/utils/extract_relationships.py", 
+            "/usr/src/model/importer/src/extract_prototype_main.py", 
             "-p", extract_path, 
             "-pid", project_id, 
             "-sid", system_id,
