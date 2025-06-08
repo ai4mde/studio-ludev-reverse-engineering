@@ -378,7 +378,7 @@ export const IndexPage: React.FC = () => {
 
             <Snackbar
                 open={showSnackbar}
-                autoHideDuration={!message?.isError ? null : 6000}
+                autoHideDuration={!message?.isError ? null : 15000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >

@@ -1,7 +1,6 @@
 from jinja2 import Template
 
-diagram_template = """
-{
+diagram_template = """{
     "id": "{{ diagram_id }}",
     "name": "Diagram",
     "type": "classes",
@@ -81,8 +80,7 @@ diagram_template = """
     "system": "{{ system_id }}",
     "project": "{{ project_id }}",
     "description": ""
-}
-"""
+}"""
 
 # create the template object
 diagram_template_obj = Template(diagram_template)
