@@ -7,9 +7,10 @@ from django.db import models
 from django.test.utils import isolate_apps
 from enum import Enum
 import copy
-
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../..")))
 # Assuming the following imports are from the user's project structure
-from scripts.src.utils.relationship_handler import (
+from api.model.model.scripts.src.utils.relationship_handler import (
     process_field_relationships,
     get_relationship_type,
     extract_method_dependencies,
@@ -22,7 +23,7 @@ from scripts.src.utils.relationship_handler import (
     process_model_relationships,
     add_method_dependency_edges
 )
-from scripts.src.utils.django_environment_setup import configure_mock_django_settings
+from api.model.model.scripts.src.utils.django_environment_setup import configure_mock_django_settings
 
 # Configure the mock Django environment for the tests
 configure_mock_django_settings()
@@ -247,11 +248,11 @@ def test_process_foreign_key_field_association(extended_model_setup):
     assert edge['source_ptr'] == source_ptr
     assert edge['target_ptr'] == target_ptr
 
-@patch('scripts.src.utils.relationship_handler.process_enum_field')
+@patch('api.model.model.scripts.src.utils.relationship_handler.process_enum_field')
 def test_process_field_relationships_with_enum(mock_process_enum, extended_model_setup):
     model = extended_model_setup['Ticket']
     source_ptr = extended_model_setup['model_ptr_map'][model]
-    with patch('scripts.src.utils.helper.is_enum_field') as mock_is_enum:
+    with patch('api.model.model.scripts.src.utils.helper.is_enum_field') as mock_is_enum:
         mock_is_enum.side_effect = lambda f: f.name == 'status'
         process_field_relationships(
             model,
@@ -313,7 +314,7 @@ def test_process_enum_field_no_enum_ptr():
     assert len(edges) == 0
 
 def test_extract_method_dependencies_no_methods(dependency_setup):
-    with patch('scripts.src.utils.helper.get_model_all_methods') as mock_get_methods:
+    with patch('api.model.model.scripts.src.utils.helper.get_model_all_methods') as mock_get_methods:
         mock_get_methods.return_value = None
         extract_method_dependencies(
             dependency_setup['model_a'],
@@ -354,8 +355,8 @@ def test_process_inheritance_relationships_skips_django_base():
     process_inheritance_relationships(AnotherModel, model_ptr_map, edges, source_ptr)
     assert len(edges) == 0
 
-@patch('scripts.src.utils.relationship_handler.process_field_relationships')
-@patch('scripts.src.utils.relationship_handler.process_inheritance_relationships')
+@patch('api.model.model.scripts.src.utils.relationship_handler.process_field_relationships')
+@patch('api.model.model.scripts.src.utils.relationship_handler.process_inheritance_relationships')
 def test_process_model_relationships(mock_inheritance, mock_fields, model_setup):
     model = model_setup['child_model']
     model_ptr_map = model_setup['model_ptr_map']
@@ -381,7 +382,7 @@ def test_extract_method_dependencies_creates_edge(dependency_setup):
     Tests that a dependency edge IS created when a model name is in the code.
     """
     method_code = 'def method_a(self):\n    return "ModelB"'
-    with patch('scripts.src.utils.helper.get_model_all_methods') as mock_get_methods:
+    with patch('api.model.model.scripts.src.utils.helper.get_model_all_methods') as mock_get_methods:
         mock_get_methods.return_value = {'method_a': method_code}
         isolated_data = copy.deepcopy(dependency_setup['data'])
         

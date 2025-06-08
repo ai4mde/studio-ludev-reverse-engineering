@@ -2,15 +2,22 @@ import inspect
 import uuid
 import pytest
 import os
-import scripts.src.utils.helper as helper
+import api.model.importer.src.utils.helper as helper
 from django.db import models
 from django.apps import AppConfig, apps
 from unittest.mock import Mock
-from scripts.src.utils.helper import (
-    collect_all_valid_models, is_enum_field, get_model_all_methods,
-    verify_data_integrity, initialize_model_ptr_map, get_custom_methods, is_method_without_args
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../..")))
+from api.model.importer.src.utils.helper import (
+    verify_data_integrity, 
+    collect_all_valid_models, 
+    is_enum_field,
+    get_model_all_methods, 
+    initialize_model_ptr_map, 
+    get_custom_methods, 
+    is_method_without_args
 )
-from scripts.src.utils.django_environment_setup import configure_mock_django_settings
+from api.model.importer.src.utils.django_environment_setup import *
 
 print(">> CURRENT WORKING DIRECTORY:", os.getcwd())
 print(">> TESTS IMPORTING HELPER FROM:", helper.__file__)
